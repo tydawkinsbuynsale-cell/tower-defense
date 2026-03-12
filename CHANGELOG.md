@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 🎯 Coming Soon - Analytics System
+### 🎯 Coming Soon - Analytics & Online Features
 
 **Analytics & Telemetry**
 - **AnalyticsManager**: Comprehensive event tracking system
@@ -36,14 +36,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CSV export functionality
 - **Complete Documentation**: [ANALYTICS_GUIDE.md](ANALYTICS_GUIDE.md)
 
+**Leaderboard System**
+- **LeaderboardManager**: Competitive scoring with offline-first design
+  - Multiple leaderboard support (endless, daily, weekly)
+  - Player identity management with auto-generated IDs and names
+  - Local score storage with PlayerPrefs persistence
+  - 5-minute score caching to reduce API calls
+  - Backend-agnostic architecture (Unity Gaming Services, PlayFab, custom HTTP)
+  - Rich query API (top scores, player rank, nearby scores)
+  - Analytics integration for engagement tracking
+- **Leaderboard UI Components**:
+  - **LeaderboardUI**: Main display panel with tab switching
+    - Top scores display with rank, name, score
+    - Player highlight (gold) and top 3 tint (blue)
+    - Loading and error states
+    - Refresh and tab navigation
+  - **LeaderboardEntryUI**: Individual score row prefab
+    - Rank formatting (1st, 2nd, 3rd, #10)
+    - Medal icons for top 3 (gold/silver/bronze)
+    - Metadata display (wave number, challenge date)
+  - **PlayerNameDialog**: First launch name input
+    - Auto-show on first launch
+    - Random name generator (prefix+suffix+number)
+    - Name validation and sanitization
+    - Character count display
+- **EndlessMode Integration**:
+  - Automatic score submission on game over/victory
+  - Wave number included in metadata
+  - Combined score (base + endless bonus)
+- **Complete Documentation**: [LEADERBOARD_GUIDE.md](LEADERBOARD_GUIDE.md)
+  - Quick setup (5 minutes)
+  - Backend integration guides (Unity/PlayFab/Custom)
+  - UI configuration
+  - Testing procedures
+  - Best practices
+
 ### Planned Features
-- Endless mode implementation
-- Cloud save support
-- Leaderboards and online rankings
+- Cloud save support with conflict resolution
 - Additional tower types (Artillery Bot)
 - Additional enemy types (Cloaker)
 - Challenge mode with special modifiers
 - Daily missions system
+- Social features (friend leaderboards, sharing)
 
 ---
 

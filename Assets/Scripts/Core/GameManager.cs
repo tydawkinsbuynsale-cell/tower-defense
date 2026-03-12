@@ -291,6 +291,9 @@ namespace RobotTD.Core
             SetGameState(GameState.GameOver);
             OnGameOver?.Invoke();
             
+            // Post endless score if active
+            EndlessMode.Instance?.PostEndlessScore();
+            
             // Record game result in save system
             if (SaveManager.Instance != null && Map.MapManager.Instance != null)
             {
@@ -312,6 +315,9 @@ namespace RobotTD.Core
         {
             SetGameState(GameState.Victory);
             OnVictory?.Invoke();
+            
+            // Post endless score if active
+            EndlessMode.Instance?.PostEndlessScore();
             
             // Record game result in save system
             if (SaveManager.Instance != null && Map.MapManager.Instance != null)
