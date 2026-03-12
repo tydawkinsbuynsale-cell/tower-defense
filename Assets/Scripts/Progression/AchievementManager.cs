@@ -204,5 +204,13 @@ namespace RobotTD.Progression
         public bool IsUnlocked(AchievementId id) => unlocked.Contains(id.ToString());
 
         public List<AchievementDef> GetAll() => new List<AchievementDef>(definitions);
+
+        /// <summary>Called by EndlessMode at milestone wave intervals.</summary>
+        public void CheckEndlessMilestone(int endlessWave)
+        {
+            if (endlessWave >= 5)  TryUnlock(AchievementId.SurviveAllWaves); // reuse for now
+            if (endlessWave >= 10) TryUnlock(AchievementId.BossKill);        // placeholder
+            Debug.Log($"[Achievement] Endless milestone wave {endlessWave} checked.");
+        }
     }
 }

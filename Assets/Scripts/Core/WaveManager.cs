@@ -286,7 +286,9 @@ namespace RobotTD.Core
             if (totalWaves > 0 && CurrentWave >= totalWaves)
             {
                 OnAllWavesCompleted?.Invoke();
-                GameManager.Instance?.TriggerVictory();
+                Instance_OnAllWavesCompleted?.Invoke();   // EndlessMode hook
+                if (!IsEndlessMode)
+                    GameManager.Instance?.TriggerVictory();
                 return;
             }
 
@@ -329,13 +331,95 @@ namespace RobotTD.Core
             waypoints  = points;
         }
 
+        // ── Endless Mode Extensions ───────────────────────────────────────────
+
+        /// <summary>True while enemies are actively spawning or alive on the map.</summary>
+        public bool IsWaveActive => WaveInProgress || EnemiesRemaining > 0;
+
         /// <summary>
-        /// Set spawn point and waypoints (for map loading)
+        /// Static event fired when all designed waves complete.
+        /// EndlessMode subscribes to this to trigger the endless loop.
         /// </summary>
-        public void SetPath(Transform spawn, Transform[] points)
+        public static System.Action Instance_OnAllWavesCompleted;
+
+        /// <summary>True when EndlessMode has taken over wave generation.</summary>
+        public bool IsEndlessMode { get; private set; }
+
+        public void SetEndlessMode(bool enabled)
         {
-            spawnPoint = spawn;
-            waypoints = points;
+            IsEndlessMode = enabled;
+        }
+
+        /// <summary>
+        /// Spawn a single endless wave with the given scaling multipliers.
+        /// Called by EndlessMode each loop iteration.
+        /// </summary>
+        public void SpawnEndlessWave(int effectiveWave, int count, float hpMult, float spdMult)
+        {
+            if (WaveInProgress) return;
+
+            WaveInProgress = true;
+            spawnQueue.Clear();
+
+            // Build composition scaled to count
+            var composition = GenerateEndlessComposition(effectiveWave, count);
+            foreach (var type in composition)
+                spawnQueue.Enqueue(type);
+
+            EnemiesToSpawn = spawnQueue.Count;
+            EnemiesRemaining = EnemiesToSpawn;
+
+            // Override spawn multipliers temporarily via coroutine
+            spawnCoroutine = StartCoroutine(SpawnEndlessWaveRoutine(hpMult, spdMult));
+        }
+
+        private List<EnemyType> GenerateEndlessComposition(int wave, int count)
+        {
+            var list = new List<EnemyType>();
+            float bossChance = Mathf.Min(0.05f + wave * 0.005f, 0.25f);
+            float eliteChance = Mathf.Min(0.10f + wave * 0.01f, 0.40f);
+            float tankChance = 0.20f;
+
+            for (int i = 0; i < count; i++)
+            {
+                float r = UnityEngine.Random.value;
+                if (r < bossChance)         list.Add(EnemyType.Boss);
+                else if (r < eliteChance)   list.Add(EnemyType.Elite);
+                else if (r < tankChance)    list.Add(EnemyType.Tank);
+                else                        list.Add(EnemyType.Soldier);
+            }
+            return list;
+        }
+
+        private System.Collections.IEnumerator SpawnEndlessWaveRoutine(float hpMult, float spdMult)
+        {
+            while (spawnQueue.Count > 0)
+            {
+                if (GameManager.Instance == null || GameManager.Instance.IsGameOver) yield break;
+                if (spawnPoint == null) yield break;
+
+                EnemyType type = spawnQueue.Dequeue();
+                SpawnEnemy(type, hpMult, spdMult);
+                yield return new WaitForSeconds(timeBetweenSpawns);
+            }
+        }
+
+        private void SpawnEnemy(EnemyType type, float hpMult, float spdMult)
+        {
+            if (!enemyPrefabs.TryGetValue(type, out GameObject prefab)) return;
+
+            GameObject go = ObjectPooler.Instance != null
+                ? ObjectPooler.Instance.GetFromPool(prefab, spawnPoint.position, Quaternion.identity)
+                : Instantiate(prefab, spawnPoint.position, Quaternion.identity);
+
+            if (go == null) return;
+
+            if (go.TryGetComponent<Enemies.Enemy>(out var enemy))
+            {
+                enemy.Initialize(waypoints,
+                    healthMultiplier: hpMult,
+                    speedMultiplier: spdMult);
+            }
         }
     }
 }

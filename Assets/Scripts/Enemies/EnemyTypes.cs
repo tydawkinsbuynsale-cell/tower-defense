@@ -473,4 +473,197 @@ namespace RobotTD.Enemies
             }
         }
     }
+
+    /// <summary>
+    /// Swarm Mother Boss - Continuously spawns drone minions.
+    /// Focus fire required to stop the swarm.
+    /// </summary>
+    public class SwarmMotherBoss : BossEnemy
+    {
+        [Header("Swarm Mother Specific")]
+        [SerializeField] private GameObject dronePrefab;
+        [SerializeField] private float spawnInterval = 2f;
+        [SerializeField] private int maxDrones = 8;
+        [SerializeField] private Transform[] spawnPoints;
+        [SerializeField] private ParticleSystem spawnEffect;
+
+        private float spawnTimer;
+        private int currentDroneCount;
+
+        protected override void Update()
+        {
+            base.Update();
+
+            // Spawn drones periodically
+            if (!IsDead && currentDroneCount < maxDrones)
+            {
+                spawnTimer -= Time.deltaTime;
+                if (spawnTimer <= 0)
+                {
+                    SpawnDrone();
+                    spawnTimer = spawnInterval;
+                }
+            }
+        }
+
+        private void SpawnDrone()
+        {
+            if (dronePrefab == null) return;
+
+            Transform spawnPoint = spawnPoints != null && spawnPoints.Length > 0 
+                ? spawnPoints[Random.Range(0, spawnPoints.Length)]
+                : transform;
+
+            GameObject droneObj = Core.ObjectPooler.Instance?.GetPooledObject("Enemy_Drone");
+            if (droneObj == null)
+            {
+                droneObj = Instantiate(dronePrefab);
+            }
+
+            droneObj.transform.position = spawnPoint.position;
+            var drone = droneObj.GetComponent<Enemy>();
+            if (drone != null)
+            {
+                // Spawn at current position on path
+                Transform[] remainingPath = new Transform[waypoints.Length - currentWaypointIndex];
+                System.Array.Copy(waypoints, currentWaypointIndex, remainingPath, 0, remainingPath.Length);
+                drone.Initialize(remainingPath, 0.3f, 1.5f); // Low health, fast
+                
+                // Track drone count
+                currentDroneCount++;
+                drone.OnDied.AddListener(() => currentDroneCount--);
+            }
+
+            // Spawn effect
+            if (spawnEffect != null)
+            {
+                Instantiate(spawnEffect, spawnPoint.position, Quaternion.identity);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Shield Commander Boss - Provides shields to nearby enemies.
+    /// Must be eliminated to weaken enemy formations.
+    /// </summary>
+    public class ShieldCommanderBoss : BossEnemy
+    {
+        [Header("Shield Commander Specific")]
+        [SerializeField] private float shieldRadius = 8f;
+        [SerializeField] private float shieldAmount = 50f;
+        [SerializeField] private LayerMask enemyLayer;
+        [SerializeField] private ParticleSystem shieldAura;
+        [SerializeField] private GameObject shieldEffectPrefab;
+        [SerializeField] private float shieldRefreshInterval = 5f;
+
+        private System.Collections.Generic.Dictionary<Enemy, GameObject> shieldedEnemies = 
+            new System.Collections.Generic.Dictionary<Enemy, GameObject>();
+        private float shieldRefreshTimer;
+
+        protected override void Start()
+        {
+            base.Start();
+            if (shieldAura != null)
+            {
+                shieldAura.Play();
+            }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            // Refresh shields periodically
+            shieldRefreshTimer -= Time.deltaTime;
+            if (shieldRefreshTimer <= 0)
+            {
+                UpdateShields();
+                shieldRefreshTimer = shieldRefreshInterval;
+            }
+        }
+
+        private void UpdateShields()
+        {
+            if (IsDead) return;
+
+            // Find all enemies in range
+            Collider[] nearby = Physics.OverlapSphere(transform.position, shieldRadius, enemyLayer);
+            System.Collections.Generic.List<Enemy> enemiesInRange = new System.Collections.Generic.List<Enemy>();
+
+            foreach (var col in nearby)
+            {
+                Enemy enemy = col.GetComponent<Enemy>();
+                if (enemy != null && enemy != this && !enemy.IsDead)
+                {
+                    enemiesInRange.Add(enemy);
+                }
+            }
+
+            // Remove shields from enemies that left range
+            foreach (var kvp in shieldedEnemies.ToArray())
+            {
+                if (kvp.Key == null || !enemiesInRange.Contains(kvp.Key))
+                {
+                    RemoveShield(kvp.Key);
+                }
+            }
+
+            // Apply shields to enemies in range
+            foreach (var enemy in enemiesInRange)
+            {
+                if (!shieldedEnemies.ContainsKey(enemy))
+                {
+                    ApplyShield(enemy);
+                }
+            }
+        }
+
+        private void ApplyShield(Enemy enemy)
+        {
+            if (enemy == null) return;
+
+            // Visual shield effect
+            if (shieldEffectPrefab != null)
+            {
+                GameObject shield = Instantiate(shieldEffectPrefab, enemy.transform);
+                shield.transform.localPosition = Vector3.zero;
+                shield.transform.localScale = Vector3.one * 1.2f;
+                shieldedEnemies[enemy] = shield;
+            }
+
+            // Note: Actual shield mechanics would need to be implemented in Enemy class
+            // This is a visual representation
+        }
+
+        private void RemoveShield(Enemy enemy)
+        {
+            if (shieldedEnemies.ContainsKey(enemy))
+            {
+                if (shieldedEnemies[enemy] != null)
+                {
+                    Destroy(shieldedEnemies[enemy]);
+                }
+                shieldedEnemies.Remove(enemy);
+            }
+        }
+
+        protected override void Die()
+        {
+            // Remove all shields when commander dies
+            foreach (var enemy in shieldedEnemies.Keys.ToArray())
+            {
+                RemoveShield(enemy);
+            }
+            shieldedEnemies.Clear();
+
+            base.Die();
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            // Draw shield radius
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, shieldRadius);
+        }
+    }
 }

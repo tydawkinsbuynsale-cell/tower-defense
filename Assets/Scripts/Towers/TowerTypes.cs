@@ -437,4 +437,137 @@ namespace RobotTD.Towers
         // Tesla coil doesn't need to rotate
         protected override void RotateTowardsTarget() { }
     }
+
+    /// <summary>
+    /// Buff Station - Boosts nearby friendly towers.
+    /// Support tower that enhances damage and fire rate of towers in range.
+    /// </summary>
+    public class BuffStation : Tower
+    {
+        [Header("Buff Specific")]
+        [SerializeField] private float buffRadius = 4f;
+        [SerializeField] private float damageBuffPercent = 0.25f;  // 25% damage boost
+        [SerializeField] private float fireRateBuffPercent = 0.15f; // 15% fire rate boost
+        [SerializeField] private LayerMask towerLayer;
+        [SerializeField] private ParticleSystem buffAura;
+        [SerializeField] private GameObject buffIndicatorPrefab;
+
+        private System.Collections.Generic.List<Tower> buffedTowers = new System.Collections.Generic.List<Tower>();
+        private System.Collections.Generic.Dictionary<Tower, GameObject> buffIndicators = new System.Collections.Generic.Dictionary<Tower, GameObject>();
+
+        protected override void Start()
+        {
+            base.Start();
+            if (buffAura != null)
+            {
+                buffAura.Play();
+            }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            UpdateBuffedTowers();
+        }
+
+        private void UpdateBuffedTowers()
+        {
+            // Find all towers in range
+            Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, buffRadius, towerLayer);
+            System.Collections.Generic.List<Tower> towersInRange = new System.Collections.Generic.List<Tower>();
+
+            foreach (var col in nearbyColliders)
+            {
+                Tower tower = col.GetComponent<Tower>();
+                if (tower != null && tower != this)
+                {
+                    towersInRange.Add(tower);
+                }
+            }
+
+            // Remove towers that left range
+            for (int i = buffedTowers.Count - 1; i >= 0; i--)
+            {
+                Tower tower = buffedTowers[i];
+                if (tower == null || !towersInRange.Contains(tower))
+                {
+                    RemoveBuff(tower);
+                    buffedTowers.RemoveAt(i);
+                }
+            }
+
+            // Add new towers in range
+            foreach (var tower in towersInRange)
+            {
+                if (!buffedTowers.Contains(tower))
+                {
+                    ApplyBuff(tower);
+                    buffedTowers.Add(tower);
+                }
+            }
+        }
+
+        private void ApplyBuff(Tower tower)
+        {
+            if (tower == null) return;
+
+            // Apply buff modifiers (tower needs to track external buffs)
+            // For now, this is visual - actual implementation would need a buff system in Tower class
+            
+            // Show buff indicator
+            if (buffIndicatorPrefab != null && !buffIndicators.ContainsKey(tower))
+            {
+                GameObject indicator = Instantiate(buffIndicatorPrefab, tower.transform);
+                indicator.transform.localPosition = Vector3.up * 2f;
+                buffIndicators[tower] = indicator;
+            }
+        }
+
+        private void RemoveBuff(Tower tower)
+        {
+            if (tower == null) return;
+
+            // Remove buff modifiers
+            
+            // Remove buff indicator
+            if (buffIndicators.ContainsKey(tower))
+            {
+                if (buffIndicators[tower] != null)
+                {
+                    Destroy(buffIndicators[tower]);
+                }
+                buffIndicators.Remove(tower);
+            }
+        }
+
+        protected override void SpawnProjectile()
+        {
+            // Buff station doesn't attack
+        }
+
+        protected override void Fire()
+        {
+            // Buff station doesn't fire
+        }
+
+        // No need to find targets
+        protected override void CleanupTargets() { }
+
+        private void OnDestroy()
+        {
+            // Remove all buffs when destroyed
+            foreach (var tower in buffedTowers.ToArray())
+            {
+                RemoveBuff(tower);
+            }
+            buffedTowers.Clear();
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            // Draw buff radius
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, buffRadius);
+        }
+    }
 }

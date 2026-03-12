@@ -417,6 +417,21 @@ namespace RobotTD.Towers
             placedTowers.Remove(tower);
         }
 
+        /// <summary>Tutorial helper — true once the player has placed at least one tower.</summary>
+        public static bool HasPlacedAnyTower()
+        {
+            return Instance != null && Instance.placedTowers.Count > 0;
+        }
+
+        /// <summary>Tutorial helper — true once any placed tower has been upgraded.</summary>
+        public static bool HasUpgradedAnyTower()
+        {
+            if (Instance == null) return false;
+            foreach (var t in Instance.placedTowers)
+                if (t != null && t.Level > 1) return true;
+            return false;
+        }
+
         #endregion
     }
 

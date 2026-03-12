@@ -174,6 +174,15 @@ namespace RobotTD.Core
         #region Lives & Score
 
         /// <summary>
+        /// Grant additional lives (TechTree bonus, milestone reward, etc.)
+        /// </summary>
+        public void AddLives(int amount)
+        {
+            Lives += amount;
+            OnLivesChanged?.Invoke(Lives);
+        }
+
+        /// <summary>
         /// Called when an enemy reaches the end
         /// </summary>
         public void LoseLife(int amount = 1)
