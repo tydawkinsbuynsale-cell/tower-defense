@@ -7,6 +7,111 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🎯 Coming Soon - V2.0 Features
+
+**Version 2.0 Roadmap**
+- iOS platform support with mobile-optimized UI
+- Multiplayer co-op mode with real-time collaboration
+- Custom map editor with sharing capabilities
+- Steam platform release with achievements
+
+---
+
+## [Version 1.3] - Authentication System
+
+### Added
+
+**Authentication System** 🔐
+- **AuthenticationManager**: Unified player authentication with session management
+  - Multi-backend support: Unity Gaming Services, PlayFab, Custom HTTP server
+  - Backend-agnostic API with preprocessor directives
+  - Singleton pattern with DontDestroyOnLoad persistence
+  - Session persistence across app restarts
+  - Token management and automatic refresh
+  - Account linking support (upgrade guest to permanent)
+- **Authentication Methods (3 types)**:
+  - **Anonymous/Guest**: Instant sign-in, no credentials required
+    - Device-tied account with automatic ID generation
+    - Upgradeable to permanent account later
+    - Perfect for quick onboarding
+  - **Email/Password**: Traditional account authentication
+    - Secure credential handling via backend
+    - Password minimum 6 characters
+    - Email format validation
+    - Account recovery support (backend-dependent)
+  - **Device ID**: Silent authentication
+    - Uses SystemInfo.deviceUniqueIdentifier
+    - Falls back to GUID if unavailable
+    - Persistent across app restarts
+    - Cross-platform device tracking
+- **Session Management**:
+  - Automatic session persistence in PlayerPrefs
+  - Token validation on app start
+  - Auto-restore previous session if valid
+  - Token expiration handling (24-hour tokens typical)
+  - Manual token refresh API
+  - Full session cleanup on sign-out
+- **Event System**:
+  - OnAuthenticationStateChanged(bool isAuth)
+  - OnSignInSuccess(string playerId, string playerName)
+  - OnSignInFailed(string error)
+  - OnSignOut()
+  - OnError(string error)
+- **Integration with Online Systems**:
+  - **CloudSaveManager**: Waits for authentication before syncing
+    - Uses auth token for API authorization
+    - Auto-pulls cloud data on sign-in
+    - Supports offline mode if not authenticated
+  - **LeaderboardManager**: Uses authenticated player info
+    - Syncs player ID from AuthenticationManager
+    - Falls back to local PlayerPrefs if not authenticated
+    - Scores tied to authenticated accounts
+- **UI Components**:
+  - **LoginUI**: Sign-in interface with tab switching
+    - Anonymous and email/password forms
+    - Input validation (email format, password length)
+    - Loading state with animated spinner
+    - Error display panel with dismiss button
+    - Enter key submission support
+    - Success message with auto-close
+  - **AccountUI**: Player account status display
+    - Player name and ID display (shortened)
+    - Auth status indicator with color coding
+      - Green: Authenticated (full account)
+      - Yellow: Guest Account (anonymous)
+      - Gray: Not Signed In
+    - Sign-out button
+    - Link account button (for guest accounts)
+    - Auto-refresh on auth state change
+- **Configuration Options**:
+  - Auto sign-in on start (default: true)
+  - Allow guest mode (default: true)
+  - Persist session (default: true)
+  - Preferred backend selection
+  - Custom backend URL configuration
+  - Verbose logging toggle
+- **Security Features**:
+  - Token expiration validation
+  - Secure token storage in PlayerPrefs
+  - HTTPS required for custom backends
+  - Backend-handled password security
+  - Device ID fallback with GUID generation
+- **Complete Documentation**: [AUTHENTICATION_GUIDE.md](AUTHENTICATION_GUIDE.md)
+  - Architecture overview and state machine diagrams
+  - Backend setup guides (Unity/PlayFab/Custom)
+  - Authentication method explanations
+  - UI component setup instructions
+  - Integration examples with CloudSave and Leaderboards
+  - Testing scenarios and debug tools
+  - Best practices and security guidelines
+  - Comprehensive troubleshooting guide
+
+---
+
+## [Version 1.2] - Boss Rush & Mega Factory
+
+### Added
+
 ### 🎯 Coming Soon - Analytics & Online Features
 
 **Analytics & Telemetry**
