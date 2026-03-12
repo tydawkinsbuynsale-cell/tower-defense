@@ -688,12 +688,123 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - AdaptiveStrategyData: Strategy configuration with multipliers
     - TowerPlacementPattern: Tower usage tracking
 
-- **Accessibility Features**:
-  - Colorblind modes (Deuteranopia, Protanopia, Tritanopia)
-  - Screen reader support (menu navigation, stats)
-  - Remappable controls and customizable touch zones
-  - Text size scaling and high contrast UI options
-  - One-handed mode for mobile devices
+- **Accessibility Features** ✅:
+  - **AccessibilityManager Component**:
+    - Singleton design pattern with DontDestroyOnLoad persistence
+    - Separate namespace RobotTD.Accessibility for inclusive gameplay systems
+    - Comprehensive accessibility suite for users with diverse needs
+    - Multiple accessibility modes: colorblind, screen reader, high contrast, one-handed
+    - Control remapping system with 13 default actions
+    - Touch zone customization for mobile devices
+    - Text scaling with configurable range (0.8x - 2.0x)
+    - Verbose logging for accessibility features usage
+  - **Colorblind Support**:
+    - SetColorblindMode(ColorblindMode) applies color filters
+    - 4 colorblind modes: None, Protanopia (red-weak), Deuteranopia (green-weak), Tritanopia (blue-yellow)
+    - ApplyColorblindMode() sets global shader properties for visual adjustments
+    - Configurable colorblind intensity (default 1.0)
+    - GetColorblindMode() returns current mode
+    - Shader.SetGlobalFloat("_ColorblindMode") for material integration
+    - Color filter vectors for each colorblind type
+    - Real-time mode switching without restart
+  - **Text Scaling**:
+    - SetTextScale(float) adjusts all UI text size
+    - Scale range: 0.8x (80%) to 2.0x (200%)
+    - GetTextScale() returns current scale factor
+    - ApplyTextScale() sets global shader property for UI text
+    - Shader.SetGlobalFloat("_TextScale") for TMPro components
+    - Instant text size updates across all UI
+    - Accessibility announcement for scale changes
+  - **Screen Reader Support**:
+    - EnableScreenReader(bool) toggles text-to-speech functionality
+    - AnnounceToScreenReader(string) queues announcements
+    - ProcessScreenReaderQueue() coroutine for sequential announcements
+    - Configurable screen reader speed (0.5x - 2.0x)
+    - IsScreenReaderEnabled() checks current state
+    - SetScreenReaderSpeed(float) adjusts reading rate
+    - UI change announcements (optional toggle)
+    - OnScreenReaderAnnouncement event for platform integration
+    - Queue-based announcement system to prevent overlapping speech
+  - **Control Remapping**:
+    - RemapControl(action, newKey) rebinds keyboard/mouse controls
+    - GetKeyForAction(action) retrieves current key binding
+    - ResetControlMappings() restores default bindings
+    - GetAllControlMappings() returns complete mapping dictionary
+    - 13 remappable actions: pause, place_tower, cancel, upgrade, sell, start_wave, fast_forward, camera (WASD), zoom (E/Q)
+    - LoadControlMappings() and SaveControlMappings() for persistence
+    - OnControlRemapped event for UI updates
+    - Duplicate key detection and conflict prevention
+  - **Touch Zone Customization**:
+    - SetTouchZonePosition(zoneName, normalizedPos) moves UI elements
+    - GetTouchZonePosition(zoneName) retrieves zone position
+    - ResetTouchZones() restores default layout
+    - 6 customizable touch zones: tower_menu, wave_start, pause, fast_forward, upgrade, sell
+    - Normalized coordinates (0-1) for resolution independence
+    - Clamping to screen bounds for safety
+    - LoadTouchZones() and SaveTouchZones() for persistence
+    - OnTouchZoneMoved analytics tracking
+  - **High Contrast Mode**:
+    - EnableHighContrast(bool) toggles high contrast visuals
+    - IsHighContrastEnabled() checks current state
+    - Shader.SetGlobalFloat("_HighContrast") for material integration
+    - Enhanced visibility for UI elements
+    - Increased border thickness and color separation
+    - OnHighContrastToggled event for UI updates
+  - **One-Handed Mode**:
+    - EnableOneHandedMode(bool) adapts UI for thumb-reachable positions
+    - IsOneHandedModeEnabled() checks current state
+    - AdjustTouchZonesForOneHandedMode() repositions UI to lower half and right side
+    - Touch zones moved to thumb-accessible area (bottom 50% of screen)
+    - OnOneHandedModeToggled event for layout changes
+    - Ideal for mobile gameplay with single hand
+  - **Additional Options**:
+    - SetReduceMotion(bool) minimizes animations for motion sensitivity
+    - SetSimplifyUI(bool) removes non-essential visual elements
+    - GetCurrentSettings() returns complete accessibility configuration
+    - Shader global properties for visual adjustments
+    - Smooth transitions when enabling/disabling features
+  - **Local Storage**:
+    - AccessibilitySettings saved to PlayerPrefs (JSON serialization)
+    - ControlMappingsData: Serialized control bindings
+    - TouchZonesData: Serialized touch zone positions
+    - Load on initialization, save after each change
+    - PlayerPrefs keys: "AccessibilitySettings", "ControlMappings", "TouchZones"
+    - Settings persist across game sessions
+  - **Events System**:
+    - OnColorblindModeChanged(ColorblindMode) - Color filter changed
+    - OnTextScaleChanged(float) - Text size adjusted
+    - OnScreenReaderToggled(bool) - TTS enabled/disabled
+    - OnHighContrastToggled(bool) - High contrast toggled
+    - OnOneHandedModeToggled(bool) - One-handed mode toggled
+    - OnControlRemapped(string, KeyCode) - Key binding changed
+    - OnScreenReaderAnnouncement(string) - Text announced for TTS integration
+  - **Analytics Integration** (8 new events):
+    - accessibility_initialized: System startup with current settings
+    - colorblind_mode_changed: Mode change with filter type and intensity
+    - text_scale_changed: Text size adjustment with scale factor
+    - screen_reader_toggled: TTS enabled/disabled state
+    - high_contrast_toggled: High contrast enabled/disabled state
+    - one_handed_mode_toggled: One-handed mode enabled/disabled state
+    - control_remapped: Control rebinding with action and keys
+    - touch_zone_moved: Touch zone repositioned with coordinates
+  - **Configuration Options**:
+    - Enable/disable accessibility system toggle
+    - Default colorblind mode (None, Protanopia, Deuteranopia, Tritanopia)
+    - Colorblind intensity (0.0 - 1.0)
+    - Text scale range (min 0.8x, max 2.0x, default 1.0x)
+    - Screen reader speed (0.5x - 2.0x)
+    - Announce UI changes toggle
+    - Enable remappable controls toggle
+    - Enable one-handed mode toggle
+    - Enable high contrast toggle
+    - Reduce motion toggle
+    - Simplify UI toggle
+    - Verbose logging for debugging
+  - **Data Structures**:
+    - ColorblindMode: Enum with 4 modes (None, Protanopia, Deuteranopia, Tritanopia)
+    - AccessibilitySettings: Complete accessibility configuration
+    - ControlMappingsData: Serialization helper for key bindings
+    - TouchZonesData: Serialization helper for touch zone positions
 - **Analytics Dashboard**:
   - In-game stats viewer (kills, accuracy, efficiency)
   - Performance tracking over time (graphs, trends)

@@ -169,6 +169,16 @@ namespace RobotTD.Analytics
         public const string ADVANCED_AI_INITIALIZED = "advanced_ai_initialized";
         public const string DIFFICULTY_ADJUSTED = "difficulty_adjusted";
         public const string AI_STRATEGY_CHANGED = "ai_strategy_changed";
+        
+        // ── Accessibility Events ──────────────────────────────────────────────
+        public const string ACCESSIBILITY_INITIALIZED = "accessibility_initialized";
+        public const string COLORBLIND_MODE_CHANGED = "colorblind_mode_changed";
+        public const string TEXT_SCALE_CHANGED = "text_scale_changed";
+        public const string SCREEN_READER_TOGGLED = "screen_reader_toggled";
+        public const string HIGH_CONTRAST_TOGGLED = "high_contrast_toggled";
+        public const string ONE_HANDED_MODE_TOGGLED = "one_handed_mode_toggled";
+        public const string CONTROL_REMAPPED = "control_remapped";
+        public const string TOUCH_ZONE_MOVED = "touch_zone_moved";
     }
 
     /// <summary>
