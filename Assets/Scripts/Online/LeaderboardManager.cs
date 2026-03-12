@@ -23,6 +23,7 @@ namespace RobotTD.Online
 
         [Header("Leaderboard IDs")]
         [SerializeField] private string endlessLeaderboardId = "endless_high_score";
+        [SerializeField] private string bossRushLeaderboardId = "boss_rush_score";
         [SerializeField] private string dailyLeaderboardId = "daily_challenge";
         [SerializeField] private string weeklyLeaderboardId = "weekly_challenge";
 
@@ -204,8 +205,20 @@ namespace RobotTD.Online
             SubmitScore(endlessLeaderboardId, score, metadata);
         }
 
-        /// <summary>
-        /// Submit daily challenge score.
+        /// <summary>        /// Submit boss rush mode score.
+        /// </summary>
+        public void SubmitBossRushScore(int bossesDefeated, long score)
+        {
+            var metadata = new Dictionary<string, object>
+            {
+                { "bosses_defeated", bossesDefeated },
+                { "timestamp", DateTime.UtcNow.ToString("o") }
+            };
+
+            SubmitScore(bossRushLeaderboardId, score, metadata);
+        }
+
+        /// <summary>        /// Submit daily challenge score.
         /// </summary>
         public void SubmitDailyScore(long score, string challengeId)
         {

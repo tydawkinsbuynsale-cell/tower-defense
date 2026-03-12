@@ -299,6 +299,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Troubleshooting guide
   - Advanced features (detection towers, true sight)
 
+**Boss Rush Mode** 👹
+- **BossRushMode**: Sequential boss battle game mode with escalating difficulty
+  - Face one boss at a time in endless gauntlet
+  - Each boss significantly stronger than previous
+  - 30-second prep phase between bosses for tower upgrades
+  - Rewards scale with boss number defeated
+  - Leaderboard integration for competitive play
+  - Personal best tracking (bosses defeated, high score)
+- **BossRushMode.cs** (Core System, 320 lines):
+  - Singleton pattern with static event system
+  - OnBossEncounterStarted(int boss, string name) - fired when boss spawns
+  - OnBossDefeated(int boss, int credits) - fired when boss eliminated
+  - OnPrepPhaseStarted() - fired at start of break time
+  - Sequential boss queue with configurable boss prefabs
+  - BossRushLoop() coroutine for continuous encounters
+  - PrepPhase() coroutine with countdown timer
+  - Configurable scaling parameters (HP, speed, rewards)
+  - PostBossRushScore() for leaderboard submission and save data
+- **Boss Types** (Already Existed):
+  - **BossEnemy** base class: Health regeneration (1%/sec), enrage at 25% HP (+50% speed)
+  - **SwarmMotherBoss**: Spawns drone minions every 2 seconds (max 8)
+  - **ShieldCommanderBoss**: Provides shields to nearby enemies (8 unit radius)
+  - **Tank Destroyer**: High damage, armored (future enhancement)
+  - **Repair Master**: Advanced healing (future enhancement)
+  - **Artillery Juggernaut**: Long-range attacks (future enhancement)
+- **Scaling System**:
+  - Boss Health: +50% per boss (very aggressive scaling)
+  - Boss Speed: +10% per boss  - Rewards: 500 base + (boss# * 100) credits per defeat
+  - Boss 1: 100% HP, 100% speed, 500 credits
+  - Boss 5: 300% HP, 150% speed, 900 credits
+  - Boss 10: 550% HP, 200% speed, 1,400 credits
+- **SaveManager Integration**:
+  - PlayerSaveData.bossRushBestRun - most bosses defeated
+  - PlayerSaveData.bossRushHighScore - best score achieved
+  - PlayerSaveData.bossRushGamesPlayed - total sessions
+  - Persistent tracking across sessions
+  - New record detection and logging
+- **UI Integration**:
+  - **GameHUD.cs**: In-game boss rush display
+    - Red-colored "BOSS X: [Name]" text during encounters
+    - "Preparation Phase" cyan text during breaks
+    - Boss encounter warnings with toast notifications
+    - Boss defeated celebrations with credit totals
+    - Prep phase countdown timer on button text
+  - **BossRushUI.cs**: Main menu info panel (180 lines)
+    - Boss rush mode description and how-to-play guide
+    - Personal best display (bosses defeated, high score)
+    - Boss type information with scaling details
+    - Reward breakdown and progression
+    - Leaderboard access button
+    - Start Boss Rush button (scene loading hook)
+    - "Not Yet Played" state for new players
+  - **MainMenuUI.cs**: Boss rush button integration
+    - New "Boss Rush" button in main panel
+    - Direct access to BossRushUI panel
+    - Audio feedback on button press
+- **Leaderboard Integration**:
+  - LeaderboardManager.SubmitBossRushScore(bosses, score) submission
+  - "boss_rush_score" leaderboard ID
+  - Bosses defeated count in score metadata
+  - LeaderboardUI.ShowBossRushLeaderboard() display method (future)
+  - Boss rush tab in leaderboard UI (future enhancement)
+- **Game Balance**:
+  - Starting Resources: 1000 credits, 20 lives (more generous than campaign)
+  - Boss HP scaling is aggressive to create challenge curve
+  - Prep time crucial for economy management and upgrades
+  - Late-game bosses (10+) require optimized tower compositions
+  - Milestone rewards help sustain long runs
+- **Strategic Considerations**:
+  - Tower composition must handle all boss abilities
+  - Economy management critical - use prep time wisely
+  - Boss-specific counters (range for Swarm Mother, burst for Shield Commander)
+  - Long-term tower investment becomes essential
+  - Map positioning and coverage increasingly important
+  - Achievement system support for boss milestones
+- **Integration Notes**:
+  - Requires boss spawn point configuration per map
+  - Boss prefabs must be assigned in Inspector
+  - Compatible with Challenge Mode (future: boss rush challenges)
+  - Works with existing WaveManager infrastructure
+  - Uses ObjectPooler for efficient boss spawning
+
 ### Planned Features
 - Cloud save support with conflict resolution
 - Weekly missions (extended version of daily missions)
