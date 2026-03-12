@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using RobotTD.Core;
+using RobotTD.Analytics;
 
 namespace RobotTD.Towers
 {
@@ -264,6 +265,14 @@ namespace RobotTD.Towers
                     
                     // Track tower placement in save data
                     Core.SaveManager.Instance?.RecordTowerPlaced();
+
+                    // Track tower placement analytics
+                    AnalyticsManager.Instance?.TrackTowerPlaced(
+                        selectedTowerData.towerType.ToString(),
+                        1,
+                        selectedTowerData.cost,
+                        new Vector2(position.x, position.z)
+                    );
 
                     // Notify achievement manager
                     Progression.AchievementManager.Instance?.OnTowerPlaced(selectedTowerData.towerType);
