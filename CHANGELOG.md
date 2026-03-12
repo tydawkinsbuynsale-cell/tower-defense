@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - iOS platform support with mobile-optimized UI ✅
 - Multiplayer co-op mode with real-time collaboration ✅
 - Custom map editor with sharing capabilities ✅
+  - Grid-based tile editing ✅
+  - Custom wave configuration ✅
+  - Test play system ✅
+  - Map storage and library ✅
 - Steam platform release with achievements
 
 ---
