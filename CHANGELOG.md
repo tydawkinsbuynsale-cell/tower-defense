@@ -295,6 +295,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Map initialization checks
     - Reference validation with user feedback
     - Seamless integration with existing editor workflow
+- **Wave Configuration UI Setup Guide** ✅:
+  - **Documentation File**: WAVE_CONFIG_UI_SETUP.md
+  - **Wave Card Prefab Specification**:
+    - Complete hierarchy and component breakdown
+    - RectTransform anchor configurations
+    - Required child objects: WaveNumberText, EnemyCountText, RewardText, EditButton, DeleteButton
+    - Button styling and interaction specifications
+    - Visual design guidelines with measurements
+  - **Enemy Group Prefab Specification**:
+    - Full prefab structure documentation
+    - Component requirements: EnemyTypeDropdown, CountInput, SpawnIntervalInput, DeleteButton
+    - TMP_Dropdown setup instructions
+    - Input field validation specifications
+    - Layout and positioning details
+  - **Scene Setup Instructions**:
+    - Complete MapEditor scene hierarchy
+    - WaveConfigurationUI GameObject structure
+    - 40+ serialized field assignments documented
+    - Layout Group configurations (Vertical Layout, Content Size Fitter)
+    - ScrollRect setup recommendations
+    - MapEditorUI integration steps
+  - **Testing Checklist**:
+    - 15+ test cases for wave card functionality
+    - 7+ test cases for enemy group prefab
+    - 8+ full system integration tests
+    - Verification steps for all features
+  - **Styling Guidelines**:
+    - Color scheme specifications (6 theme colors)
+    - Font size standards (4 categories)
+    - Spacing guidelines (4 levels)
+    - Consistent UI/UX patterns
+  - **Troubleshooting Section**:
+    - Common error resolutions
+    - Object naming verification steps
+    - Layout debugging guidance
+    - Dropdown setup fixes
+  - **Implementation Support**:
+    - Step-by-step Unity editor instructions
+    - Component configuration details
+    - Visual examples and ASCII diagrams
+    - Best practices and recommendations
 - **Community Features** (planned):
   - Map publishing to cloud
   - Community map browser
