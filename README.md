@@ -153,7 +153,7 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Sort by: recent, played, rated, liked, name
   - Download and play community maps
 - Keyboard shortcuts: Ctrl+Z/Y (undo/redo), Ctrl+S (save)
-- Analytics integration: 43 events (20 editor + 8 wave config + 1 thumbnail + 6 community + 3 Steam + 5 events)
+- Analytics integration: 50 events (20 editor + 8 wave config + 1 thumbnail + 6 community + 3 Steam + 5 events + 7 tournament)
 
 **✅ Seasonal Events System**
 - Limited-time events (Halloween, Christmas, etc.)
@@ -1001,9 +1001,9 @@ Copyright © 2026 Your Studio. All rights reserved.
 - [x] Custom map editor with community sharing ✅
 - [x] Steam platform integration with achievements ✅
 
-### Version 3.0 (Planned)
-- [ ] Seasonal Events system (limited-time challenges, exclusive rewards)
-- [ ] Tournament Mode (competitive ladder, ranked matches, weekly tournaments)
+### Version 3.0 (In Progress)
+- [x] Seasonal Events system (limited-time challenges, exclusive rewards) ✅
+- [x] Tournament Mode (competitive ladder, ranked matches, weekly tournaments) ✅
 - [ ] Advanced Customization (tower skins, map themes, UI themes)
 - [ ] Expanded Content Pack:
   - [ ] 5 new tower types (Laser Grid, EMP Tower, Mine Layer, Support Drone, Weather Control)
