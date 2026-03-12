@@ -264,6 +264,9 @@ namespace RobotTD.Towers
                     
                     // Track tower placement in save data
                     Core.SaveManager.Instance?.RecordTowerPlaced();
+
+                    // Notify achievement manager
+                    Progression.AchievementManager.Instance?.OnTowerPlaced(selectedTowerData.towerType);
                 }
 
                 // Play placement sound

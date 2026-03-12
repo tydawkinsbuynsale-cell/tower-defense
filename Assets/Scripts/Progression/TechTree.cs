@@ -138,6 +138,15 @@ namespace RobotTD.Progression
 
             Core.SaveManager.Instance.Save();
             OnTreeChanged?.Invoke();
+
+            // Track achievement - count total upgrades across all branches
+            int totalUpgrades = 0;
+            foreach (TechUpgrade tech in Enum.GetValues(typeof(TechUpgrade)))
+            {
+                totalUpgrades += GetLevel(tech);
+            }
+            AchievementManager.Instance?.OnTechUpgrade(totalUpgrades);
+
             return true;
         }
 
@@ -147,6 +156,11 @@ namespace RobotTD.Progression
                 if (n.upgrade == upgrade) return n;
             return null;
         }
+
+        /// <summary>
+        /// Credit reward multiplier (alias for backward compatibility)
+        /// </summary>
+        public float CreditRewardMultiplier => KillRewardMultiplier;
 
         public int GetUpgradeCost(TechUpgrade upgrade)
         {

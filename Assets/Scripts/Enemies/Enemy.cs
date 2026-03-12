@@ -228,6 +228,14 @@ namespace RobotTD.Enemies
             // Track kill in save data
             Core.SaveManager.Instance?.AddKills(1);
 
+            // Check if this is a boss
+            if (enemyData.enemyType == EnemyTypes.SwarmMotherBoss || 
+                enemyData.enemyType == EnemyTypes.ShieldCommanderBoss ||
+                enemyData.enemyType == EnemyTypes.TitanBoss)
+            {
+                Progression.AchievementManager.Instance?.OnBossKilled();
+            }
+
             // Notify wave manager
             Core.WaveManager.Instance?.OnEnemyRemoved();
 

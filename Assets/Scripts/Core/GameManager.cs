@@ -102,6 +102,9 @@ namespace RobotTD.Core
             OnScoreChanged?.Invoke(Score);
 
             SetGameState(GameState.Playing);
+
+            // Reset achievement session tracking
+            Progression.AchievementManager.Instance?.ResetSessionTracking();
         }
 
         /// <summary>
@@ -214,6 +217,9 @@ namespace RobotTD.Core
             Lives = Mathf.Max(0, Lives - amount);
             OnLivesChanged?.Invoke(Lives);
 
+            // Notify achievement manager
+            Progression.AchievementManager.Instance?.OnLifeLost();
+
             if (Lives <= 0)
             {
                 TriggerGameOver();
@@ -312,6 +318,9 @@ namespace RobotTD.Core
                 {
                     SaveManager.Instance.UnlockMap(nextMapId);
                 }
+
+                // Trigger achievement checks
+                Progression.AchievementManager.Instance?.CheckVictory(gameTime, stars, Lives, StartingLives);
             }
         }
 

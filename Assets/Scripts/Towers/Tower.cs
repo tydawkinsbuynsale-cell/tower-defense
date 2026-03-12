@@ -269,6 +269,9 @@ namespace RobotTD.Towers
                 
                 // Track upgrade in save data
                 Core.SaveManager.Instance?.RecordTowerUpgraded();
+
+                // Notify achievement manager
+                Progression.AchievementManager.Instance?.OnTowerUpgraded(currentLevel);
                 
                 // Update range indicator
                 SetupRangeIndicator();
@@ -278,6 +281,10 @@ namespace RobotTD.Towers
         public virtual void Sell()
         {
             Core.GameManager.Instance.AddCredits(SellValue);
+            
+            // Notify achievement manager
+            Progression.AchievementManager.Instance?.OnTowerSold();
+            
             Destroy(gameObject);
         }
 

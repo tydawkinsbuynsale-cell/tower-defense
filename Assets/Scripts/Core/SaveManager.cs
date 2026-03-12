@@ -115,6 +115,13 @@ namespace RobotTD.Core
             if (Data != null)
             {
                 Data.totalPlayTimeSeconds += Time.unscaledDeltaTime;
+                
+                // Check play time achievements periodically (every 60 seconds)
+                if (Time.frameCount % 3600 == 0) // ~60 seconds at 60 FPS
+                {
+                    float totalHours = Data.totalPlayTimeSeconds / 3600f;
+                    Progression.AchievementManager.Instance?.CheckPlayTime(totalHours);
+                }
             }
 
             // Auto-save every minute (only if data changed)
@@ -353,6 +360,9 @@ namespace RobotTD.Core
             Data.totalCreditsEarned += amount;
             Data.currentSessionCreditsEarned += amount;
             isDirty = true;
+
+            // Check credit achievements
+            Progression.AchievementManager.Instance?.CheckCreditsEarned(Data.totalCreditsEarned);
         }
 
         public void RecordTowerPlaced()
