@@ -219,11 +219,124 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - TournamentEntry: Player tournament participation data
     - MatchmakingQueue: Server queue management helper
     - TournamentHistoryData: Serialization helper for history
-- **Advanced Customization**:
-  - Tower skin system (30+ cosmetic skins)
-  - Map theme packs (sci-fi, fantasy, post-apocalyptic)
-  - UI theme customization (dark mode, colorblind modes)
-  - Player profile customization (avatars, banners, titles)
+- **Advanced Customization** ✅:
+  - **CustomizationManager Component**:
+    - Singleton design pattern with DontDestroyOnLoad persistence
+    - Separate namespace RobotTD.Customization for cosmetic systems
+    - Comprehensive unlock/equip system for all customization types
+    - Collection tracking with completion percentages
+    - Verbose logging for debugging
+  - **Tower Skin System**:
+    - TowerSkinData: Skin ID, name, tower type, rarity, preview, prefab
+    - 5 rarity levels: Common, Uncommon, Rare, Epic, Legendary
+    - UnlockTowerSkin(skinId) for unlocking skins
+    - EquipTowerSkin(towerType, skinId) for equipping per tower type
+    - GetEquippedTowerSkin(towerType) retrieves active skin
+    - GetTowerSkinsForType(towerType) filters by tower
+    - GetUnlockedTowerSkins() returns all unlocked skins
+    - IsTowerSkinUnlocked(skinId) for ownership checks
+    - Dictionary storage: towerId -> skinId mapping
+    - Per-tower-type skin assignment (supports different skins per type)
+  - **Map Theme System**:
+    - MapThemeData: Theme ID, name, description, preview, materials, ambient color
+    - Visual style packs (sci-fi, fantasy, post-apocalyptic, etc.)
+    - Ground and path material customization
+    - Ambient color/lighting per theme
+    - UnlockMapTheme(themeId) for unlocking themes
+    - EquipMapTheme(themeId) for applying themes
+    - GetEquippedMapTheme() retrieves active theme
+    - GetUnlockedMapThemes() returns all unlocked themes
+    - IsMapThemeUnlocked(themeId) for ownership checks
+  - **UI Theme System**:
+    - UIThemeData: Theme ID, name, type, 6 color channels (primary, secondary, accent, background, text, button)
+    - 6 theme types: Standard, DarkMode, Protanopia, Deuteranopia, Tritanopia, HighContrast
+    - Colorblind support: Red-blind (Protanopia), Green-blind (Deuteranopia), Blue-blind (Tritanopia)
+    - UnlockUITheme(themeId) for unlocking themes
+    - EquipUITheme(themeId) applies theme immediately
+    - ApplyUITheme(themeId) internal application logic
+    - GetCurrentUIThemeData() retrieves active theme data
+    - GetUnlockedUIThemes() returns all unlocked themes
+    - IsUIThemeUnlocked(themeId) for ownership checks
+    - OnUIThemeChanged event for UI updates
+  - **Player Profile System**:
+    - AvatarData: Avatar ID, name, image sprite, default flag, unlock requirement
+    - BannerData: Banner ID, name, image sprite, default flag, unlock requirement
+    - TitleData: Title ID, text, color, default flag, unlock requirement
+    - UnlockAvatar/UnlockBanner/UnlockTitle methods
+    - EquipAvatar/EquipBanner/EquipTitle methods
+    - GetEquippedAvatar/GetEquippedBanner/GetEquippedTitle methods
+    - GetUnlockedAvatars/GetUnlockedBanners/GetUnlockedTitles methods
+    - IsAvatarUnlocked/IsBannerUnlocked/IsTitleUnlocked checks
+    - Profile customization for multiplayer/social features
+  - **Unlock System**:
+    - Unlock requirements: achievements, levels, purchases, events
+    - String-based requirement identifiers (e.g., "achievement_xxx", "level_10", "purchase")
+    - Default items auto-unlocked on first launch
+    - HashSet storage for O(1) unlock checks
+    - Separate unlock sets per category
+    - SaveImmediately parameter for batch unlocks
+  - **Collection Tracking**:
+    - GetCollectionCompletion() calculates overall completion %
+    - GetCollectionStats() returns detailed stats per category
+    - CollectionStats structure with unlocked/total counts
+    - 6 categories tracked: tower skins, map themes, UI themes, avatars, banners, titles
+    - Progress tracking for achievement/milestone integration
+  - **Local Storage**:
+    - UnlockedItemsData: Arrays for all unlocked item IDs
+    - EquippedItemsData: Currently equipped items per category
+    - Tower skins stored as key-value pairs (towerType -> skinId)
+    - Load on initialization, save after changes
+    - PlayerPrefs keys: "UnlockedCustomization", "EquippedCustomization"
+    - JSON serialization for all data structures
+  - **Events System**:
+    - OnTowerSkinUnlocked(TowerSkinData) - New skin acquired
+    - OnTowerSkinEquipped(string, string) - Skin equipped (towerType, skinId)
+    - OnMapThemeUnlocked(MapThemeData) - New theme acquired
+    - OnMapThemeChanged(string) - Theme applied
+    - OnUIThemeUnlocked(UIThemeData) - New UI theme acquired
+    - OnUIThemeChanged(UIThemeData) - UI theme applied with data
+    - OnAvatarUnlocked(AvatarData) - New avatar acquired
+    - OnAvatarChanged(string) - Avatar equipped
+    - OnBannerUnlocked(BannerData) - New banner acquired
+    - OnBannerChanged(string) - Banner equipped
+    - OnTitleUnlocked(TitleData) - New title acquired
+    - OnTitleChanged(string) - Title equipped
+  - **Analytics Integration** (13 new events):
+    - customization_system_initialized: System startup with collection stats
+    - tower_skin_unlocked: Skin acquisition with rarity and tower type
+    - tower_skin_equipped: Skin application tracking
+    - map_theme_unlocked: Theme acquisition tracking
+    - map_theme_changed: Theme application tracking
+    - ui_theme_unlocked: UI theme acquisition with type
+    - ui_theme_changed: UI theme application tracking
+    - avatar_unlocked: Avatar acquisition tracking
+    - avatar_changed: Avatar application tracking
+    - banner_unlocked: Banner acquisition tracking
+    - banner_changed: Banner application tracking
+    - title_unlocked: Title acquisition tracking
+    - title_changed: Title application tracking
+  - **Configuration Options**:
+    - Enable/disable customization toggle
+    - Verbose logging for debugging
+    - SerializeField arrays for all customization content:
+      * Tower skins array
+      * Map themes array
+      * UI themes array
+      * Avatars array
+      * Banners array
+      * Titles array
+  - **Data Structures**:
+    - TowerSkinData: Complete skin definition with prefab reference
+    - SkinRarity: Enum with 5 rarity levels
+    - MapThemeData: Complete theme with materials and colors
+    - UIThemeData: Complete UI theme with 6 color channels
+    - UIThemeType: Enum with 6 theme types (including 3 colorblind modes)
+    - AvatarData: Avatar definition with sprite
+    - BannerData: Banner definition with sprite
+    - TitleData: Title definition with text and color
+    - CollectionStats: Complete collection statistics
+    - UnlockedItemsData: Serialization helper for unlocked items
+    - EquippedItemsData: Serialization helper for equipped items
 - **Expanded Content Pack**:
   - 5 new tower types:
     * Laser Grid: Area denial with sweeping beams
