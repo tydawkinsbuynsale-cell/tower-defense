@@ -267,6 +267,9 @@ namespace RobotTD.Towers
                 currentLevel++;
                 OnUpgraded?.Invoke(currentLevel);
                 
+                // Track upgrade in save data
+                Core.SaveManager.Instance?.RecordTowerUpgraded();
+                
                 // Update range indicator
                 SetupRangeIndicator();
             }
