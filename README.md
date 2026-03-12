@@ -884,8 +884,15 @@ Copyright © 2026 Your Studio. All rights reserved.
 - [x] Inventory and activation UI ✅
 - [x] IAP and Ad integration (bundle purchase, earn free) ✅
 
+### Version 1.7 ✅ COMPLETE
+- [x] iOS platform support (iPhone and iPad) ✅
+- [x] Xcode project build configuration tool ✅
+- [x] Notch and safe area handler ✅
+- [x] Touch gesture recognition and haptic feedback ✅
+- [x] Platform-specific ad placements (iOS Game IDs) ✅
+
 ### Version 2.0
-- [ ] iOS support
+- [x] iOS support ✅
 - [ ] Multiplayer co-op
 - [ ] Custom map editor
 - [ ] Steam release
