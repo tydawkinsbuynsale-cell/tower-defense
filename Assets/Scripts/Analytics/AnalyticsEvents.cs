@@ -195,6 +195,15 @@ namespace RobotTD.Analytics
         public const string CLAN_WAR_STARTED = "clan_war_started";
         public const string CLAN_WAR_ENDED = "clan_war_ended";
         public const string CLAN_CONTRIBUTION = "clan_contribution";
+        
+        // ── Live Operations Events ────────────────────────────────────────────
+        public const string LIVEOPS_INITIALIZED = "liveops_initialized";
+        public const string LIVEOPS_CONFIG_CHANGED = "liveops_config_changed";
+        public const string LIVEOPS_AB_TEST_ASSIGNED = "liveops_ab_test_assigned";
+        public const string LIVEOPS_AB_TEST_EVENT = "liveops_ab_test_event";
+        public const string LIVEOPS_FEATURE_FLAG_TOGGLED = "liveops_feature_flag_toggled";
+        public const string LIVEOPS_CONTENT_UPDATED = "liveops_content_updated";
+        public const string LIVEOPS_REFRESHED = "liveops_refreshed";
     }
 
     /// <summary>
