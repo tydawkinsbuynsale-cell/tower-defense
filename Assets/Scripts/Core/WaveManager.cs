@@ -282,6 +282,13 @@ namespace RobotTD.Core
             // Award bonus
             GameManager.Instance?.AwardWaveBonus();
 
+            // Trigger achievement check
+            if (GameManager.Instance != null)
+            {
+                bool livesIntact = GameManager.Instance.Lives >= GameManager.Instance.StartingLives;
+                Progression.AchievementManager.Instance?.CheckWaveComplete(CurrentWave, livesIntact);
+            }
+
             // Check for victory
             if (totalWaves > 0 && CurrentWave >= totalWaves)
             {
