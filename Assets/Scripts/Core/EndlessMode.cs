@@ -181,12 +181,39 @@ namespace RobotTD.Core
 
             Debug.Log($"[EndlessMode] Final endless score: {totalScore} (endless portion: {EndlessScore}, wave: {EndlessWaveNumber})");
 
-            // Save personal best
+            // Save personal best for endless mode
             var sm = SaveManager.Instance;
-            if (sm != null && totalScore > sm.Data.highScore)
+            if (sm != null)
             {
-                sm.Data.highScore = totalScore;
+                bool newRecord = false;
+
+                // Update endless high score
+                if (totalScore > sm.Data.endlessHighScore)
+                {
+                    sm.Data.endlessHighScore = totalScore;
+                    newRecord = true;
+                }
+
+                // Update endless high wave
+                if (EndlessWaveNumber > sm.Data.endlessHighWave)
+                {
+                    sm.Data.endlessHighWave = EndlessWaveNumber;
+                    newRecord = true;
+                }
+
+                // Update overall high score if applicable
+                if (totalScore > sm.Data.highScore)
+                {
+                    sm.Data.highScore = totalScore;
+                }
+
+                sm.Data.endlessGamesPlayed++;
                 sm.Save();
+
+                if (newRecord)
+                {
+                    Debug.Log($"[EndlessMode] New endless record! Wave: {EndlessWaveNumber}, Score: {totalScore}");
+                }
             }
         }
     }

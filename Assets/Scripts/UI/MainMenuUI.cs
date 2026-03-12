@@ -19,9 +19,11 @@ namespace RobotTD.UI
         [SerializeField] private GameObject achievementsPanel;
         [SerializeField] private GameObject settingsPanel;
         [SerializeField] private GameObject creditsPanel;
+        [SerializeField] private GameObject endlessModePanel;
 
         [Header("Main Panel")]
         [SerializeField] private Button playButton;
+        [SerializeField] private Button endlessModeButton;
         [SerializeField] private Button techTreeButton;
         [SerializeField] private Button achievementsButton;
         [SerializeField] private Button settingsButton;
@@ -49,6 +51,11 @@ namespace RobotTD.UI
             {
                 Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UIConfirm);
                 ShowPanel(mapSelectPanel);
+            });
+            endlessModeButton.onClick.AddListener(() =>
+            {
+                Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
+                ShowPanel(endlessModePanel);
             });
             techTreeButton.onClick.AddListener(() =>
             {
@@ -103,6 +110,8 @@ namespace RobotTD.UI
             achievementsPanel.SetActive(target == achievementsPanel);
             settingsPanel.SetActive(target == settingsPanel);
             creditsPanel.SetActive(target == creditsPanel);
+            if (endlessModePanel != null)
+                endlessModePanel.SetActive(target == endlessModePanel);
         }
 
         public void BackToMain()

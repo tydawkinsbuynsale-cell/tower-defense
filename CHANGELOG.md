@@ -299,6 +299,84 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Troubleshooting guide
   - Advanced features (detection towers, true sight)
 
+**Endless Mode System** ♾️
+- **EndlessMode**: Infinite wave generation with progressive scaling
+  - Auto-activates after completing campaign maps
+  - Infinitely escalating enemy waves with difficulty scaling
+  - Separate endless score tracking (distinct from campaign)
+  - Milestone reward system (bonuses every 5 waves)
+  - Leaderboard integration for competitive gameplay
+  - Personal best tracking (highest wave, highest score)
+- **EndlessMode.cs** (Core System, 195 lines):
+  - Singleton pattern with static event system
+  - OnEndlessWaveStarted(int wave) - fired when each endless wave begins
+  - OnMilestoneReached(int wave, long bonus) - fired at milestone intervals
+  - Automatic activation via WaveManager.OnAllWavesCompleted event
+  - EndlessLoop() coroutine for continuous wave generation
+  - Configurable scaling parameters (HP, speed, spawn rate, enemy count)
+  - Milestone credit bonuses with exponential scaling
+  - PostEndlessScore() for leaderboard submission and save data
+- **Scaling System**:
+  - Enemy Health: +25% per wave (healthScalePerWave)
+  - Enemy Speed: +5% per wave (speedScalePerWave)
+  - Spawn Rate: +8% per wave (spawnRateScalePerWave)
+  - Enemy Count: Base 10 + 3 per wave (baseEnemiesPerWave, enemiesIncreasePerWave)
+  - Wave Delay: 8 seconds between waves (configurable)
+- **Milestone Rewards**:
+  - Triggered every 5 waves (milestoneInterval)
+  - Bonus Credits: 200 * (wave / 5) scaling formula
+  - Achievement hooks via AchievementManager.CheckEndlessMilestone()
+  - Toast notifications with celebration sounds
+  - Leaderboard updates at each milestone
+- **WaveManager Integration**:
+  - SetEndlessMode(bool) - toggles endless mode flag
+  - SpawnEndlessWave(effectiveWave, count, hpMult, spdMult) - spawns scaled enemies
+  - GenerateEndlessComposition() - creates dynamic enemy mix
+  - IsEndlessMode property for conditional logic
+- **SaveManager Integration**:
+  - PlayerSaveData.endlessHighWave - highest wave reached
+  - PlayerSaveData.endlessHighScore - best endless score
+  - PlayerSaveData.endlessGamesPlayed - total endless sessions
+  - Persistent tracking across sessions
+  - New record detection and logging
+- **UI Integration**:
+  - **GameHUD.cs**: In-game endless wave display
+    - Gold-colored "Endless Wave X" text when in endless mode
+    - "Endless Mode Activated!" toast on wave 1
+    - Real-time milestone notifications with bonus amounts
+    - "Endless Mode" button text indicator during active waves
+  - **EndlessModeUI.cs**: Main menu info panel (140 lines)
+    - Endless mode description and how-to-play guide
+    - Personal best display (highest wave, highest score)
+    - Enemy scaling information viewer
+    - Milestone rewards breakdown
+    - Leaderboard access button
+    - "Not Yet Played" state for new players
+  - **MainMenuUI.cs**: Endless mode button integration
+    - New "Endless Mode" button in main panel
+    - Direct access to EndlessModeUI panel
+    - Audio feedback on button press
+- **Leaderboard Integration**:
+  - LeaderboardManager.SubmitEndlessScore(wave, score) submission
+  - "endless_high_score" leaderboard ID
+  - Wave number included in score metadata
+  - LeaderboardUI.ShowEndlessLeaderboard() display method
+  - Endless mode tab in leaderboard UI
+- **Game Balance**:
+  - Starting Difficulty: Equivalent to wave 1 of campaign
+  - Wave 10: ~250% health, ~50% faster speed, ~13 enemies
+  - Wave 20: ~500% health, ~100% faster speed, ~16 enemies
+  - Wave 50: ~1250% health, ~250% faster speed, ~25 enemies
+  - Milestone bonuses scale exponentially (200, 400, 600, 800...)
+  - Designed for 30-60 minute average survival time
+- **Strategic Considerations**:
+  - Long-term tower investment becomes critical
+  - Economy management with milestone bonuses
+  - Tower composition must handle all enemy types
+  - Map control and coverage increasingly important
+  - Challenge Mode integration for difficulty modifiers
+  - Achievement system support for endless milestones
+
 ### Planned Features
 - Cloud save support with conflict resolution
 - Weekly missions (extended version of daily missions)
