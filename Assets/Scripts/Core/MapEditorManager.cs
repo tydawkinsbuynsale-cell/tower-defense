@@ -678,6 +678,78 @@ namespace RobotTD.Core
             {
                 result.AddWarning("Map has no wave configuration (default waves will be used)");
             }
+            else
+            {
+                // Validate wave configuration details
+                for (int i = 0; i < map.waves.Count; i++)
+                {
+                    var wave = map.waves[i];
+                    
+                    // Check wave number consistency
+                    if (wave.waveNumber != i + 1)
+                    {
+                        result.AddWarning($"Wave {i + 1} has incorrect wave number ({wave.waveNumber})");
+                    }
+
+                    // Check enemy groups
+                    if (wave.enemyGroups.Count == 0)
+                    {
+                        result.AddError($"Wave {wave.waveNumber} has no enemy groups");
+                    }
+                    else
+                    {
+                        int totalEnemies = 0;
+                        foreach (var group in wave.enemyGroups)
+                        {
+                            totalEnemies += group.count;
+                            
+                            // Validate enemy count
+                            if (group.count <= 0)
+                            {
+                                result.AddError($"Wave {wave.waveNumber} has enemy group with invalid count: {group.count}");
+                            }
+                            
+                            // Validate spawn interval
+                            if (group.spawnInterval < 0.1f)
+                            {
+                                result.AddWarning($"Wave {wave.waveNumber} has very fast spawn interval ({group.spawnInterval}s)");
+                            }
+                            
+                            // Validate enemy type
+                            if (string.IsNullOrEmpty(group.enemyType))
+                            {
+                                result.AddError($"Wave {wave.waveNumber} has enemy group with no type");
+                            }
+                        }
+
+                        // Check total enemy count per wave
+                        if (totalEnemies > 100)
+                        {
+                            result.AddWarning($"Wave {wave.waveNumber} has many enemies ({totalEnemies}). May cause performance issues.");
+                        }
+                        else if (totalEnemies < 5)
+                        {
+                            result.AddSuggestion($"Wave {wave.waveNumber} has few enemies ({totalEnemies}). Consider adding more for challenge.");
+                        }
+                    }
+
+                    // Check credits reward
+                    if (wave.creditsReward <= 0)
+                    {
+                        result.AddWarning($"Wave {wave.waveNumber} has no credits reward");
+                    }
+                }
+
+                // Check wave count recommendations
+                if (map.waves.Count < 5)
+                {
+                    result.AddSuggestion($"Map has only {map.waves.Count} waves. Consider adding more for longer gameplay.");
+                }
+                else if (map.waves.Count > 50)
+                {
+                    result.AddWarning($"Map has {map.waves.Count} waves. Very long gameplay may impact player retention.");
+                }
+            }
 
             // Check buildable space
             int buildableCount = 0;
@@ -699,11 +771,6 @@ namespace RobotTD.Core
             if (map.startingCredits < 300)
             {
                 result.AddSuggestion("Consider increasing starting credits for better player experience");
-            }
-
-            if (map.totalWaves < 5)
-            {
-                result.AddSuggestion("Consider adding more waves for longer gameplay");
             }
 
             result.isValid = !result.HasErrors;
@@ -892,7 +959,17 @@ namespace RobotTD.Core
             PendingTestPlayMap = currentMap.Clone();
             IsTestPlayMode = true;
 
-            LogDebug($"Starting test play for map: {currentMap.mapName}");
+            // Log wave configuration status
+            if (currentMap.waves.Count > 0)
+            {
+                LogDebug($"Starting test play with {currentMap.waves.Count} custom waves");
+            }
+            else
+            {
+                LogDebug($"Starting test play with procedural waves (no custom wave configuration)");
+            }
+
+            LogDebug($"Test playing map: {currentMap.mapName}");
 
             // Track analytics
             if (AnalyticsManager.Instance != null)
