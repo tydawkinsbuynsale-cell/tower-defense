@@ -153,7 +153,16 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Sort by: recent, played, rated, liked, name
   - Download and play community maps
 - Keyboard shortcuts: Ctrl+Z/Y (undo/redo), Ctrl+S (save)
-- Analytics integration: 38 events (20 editor + 8 wave config + 1 thumbnail + 6 community + 3 Steam)
+- Analytics integration: 43 events (20 editor + 8 wave config + 1 thumbnail + 6 community + 3 Steam + 5 events)
+
+**✅ Seasonal Events System**
+- Limited-time events (Halloween, Christmas, etc.)
+- Event-specific challenges (10 types)
+- Event currency system (earn & spend)
+- Exclusive cosmetic rewards (skins, avatars, titles)
+- Automatic event activation based on dates
+- Progress tracking and persistence
+- 7 event types: Halloween, Christmas, NewYear, Easter, Summer, Anniversary, Special
 
 **✅ Steam Integration**
 - Achievement synchronization with Steam (70+ achievements)
