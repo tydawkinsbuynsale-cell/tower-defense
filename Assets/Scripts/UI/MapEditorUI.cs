@@ -18,6 +18,10 @@ namespace RobotTD.UI
         [SerializeField] private Button closeButton;
         [SerializeField] private Button saveButton;
         [SerializeField] private Button testPlayButton;
+        [SerializeField] private Button configureWavesButton;
+
+        [Header("Wave Configuration")]
+        [SerializeField] private WaveConfigurationUI waveConfigUI;
 
         [Header("Tool Palette")]
         [SerializeField] private Button tileModeButton;
@@ -144,6 +148,9 @@ namespace RobotTD.UI
             
             if (testPlayButton != null)
                 testPlayButton.onClick.AddListener(OnTestPlayClicked);
+            
+            if (configureWavesButton != null)
+                configureWavesButton.onClick.AddListener(OnConfigureWavesClicked);
 
             // Tool palette
             if (tileModeButton != null)
@@ -527,6 +534,34 @@ namespace RobotTD.UI
             else
             {
                 MapEditorManager.Instance.TestPlayCurrentMap();
+            }
+        }
+
+        private void OnConfigureWavesClicked()
+        {
+            if (MapEditorManager.Instance == null)
+            {
+                ShowStatus("Map Editor not initialized!", 2f);
+                return;
+            }
+
+            // Check if map is loaded
+            var currentMap = MapEditorManager.Instance.GetCurrentMap();
+            if (currentMap == null)
+            {
+                ShowStatus("No map loaded!", 2f);
+                return;
+            }
+
+            // Show wave configuration UI
+            if (waveConfigUI != null)
+            {
+                waveConfigUI.ShowPanel();
+            }
+            else
+            {
+                Debug.LogWarning("[MapEditorUI] WaveConfigurationUI reference not set!");
+                ShowStatus("Wave configuration UI not available", 2f);
             }
         }
 

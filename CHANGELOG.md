@@ -265,6 +265,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `wave_config_generated`: Auto-generation usage
   - `wave_config_saved`: Wave configuration saves
   - Analytics parameters: map_id, wave_count, difficulty, existing_waves
+- **Wave Configuration UI Integration** ✅:
+  - **MapEditorUI Extensions**:
+    - "Configure Waves" button added to main editor panel
+    - WaveConfigurationUI component reference
+    - OnConfigureWavesClicked() handler with validation
+    - Map load status checking before opening wave config
+    - Button wiring in SetupButtonListeners()
+  - **Enhanced Map Validation**:
+    - Comprehensive wave configuration validation
+    - Wave number consistency checks
+    - Enemy group validation (count, type, spawn intervals)
+    - Total enemy count per wave validation (warns if >100, suggests if <5)
+    - Credits reward validation
+    - Wave count recommendations (suggests 5+, warns if >50)
+    - Performance warnings for large enemy counts
+    - Enemy type validation (checks for empty types)
+    - Spawn interval validation (warns if <0.1s)
+  - **Test Play Enhancements**:
+    - Wave configuration status logging
+    - Custom vs procedural wave detection
+    - Debug messages for wave count during test play
+  - **UI/UX Improvements**:
+    - Status messages for wave config access
+    - Map initialization checks
+    - Reference validation with user feedback
+    - Seamless integration with existing editor workflow
 - **Community Features** (planned):
   - Map publishing to cloud
   - Community map browser
