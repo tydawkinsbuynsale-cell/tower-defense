@@ -20,10 +20,12 @@ namespace RobotTD.UI
         [SerializeField] private GameObject settingsPanel;
         [SerializeField] private GameObject creditsPanel;
         [SerializeField] private GameObject endlessModePanel;
+        [SerializeField] private GameObject bossRushPanel;
 
         [Header("Main Panel")]
         [SerializeField] private Button playButton;
         [SerializeField] private Button endlessModeButton;
+        [SerializeField] private Button bossRushButton;
         [SerializeField] private Button techTreeButton;
         [SerializeField] private Button achievementsButton;
         [SerializeField] private Button settingsButton;
@@ -52,11 +54,22 @@ namespace RobotTD.UI
                 Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UIConfirm);
                 ShowPanel(mapSelectPanel);
             });
-            endlessModeButton.onClick.AddListener(() =>
+            if (endlessModeButton != null)
             {
-                Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
-                ShowPanel(endlessModePanel);
-            });
+                endlessModeButton.onClick.AddListener(() =>
+                {
+                    Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
+                    ShowPanel(endlessModePanel);
+                });
+            }
+            if (bossRushButton != null)
+            {
+                bossRushButton.onClick.AddListener(() =>
+                {
+                    Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
+                    ShowPanel(bossRushPanel);
+                });
+            }
             techTreeButton.onClick.AddListener(() =>
             {
                 Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
@@ -112,6 +125,8 @@ namespace RobotTD.UI
             creditsPanel.SetActive(target == creditsPanel);
             if (endlessModePanel != null)
                 endlessModePanel.SetActive(target == endlessModePanel);
+            if (bossRushPanel != null)
+                bossRushPanel.SetActive(target == bossRushPanel);
         }
 
         public void BackToMain()

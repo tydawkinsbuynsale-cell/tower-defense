@@ -56,6 +56,11 @@ namespace RobotTD.Core
         public int endlessHighWave = 0;
         public long endlessHighScore = 0;
         public int endlessGamesPlayed = 0;
+
+        // Boss rush mode
+        public int bossRushBestRun = 0;         // Most bosses defeated
+        public long bossRushHighScore = 0;      // Highest score achieved
+        public int bossRushGamesPlayed = 0;     // Total games played
     }
 
     [Serializable]

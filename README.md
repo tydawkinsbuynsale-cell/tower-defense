@@ -857,8 +857,8 @@ Copyright © 2026 Your Studio. All rights reserved.
 ### Version 1.2
 - [x] Challenge mode (special modifiers) ✅
 - [x] Daily missions ✅
+- [x] Boss rush mode ✅
 - [ ] New map: Industrial Complex
-- [ ] Boss rush mode
 
 ### Version 2.0
 - [ ] iOS support
