@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RobotTD.Analytics;
+using RobotTD.Map;
 
 namespace RobotTD.Core
 {
@@ -221,6 +222,9 @@ namespace RobotTD.Core
             PlayerPrefs.SetString($"CustomMap_{currentMap.mapId}", json);
             PlayerPrefs.Save();
 
+            // Generate thumbnail
+            GenerateThumbnail();
+
             hasUnsavedChanges = false;
             OnMapSaved?.Invoke();
 
@@ -266,6 +270,72 @@ namespace RobotTD.Core
             hasUnsavedChanges = false;
 
             LogDebug("Closed current map");
+        }
+
+        /// <summary>
+        /// Generates a thumbnail for the current map.
+        /// Uses MapThumbnailGenerator to capture a top-down view of the grid.
+        /// </summary>
+        private void GenerateThumbnail()
+        {
+            if (currentMap == null)
+            {
+                Debug.LogWarning("[MapEditorManager] Cannot generate thumbnail: no current map!");
+                return;
+            }
+
+            // Ensure thumbnail generator exists
+            if (RobotTD.Map.MapThumbnailGenerator.Instance == null)
+            {
+                // Create thumbnail generator if it doesn't exist
+                GameObject generatorObj = new GameObject("MapThumbnailGenerator");
+                generatorObj.AddComponent<RobotTD.Map.MapThumbnailGenerator>();
+                LogDebug("Created MapThumbnailGenerator instance");
+            }
+
+            // Calculate map center and dimensions
+            float mapWidth = currentMap.gridWidth * tileSize;
+            float mapHeight = currentMap.gridHeight * tileSize;
+            Vector3 centerPoint = gridOffset + new Vector3(mapWidth / 2f, 0, mapHeight / 2f);
+
+            // Generate thumbnail
+            string thumbnailPath = RobotTD.Map.MapThumbnailGenerator.Instance.GenerateThumbnailFromScene(
+                currentMap.mapId,
+                centerPoint,
+                mapWidth,
+                mapHeight
+            );
+
+            if (!string.IsNullOrEmpty(thumbnailPath))
+            {
+                LogDebug($"Generated thumbnail: {thumbnailPath}");
+
+                // Track analytics
+                if (AnalyticsManager.Instance != null)
+                {
+                    AnalyticsManager.Instance.TrackEvent("map_editor_generate_thumbnail", new Dictionary<string, object>
+                    {
+                        { "map_id", currentMap.mapId },
+                        { "map_name", currentMap.mapName },
+                        { "success", true }
+                    });
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[MapEditorManager] Failed to generate thumbnail for map: {currentMap.mapName}");
+
+                // Track analytics
+                if (AnalyticsManager.Instance != null)
+                {
+                    AnalyticsManager.Instance.TrackEvent("map_editor_generate_thumbnail", new Dictionary<string, object>
+                    {
+                        { "map_id", currentMap.mapId },
+                        { "map_name", currentMap.mapName },
+                        { "success", false }
+                    });
+                }
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════════

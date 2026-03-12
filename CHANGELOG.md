@@ -193,7 +193,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Click to select and view details
 - **Thumbnail System**:
   - PNG format thumbnail storage
-  - Automatic thumbnail generation (planned)
+  - **Automatic thumbnail generation** ✅:
+    - MapThumbnailGenerator singleton component
+    - Orthographic camera render capture (256x256 PNG)
+    - Auto-calculated ortho size based on map dimensions
+    - Top-down grid view capture on map save
+    - Analytics tracking for generation success/failure
+    - Configurable resolution (64-1024px), background color, layer mask
   - Manual thumbnail upload support
   - Lazy loading for performance
   - Placeholder image fallback
@@ -336,6 +342,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Component configuration details
     - Visual examples and ASCII diagrams
     - Best practices and recommendations
+- **Automatic Thumbnail Generation** ✅:
+  - **MapThumbnailGenerator Component**:
+    - Singleton design pattern for global access
+    - Configurable thumbnail resolution (default 256x256, range 64-1024px)
+    - Automatic orthographic camera setup for top-down capture
+    - Auto-calculated ortho size based on map dimensions
+    - 4x MSAA anti-aliasing for high-quality thumbnails
+    - Configurable background color and layer mask
+  - **Render Pipeline**:
+    - RenderTexture-based capture system
+    - Orthographic camera positioned above map center
+    - 90-degree downward rotation for perfect top-down view
+    - Dynamic camera positioning based on grid dimensions
+    - PNG encoding for optimal file size/quality balance
+  - **Integration with MapEditorManager**:
+    - Automatic thumbnail generation on map save
+    - Seamless integration with SaveCurrentMap() workflow
+    - Lazy initialization of thumbnail generator instance
+    - Grid bounds calculation using tileSize and gridOffset
+    - Error handling and fallback behavior
+  - **Analytics Tracking**:
+    - map_editor_generate_thumbnail event
+    - Success/failure tracking with map_id and map_name
+    - Debug logging for troubleshooting
+  - **File System Management**:
+    - Thumbnails saved to Application.persistentDataPath/Thumbnails/
+    - Automatic directory creation if missing
+    - PNG format with {mapId}.png naming convention
+    - Thumbnail deletion utility method
+    - Thumbnail existence checking
+  - **Configuration API**:
+    - SetThumbnailSize(width, height) for custom resolutions
+    - SetBackgroundColor(color) for custom backgrounds
+    - SetCaptureLayerMask(mask) for selective rendering
+    - GetThumbnailPath(mapId) for file path retrieval
+    - DeleteThumbnail(mapId) for cleanup operations
+  - **Technical Details**:
+    - DontDestroyOnLoad for persistence across scenes
+    - Proper resource cleanup (RenderTexture release, camera destruction)
+    - Exception handling with detailed error logging
+    - Null checks and validation throughout
 - **Community Features** (planned):
   - Map publishing to cloud
   - Community map browser
