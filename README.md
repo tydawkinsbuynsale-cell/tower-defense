@@ -153,7 +153,15 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Sort by: recent, played, rated, liked, name
   - Download and play community maps
 - Keyboard shortcuts: Ctrl+Z/Y (undo/redo), Ctrl+S (save)
-- Analytics integration: 35 events (20 editor + 8 wave config + 1 thumbnail + 6 community)
+- Analytics integration: 38 events (20 editor + 8 wave config + 1 thumbnail + 6 community + 3 Steam)
+
+**✅ Steam Integration**
+- Achievement synchronization with Steam (70+ achievements)
+- Stats tracking (kills, waves, playtime, etc.)
+- Leaderboard integration (high scores, waves, kills)
+- Automatic sync on achievement unlock
+- Editor simulation mode for testing
+- Steamworks.NET SDK support
 
 **✅ Monetization Systems**
 - In-App Purchases (13 products: gems, credits, skins, subscriptions)
