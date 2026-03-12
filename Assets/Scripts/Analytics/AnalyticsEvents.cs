@@ -145,6 +145,14 @@ namespace RobotTD.Analytics
         public const string CUSTOM_MAP_RATED = "custom_map_rated";
         public const string CUSTOM_MAP_DOWNLOADED = "custom_map_downloaded";
         public const string CUSTOM_MAP_SHARED = "custom_map_shared";
+        
+        // ── Map Storage Events ────────────────────────────────────────────────
+        public const string MAP_STORAGE_DELETED = "map_storage_deleted";
+        public const string MAP_STORAGE_EXPORTED = "map_storage_exported";
+        public const string MAP_STORAGE_IMPORTED = "map_storage_imported";
+        public const string MAP_LIBRARY_OPENED = "map_library_opened";
+        public const string MAP_BACKUP_CREATED = "map_backup_created";
+        public const string MAP_BACKUP_RESTORED = "map_backup_restored";
     }
 
     /// <summary>
@@ -230,6 +238,9 @@ namespace RobotTD.Analytics
         public const string TILE_COUNT = "tile_count";
         public const string SPAWN_COUNT = "spawn_count";
         public const string PATH_LENGTH = "path_length";
+        public const string FILE_SIZE = "file_size";
+        public const string TOTAL_MAPS = "total_maps";
+        public const string STORAGE_SIZE = "storage_size";
     }
 
     /// <summary>
