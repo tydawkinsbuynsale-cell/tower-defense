@@ -179,6 +179,12 @@ namespace RobotTD.Analytics
         public const string ONE_HANDED_MODE_TOGGLED = "one_handed_mode_toggled";
         public const string CONTROL_REMAPPED = "control_remapped";
         public const string TOUCH_ZONE_MOVED = "touch_zone_moved";
+        
+        // ── Analytics Dashboard Events ────────────────────────────────────────
+        public const string DASHBOARD_INITIALIZED = "dashboard_initialized";
+        public const string DASHBOARD_SESSION_RECORDED = "dashboard_session_recorded";
+        public const string DASHBOARD_MILESTONE_ACHIEVED = "dashboard_milestone_achieved";
+        public const string DASHBOARD_DATA_EXPORTED = "dashboard_data_exported";
     }
 
     /// <summary>
