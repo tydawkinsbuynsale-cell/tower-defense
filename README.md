@@ -9,7 +9,22 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
 
 ---
 
-## 📋 Table of Contents
+## � Quick Start
+
+**Just double-click:** `Launch Game.bat` 
+
+The automated installer handles everything! See [INSTALL.md](INSTALL.md) for details.
+
+## 🔍 Having Issues?
+
+**Desktop Icon:** Double-click **Robot TD - Diagnostics** to check logs and system status  
+**Or run:** `Quick-Diagnose.bat` or `View-Log.ps1` for detailed analysis
+
+📖 **Full guide:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
+
+---
+
+## �📋 Table of Contents
 
 - [Project Overview](#project-overview)
 - [System Architecture](#system-architecture)
