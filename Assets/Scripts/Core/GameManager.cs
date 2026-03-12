@@ -161,6 +161,13 @@ namespace RobotTD.Core
                 float multiplier = Progression.TechTree.Instance.CreditRewardMultiplier;
                 amount = Mathf.RoundToInt(amount * multiplier);
             }
+            
+            // Apply challenge economy modifier
+            if (ChallengeManager.Instance != null)
+            {
+                float challengeMult = ChallengeManager.Instance.GetEconomyMultiplier();
+                amount = Mathf.RoundToInt(amount * challengeMult);
+            }
 
             Credits += amount;
             OnCreditsChanged?.Invoke(Credits);

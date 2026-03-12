@@ -211,6 +211,25 @@ Rotation Type: Daily / Weekly / Permanent
 Rotation Index: Order in rotation schedule (0-based)
 ```
 
+### Auto-Generate Example Challenges (Recommended)
+
+For quick setup, use the built-in editor tool to create 13 pre-configured challenges:
+
+**Menu:** `Robot TD → Generate Example Challenges`
+
+This creates:
+- **4 Daily Challenges** (Easy-Medium): Speed Rush, Budget Warriors, Rapid Fire, Armored Horde
+- **4 Weekly Challenges** (Hard): Limited Arsenal, Economic Crisis, Tower Limit, Weakened Defense
+- **5 Permanent Challenges** (Easy-Extreme): Perfect Defense, Speed Master, Minimalist, Boss Rush, Economy Master
+
+All assets are created in `Assets/Resources/Data/Challenges/` and automatically configured with appropriate:
+- Modifiers and difficulty tiers
+- Reward amounts (300-2200 credits, 5-55 tech points)
+- Rotation types and indices
+- Achievement IDs for extreme challenges
+
+**Clear All:** Use `Robot TD → Clear All Challenges` to remove generated assets and start fresh.
+
 ### Example Challenges
 
 **Easy Challenge - "Starting Line"**

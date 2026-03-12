@@ -78,8 +78,11 @@ namespace RobotTD.Towers
         /// </summary>
         public void StartPlacement(TowerData towerData)
         {
+            // Calculate cost with challenge modifier
+            int cost = GetModifiedTowerCost(towerData.cost);
+            
             // Check if player can afford it
-            if (!GameManager.Instance.CanAfford(towerData.cost))
+            if (!GameManager.Instance.CanAfford(cost))
             {
                 Debug.Log("Cannot afford this tower!");
                 // TODO: Show UI feedback
@@ -229,8 +232,19 @@ namespace RobotTD.Towers
                 return;
             }
 
+            // Check challenge tower limit
+            if (Core.ChallengeManager.Instance != null && 
+                !Core.ChallengeManager.Instance.CanPlaceTower())
+            {
+                Debug.Log("Challenge tower limit reached!");
+                return;
+            }
+
+            // Calculate cost with challenge modifier
+            int cost = GetModifiedTowerCost(selectedTowerData.cost);
+            
             // Check if player can still afford it
-            if (!GameManager.Instance.SpendCredits(selectedTowerData.cost))
+            if (!GameManager.Instance.SpendCredits(cost))
             {
                 Debug.Log("Cannot afford tower!");
                 return;
@@ -447,6 +461,21 @@ namespace RobotTD.Towers
             foreach (var t in Instance.placedTowers)
                 if (t != null && t.Level > 1) return true;
             return false;
+        }
+        
+        // ── Challenge Mode Integration ───────────────────────────────────────
+        
+        /// <summary>
+        /// Get tower cost with challenge modifiers applied.
+        /// </summary>
+        public int GetModifiedTowerCost(int baseCost)
+        {
+            if (Core.ChallengeManager.Instance != null)
+            {
+                float mult = Core.ChallengeManager.Instance.GetTowerCostMultiplier();
+                return Mathf.RoundToInt(baseCost * mult);
+            }
+            return baseCost;
         }
 
         #endregion

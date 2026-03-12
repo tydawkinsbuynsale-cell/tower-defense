@@ -290,7 +290,16 @@ namespace RobotTD.Towers
 
         protected virtual float GetDamageMultiplier()
         {
-            return 1f + (currentLevel - 1) * towerData.damageUpgradePercent;
+            float baseMultiplier = 1f + (currentLevel - 1) * towerData.damageUpgradePercent;
+            
+            // Apply challenge modifier if active
+            if (Core.ChallengeManager.Instance != null)
+            {
+                float challengeMult = Core.ChallengeManager.Instance.GetTowerDamageMultiplier();
+                return baseMultiplier * challengeMult;
+            }
+            
+            return baseMultiplier;
         }
 
         protected virtual float GetRangeMultiplier()
