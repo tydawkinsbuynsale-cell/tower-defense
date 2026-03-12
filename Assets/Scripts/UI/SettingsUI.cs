@@ -25,6 +25,13 @@ namespace RobotTD.UI
         [SerializeField] private Color selectedQualityColor = new Color(0.2f, 0.7f, 1f);
         [SerializeField] private Color defaultQualityColor = Color.white;
 
+        [Header("Performance")]
+        [SerializeField] private TMP_Dropdown fpsDropdown;      // 30 / 60 FPS
+        [SerializeField] private Toggle vSyncToggle;
+        [SerializeField] private Toggle shadowsToggle;
+        [SerializeField] private Toggle particlesToggle;
+        [SerializeField] private TextMeshProUGUI performanceStatsText; // Optional: Real-time FPS display
+
         [Header("Misc")]
         [SerializeField] private Button resetProgressButton;
         [SerializeField] private GameObject confirmResetPanel;
@@ -35,21 +42,56 @@ namespace RobotTD.UI
         [SerializeField] private Button backButton;
         [SerializeField] private MainMenuUI mainMenu;   // null if in-game settings
 
+        private Core.PerformanceManager perfManager;
+
         private void OnEnable()
         {
+            perfManager = Core.PerformanceManager.Instance;
             LoadCurrentSettings();
             BindListeners();
+            
+            // Start performance stats update if display is enabled
+            if (performanceStatsText != null)
+                StartCoroutine(UpdatePerformanceStats());
         }
 
         private void OnDisable()
         {
             UnbindListeners();
-        }
+        }// Audio settings
+            if (masterSlider != null) masterSlider.value = data.masterVolume;
+            if (sfxSlider != null)    sfxSlider.value    = data.sfxVolume;
+            if (musicSlider != null)  musicSlider.value  = data.musicVolume;
+            if (vibrationToggle != null) vibrationToggle.isOn = data.vibrationEnabled;
 
-        private void LoadCurrentSettings()
-        {
-            var data = Core.SaveManager.Instance?.Data;
-            if (data == null) return;
+            // Graphics quality presets
+            RefreshQualityButtons(data.graphicsQuality);
+
+            // Performance settings
+            // Audio
+            masterSlider?.onValueChanged.AddListener(OnMasterVolumeChanged);
+            sfxSlider?.onValueChanged.AddListener(OnSFXVolumeChanged);
+            musicSlider?.onValueChanged.AddListener(OnMusicVolumeChanged);
+            vibrationToggle?.onValueChanged.AddListener(OnVibrationChanged);
+
+            // Quality presets
+            lowQualityBtn?.onClick.AddListener(() => SetQualityPreset(Core.PerformanceManager.QualityPreset.Low));
+            medQualityBtn?.onClick.AddListener(() => SetQualityPreset(Core.PerformanceManager.QualityPreset.Medium));
+            highQualityBtn?.onClick.AddListener(() => SetQualityPreset(Core.PerformanceManager.QualityPreset.High));
+
+            // Performance options
+            fpsDropdown?.onValueChanged.AddListener(OnFPSChanged);
+            vSyncToggle?.onValueChanged.AddListener(OnVSyncChanged);
+            shadowsToggle?.onValueChanged.AddListener(OnShadowsChanged);
+            particlesToggle?.onValueChanged.AddListener(OnParticlesChanged);
+
+            // Misc                vSyncToggle.isOn = QualitySettings.vSyncCount > 0;
+
+            if (shadowsToggle != null)
+                shadowsToggle.isOn = QualitySettings.shadows != ShadowQuality.Disable;
+
+            if (particlesToggle != null)
+                particlesToggle.isOn = true; // Default to enabled
 
             if (masterSlider != null) masterSlider.value = data.masterVolume;
             if (sfxSlider != null)    sfxSlider.value    = data.sfxVolume;
@@ -61,6 +103,10 @@ namespace RobotTD.UI
 
         private void BindListeners()
         {
+            fpsDropdown?.onValueChanged.RemoveAllListeners();
+            vSyncToggle?.onValueChanged.RemoveAllListeners();
+            shadowsToggle?.onValueChanged.RemoveAllListeners();
+            particlesToggle?.onValueChanged.RemoveAllListeners();
             masterSlider?.onValueChanged.AddListener(OnMasterVolumeChanged);
             sfxSlider?.onValueChanged.AddListener(OnSFXVolumeChanged);
             musicSlider?.onValueChanged.AddListener(OnMusicVolumeChanged);
@@ -92,15 +138,18 @@ namespace RobotTD.UI
 
         private void UnbindListeners()
         {
-            masterSlider?.onValueChanged.RemoveAllListeners();
-            sfxSlider?.onValueChanged.RemoveAllListeners();
-            musicSlider?.onValueChanged.RemoveAllListeners();
-            vibrationToggle?.onValueChanged.RemoveAllListeners();
-        }
-
-        // ── Volume callbacks ─────────────────────────────────────────────────
-
-        private void OnMasterVolumeChanged(float value)
+            masterSlider?.onValPreset(Core.PerformanceManager.QualityPreset preset)
+        {
+            Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
+            
+            if (perfManager != null)
+            {
+                perfManager.ApplyQualityPreset(preset);
+                RefreshQualityButtons((int)preset);
+                
+                // Update toggles to reflect preset changes
+                LoadCurrentSettings();
+            }d(float value)
         {
             Audio.AudioManager.Instance.MasterVolume = value;
             if (Core.SaveManager.Instance != null)
@@ -112,7 +161,62 @@ namespace RobotTD.UI
             Audio.AudioManager.Instance.SFXVolume = value;
             if (Core.SaveManager.Instance != null)
                 Core.SaveManager.Instance.Data.sfxVolume = value;
-            // Play a quick SFX to preview
+         
+
+        // ── Performance Options ──────────────────────────────────────────────
+
+        private void OnFPSChanged(int index)
+        {
+            if (perfManager == null) return;
+
+            // 0 = 30 FPS, 1 = 60 FPS
+            int targetFPS = (index == 0) ? 30 : 60;
+            perfManager.SetTargetFrameRate(targetFPS);
+            
+            Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
+        }
+
+        private void OnVSyncChanged(bool enabled)
+        {
+            if (perfManager == null) return;
+            
+            perfManager.SetVSync(enabled);
+            Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
+        }
+
+        private void OnShadowsChanged(bool enabled)
+        {
+            if (perfManager == null) return;
+            
+            perfManager.SetShadows(enabled);
+            Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
+        }
+
+        private void OnParticlesChanged(bool enabled)
+        {
+            if (perfManager == null) return;
+            
+            perfManager.SetParticles(enabled);
+            Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
+        }
+
+        // ── Performance Stats Display ─────────────────────────────────────────
+
+        private IEnumerator UpdatePerformanceStats()
+        {
+            while (performanceStatsText != null && performanceStatsText.gameObject.activeInHierarchy)
+            {
+                if (perfManager != null)
+                {
+                    performanceStatsText.text = 
+                        $"FPS: {perfManager.CurrentFPS:F0} " +
+                        $"(Avg: {perfManager.GetAverageFPS():F1})\n" +
+                        $"Frame Time: {perfManager.AverageFrameTimeMs:F1}ms\n" +
+                        $"Quality: {perfManager.CurrentPreset}";
+                }
+                yield return new WaitForSeconds(0.5f);
+            }
+        }   // Play a quick SFX to preview
             Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
         }
 

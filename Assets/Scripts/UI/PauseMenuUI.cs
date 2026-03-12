@@ -50,9 +50,9 @@ namespace RobotTD.UI
             settingsBackButton?.onClick.AddListener(CloseSettings);
 
             // Wire inline quality buttons
-            lowQualBtn?.onClick.AddListener(() => SetQuality(0));
-            medQualBtn?.onClick.AddListener(() => SetQuality(1));
-            highQualBtn?.onClick.AddListener(() => SetQuality(2));
+            lowQualBtn?.onClick.AddListener(() => SetQualityPreset(Core.PerformanceManager.QualityPreset.Low));
+            medQualBtn?.onClick.AddListener(() => SetQualityPreset(Core.PerformanceManager.QualityPreset.Medium));
+            highQualBtn?.onClick.AddListener(() => SetQualityPreset(Core.PerformanceManager.QualityPreset.High));
 
             // Wire volume sliders immediately (values loaded from save)
             SyncSlidersFromSave();
@@ -142,11 +142,13 @@ namespace RobotTD.UI
             if (musicSlider  != null) musicSlider.value  = data.musicVolume;
         }
 
-        private void SetQuality(int level)
+        private void SetQualityPreset(Core.PerformanceManager.QualityPreset preset)
         {
-            QualitySettings.SetQualityLevel(level, true);
-            if (Core.SaveManager.Instance != null)
-                Core.SaveManager.Instance.Data.graphicsQuality = level;
+            if (Core.PerformanceManager.Instance != null)
+            {
+                Core.PerformanceManager.Instance.ApplyQualityPreset(preset);
+                Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UITap);
+            }
         }
 
         // ── Navigation ───────────────────────────────────────────────────────
