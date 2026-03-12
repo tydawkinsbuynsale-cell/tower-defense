@@ -208,12 +208,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Color coding by tile type
   - Spawn point and base prefab support
   - Path marker visualization
-- **Custom Wave Configuration** (planned):
-  - Wave-by-wave enemy composition
-  - Spawn timing configuration
-  - Boss wave setup
-  - Credits reward per wave
-  - Enemy spawn groups with intervals
+- **Custom Wave Configuration** ✅:
+  - **WaveConfigurationUI**: Complete wave editor panel
+    - Wave list with add/remove/edit functionality
+    - Wave card display showing enemy count, rewards
+    - Wave editor panel with configurable properties:
+      - Credits reward per wave
+      - Time between enemy groups
+      - Boss wave toggle with boss type selection
+    - Enemy group configuration:
+      - 12 enemy types supported: Scout, Soldier, Tank, Elite, Flying, Healer, Splitter, Teleporter, HeavyAssault, SwarmMother, ShieldCommander, Cloaker
+      - Enemy type dropdown selector
+      - Enemy count (1-100 per group)
+      - Spawn interval (0.1-10 seconds)
+      - Spawn point index selection
+      - Add/remove enemy groups
+    - Quick Setup Tools:
+      - Generate default waves (5-30 waves)
+      - Difficulty presets: Tutorial, Easy, Normal, Hard, Expert
+      - Automatic wave scaling and composition
+      - Boss wave generation (every 5 waves)
+      - Enemy type progression based on wave number
+    - Validation system with error messages
+    - Real-time wave count display
+    - Auto-save integration with map save system
+- **WaveManager Integration** ✅:
+  - Custom wave loading from CustomMapData
+  - GenerateFromCustomWave() method for test play
+  - Priority system: Custom waves → WaveSetData → Procedural generation
+  - Enemy type parsing from string IDs
+  - Custom spawn timing from wave configuration
+  - Credits reward tracking from custom waves
+  - Boss spawn integration from wave data
+  - Enemy count and remaining enemies tracking
+- **CustomMapData Extensions** ✅:
+  - CustomWaveData class with wave configuration:
+    - Wave number sequencing
+    - Enemy groups list (EnemySpawnGroup collection)
+    - Time between groups
+    - Credits reward per wave
+    - Boss type (optional)
+  - EnemySpawnGroup class structure:
+    - Enemy type string identifier
+    - Enemy count per group
+    - Spawn interval timing
+    - Spawn point index
+  - Waves list property for storing all custom waves
+  - JSON serialization support for save/load
+- **Wave Configuration Analytics** ✅:
+  - `wave_config_opened`: Track wave editor sessions
+  - `wave_config_wave_added`: New wave creation
+  - `wave_config_wave_edited`: Wave modifications
+  - `wave_config_wave_deleted`: Wave deletion
+  - `wave_config_enemy_group_added`: Enemy group additions
+  - `wave_config_enemy_group_deleted`: Group deletions
+  - `wave_config_generated`: Auto-generation usage
+  - `wave_config_saved`: Wave configuration saves
+  - Analytics parameters: map_id, wave_count, difficulty, existing_waves
 - **Community Features** (planned):
   - Map publishing to cloud
   - Community map browser

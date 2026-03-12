@@ -83,10 +83,37 @@ namespace RobotTD.Core
             OnEnemyCountChanged ??= new UnityEvent<int>();
         }
 
+        // Custom map data (for test play mode)
+        private CustomMapData customMapData;
+
         private void Start()
         {
             LoadEnemyPrefabs();
+            TryLoadCustomMapWaves();
             TryLoadWaveSetFromMap();
+        }
+
+        /// <summary>
+        /// Check if we're in test play mode and load custom waves
+        /// </summary>
+        private void TryLoadCustomMapWaves()
+        {
+            // Check for test play mode with custom map
+            if (MapEditorManager.IsTestPlayMode && MapEditorManager.PendingTestPlayMap != null)
+            {
+                customMapData = MapEditorManager.PendingTestPlayMap;
+                
+                if (customMapData.waves != null && customMapData.waves.Count > 0)
+                {
+                    totalWaves = customMapData.waves.Count;
+                    Debug.Log($"[WaveManager] Loaded {totalWaves} custom waves from test play map: {customMapData.mapName}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[WaveManager] Custom map '{customMapData.mapName}' has no wave configuration, using procedural generation");
+                    customMapData = null; // Clear so we fall back to procedural
+                }
+            }
         }
 
         /// <summary>
@@ -94,6 +121,10 @@ namespace RobotTD.Core
         /// </summary>
         private void TryLoadWaveSetFromMap()
         {
+            // Skip if we already have custom waves from test play
+            if (customMapData != null)
+                return;
+
             // If WaveSetData not manually assigned, try to load from current map
             if (waveSetData == null)
             {
@@ -135,18 +166,24 @@ namespace RobotTD.Core
         private void LoadEnemyPrefabs()
         {
             enemyPrefabs = new Dictionary<EnemyType, GameObject>();
-            NEW: If we have WaveSetData, use it
-            if (waveSetData != null && wave >= 1 && wave <= waveSetData.waves.Count)
-            {
-                WaveData waveData = waveSetData.waves[wave - 1]; // waves are 1-indexed
-                GenerateFromWaveData(waveData);
-                return;
-            }
-
-            // FALLBACK: Procedural generation for backwards compatibility
-            // 
+            
             // Load from Resources/Prefabs/Enemies/
             foreach (EnemyType type in System.Enum.GetValues(typeof(EnemyType)))
+            {
+                string path = $"Prefabs/Enemies/{type}";
+                GameObject prefab = Resources.Load<GameObject>(path);
+                if (prefab != null)
+                {
+                    enemyPrefabs[type] = prefab;
+                }
+                else
+                {
+                    Debug.LogWarning($"[WaveManager] Enemy prefab not found: {path}");
+                }
+            }
+
+            Debug.Log($"[WaveManager] Loaded {enemyPrefabs.Count} enemy prefabs");
+        }
             {
                 string path = $"Prefabs/Enemies/{type}";
                 GameObject prefab = Resources.Load<GameObject>(path);
@@ -195,6 +232,22 @@ namespace RobotTD.Core
             spawnQueue.Clear();
             List<EnemyType> enemies = new List<EnemyType>();
 
+            // Priority 1: Use custom map waves if in test play mode
+            if (customMapData != null && wave >= 1 && wave <= customMapData.waves.Count)
+            {
+                GenerateFromCustomWave(customMapData.waves[wave - 1]);
+                return;
+            }
+
+            // Priority 2: Use WaveSetData if available
+            if (waveSetData != null && wave >= 1 && wave <= waveSetData.waves.Count)
+            {
+                WaveData waveData = waveSetData.waves[wave - 1];
+                GenerateFromWaveData(waveData);
+                return;
+            }
+
+            // Priority 3: Procedural generation fallback
             // Base enemy count increases with waves
             int baseCount = 5 + wave * 2;
             int totalEnemies = Mathf.Min(baseCount, maxEnemiesPerWave);
@@ -303,6 +356,43 @@ namespace RobotTD.Core
             OnEnemyCountChanged?.Invoke(EnemiesRemaining);
 
             Debug.Log($"[WaveManager] Wave {waveData.waveNumber}: {waveData.waveName} - {enemies.Count} enemies");
+        }
+
+        /// <summary>
+        /// Generate wave composition from custom map wave data (used in test play mode)
+        /// </summary>
+        private void GenerateFromCustomWave(CustomWaveData customWave)
+        {
+            spawnQueue.Clear();
+            List<EnemyType> enemies = new List<EnemyType>();
+
+            // Process each enemy group
+            foreach (var group in customWave.enemyGroups)
+            {
+                EnemyType enemyType = ParseEnemyType(group.enemyType);
+
+                // Add enemies based on count
+                for (int i = 0; i < group.count; i++)
+                {
+                    enemies.Add(enemyType);
+                }
+            }
+
+            // Shuffle for variety (unless we want ordered spawns)
+            ShuffleList(enemies);
+
+            foreach (var enemy in enemies)
+                spawnQueue.Enqueue(enemy);
+
+            // Use custom timing if specified
+            if (customWave.timeBetweenGroups > 0)
+                timeBetweenSpawns = customWave.timeBetweenGroups;
+
+            EnemiesToSpawn = spawnQueue.Count;
+            EnemiesRemaining = EnemiesToSpawn;
+            OnEnemyCountChanged?.Invoke(EnemiesRemaining);
+
+            Debug.Log($"[WaveManager] Custom Wave {customWave.waveNumber}: {enemies.Count} enemies, Credits: {customWave.creditsReward}");
         }
 
         /// <summary>
