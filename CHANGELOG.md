@@ -1050,12 +1050,119 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - ContributionType: Enum (Credits, Trophies, Experience)
     - ClanAchievement: Clan achievement data
     - ClanListData, ClanChatData: Serialization helpers
-- **Live Operations Tools**:
-  - Remote configuration without updates
-  - A/B testing for features and balance
-  - Feature flags for gradual rollouts
-  - Real-time analytics dashboard
-  - Automated event scheduling
+- **Live Operations Tools** ✅:
+  - **LiveOpsManager Component**:
+    - Singleton design pattern with DontDestroyOnLoad persistence
+    - Separate namespace RobotTD.LiveOps for live operations functionality
+    - Complete live ops system for remote management and experimentation
+    - Remote configuration, A/B testing, feature flags, and dynamic content
+    - Auto-refresh system (5-minute interval for config, 1-minute for flags)
+    - User ID generation and consistent assignment
+    - Verbose logging for debugging
+  - **Remote Configuration System**:
+    - Key-value configuration storage
+    - Load configs from remote source (with local cache fallback)
+    - Apply configs at runtime without app updates
+    - Default values fallback for reliability
+    - ConfigValueType: Int, Float, Bool, String
+    - GetInt(key, default), GetFloat(key, default), GetBool(key, default), GetString(key, default)
+    - RemoteConfigValue data: key, value, valueType, lastUpdated
+    - OnConfigValueChanged event for real-time updates
+    - Persistent local cache in PlayerPrefs
+    - Example configs: daily_reward_amount, ad_cooldown_seconds, shop_discount_percentage, maintenance_mode
+  - **A/B Testing Framework**:
+    - Define A/B tests with multiple variants
+    - Weighted variant assignment (customizable distribution)
+    - Consistent user assignment based on user ID hashing
+    - Track test performance with analytics integration
+    - GetABTestVariant(testId, default) returns assigned variant
+    - IsInABTestVariant(testId, variant) checks variant membership
+    - TrackABTestEvent(testId, eventName, params) logs test events
+    - ABTest data: testId, testName, variants, variantWeights, isActive, startDate, participantCount
+    - OnABTestAssigned event for variant assignment
+    - Max active tests: 5 (configurable)
+    - Example tests: shop_discount_test, tutorial_flow_test, reward_amount_test
+  - **Feature Flags System**:
+    - Enable/disable features remotely
+    - Gradual rollout with percentage control (0-100%)
+    - User segment targeting with consistent hashing
+    - Kill switch functionality for instant feature disable
+    - IsFeatureEnabled(flagId) checks feature availability
+    - SetFeatureFlagOverride(flagId, enabled) for testing
+    - ClearFeatureFlagOverride(flagId) removes override
+    - FeatureFlag data: flagId, flagName, enabled, rolloutPercentage, lastUpdated
+    - OnFeatureFlagChanged event for flag updates
+    - Feature flag overrides stored separately for testing
+    - Example flags: new_tower_unlocked, clan_wars_enabled, pvp_ranked_mode (50% rollout), achievement_system_v2 (25% rollout)
+  - **Dynamic Content Management**:
+    - Update game content without app updates
+    - Content versioning and rollback support
+    - UpdateDynamicContent(contentId, contentName, contentData) updates content
+    - GetDynamicContent(contentId) retrieves content
+    - GetAllDynamicContent() returns all content
+    - DynamicContent data: contentId, contentName, contentData, lastUpdated
+    - OnDynamicContentUpdated event for content changes
+    - Persistent content storage in PlayerPrefs
+  - **Auto-Refresh System**:
+    - Automatic config refresh every 5 minutes (configurable)
+    - Feature flag refresh every 1 minute (configurable)
+    - ForceRefresh() for manual refresh
+    - OnLiveOpsRefreshed event after refresh
+    - Network simulation with random delays
+    - Graceful fallback to cached data on failure
+  - **Local Persistence**:
+    - RemoteConfig saved to PlayerPrefs (JSON serialization)
+    - ABTests with ABTestData wrapper
+    - TestAssignments with TestAssignmentData wrapper
+    - FeatureFlags with FeatureFlagData wrapper
+    - DynamicContent with DynamicContentData wrapper
+    - Load on initialization, save after changes
+    - PlayerPrefs keys: "LiveOps_RemoteConfig", "LiveOps_ABTests", "LiveOps_TestAssignments", "LiveOps_FeatureFlags", "LiveOps_DynamicContent", "UserId"
+    - Automatic data migration on schema changes
+  - **Events System**:
+    - OnConfigValueChanged(string, RemoteConfigValue) - Config updated
+    - OnABTestAssigned(string, string) - User assigned to test variant
+    - OnFeatureFlagChanged(string, bool) - Feature flag toggled
+    - OnDynamicContentUpdated(string) - Content updated
+    - OnLiveOpsRefreshed - Refresh completed
+  - **Analytics Integration** (7 new events):
+    - liveops_initialized: System startup with config/test/flag counts
+    - liveops_config_changed: Config value changed with key and new value
+    - liveops_ab_test_assigned: User assigned to test variant with test details
+    - liveops_ab_test_event: Custom event within A/B test with variant context
+    - liveops_feature_flag_toggled: Feature flag changed with flag details and user access
+    - liveops_content_updated: Dynamic content updated with content ID
+    - liveops_refreshed: Manual or auto refresh completed with updated counts
+  - **Configuration Options**:
+    - Enable/disable live ops toggle
+    - Config refresh interval (default 5 minutes)
+    - Enable/disable remote config
+    - Remote config URL (configurable endpoint)
+    - Enable/disable A/B testing
+    - Max active tests (default 5)
+    - Enable/disable feature flags
+    - Feature flag refresh interval (default 1 minute)
+    - Verbose logging for debugging
+  - **Data Structures**:
+    - ConfigValueType: Enum (Int, Float, Bool, String)
+    - RemoteConfigValue: Config key-value with type
+    - RemoteConfigData: Serialization helper
+    - ABTest: Test definition with variants and weights
+    - ABTestData: Serialization helper
+    - TestAssignment: User-to-variant mapping
+    - TestAssignmentData: Serialization helper
+    - FeatureFlag: Flag definition with rollout percentage
+    - FeatureFlagData: Serialization helper
+    - DynamicContent: Content data with metadata
+    - DynamicContentData: Serialization helper
+  - **Utility Methods**:
+    - IsInitialized property checks initialization status
+    - ForceRefresh() forces immediate refresh
+    - GetAllConfigs() returns all config values
+    - GetAllABTests() returns all active tests
+    - GetAllFeatureFlags() returns all feature flags
+    - GetAllDynamicContent() returns all content
+    - GetUserId() returns current user ID
 
 ---
 
