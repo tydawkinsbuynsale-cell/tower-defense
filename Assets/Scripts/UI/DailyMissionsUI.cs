@@ -21,12 +21,19 @@ namespace RobotTD.UI
         [SerializeField] private Button closeButton;
         [SerializeField] private Button refreshButton;
         
+        [Header("Tab Buttons")]
+        [SerializeField] private Button dailyTabButton;
+        [SerializeField] private Button weeklyTabButton;
+        [SerializeField] private Color activeTabColor = new Color(0.2f, 0.6f, 1f);
+        [SerializeField] private Color inactiveTabColor = new Color(0.5f, 0.5f, 0.5f);
+        
         [Header("Animation")]
         [SerializeField] private float cardSpawnDelay = 0.1f;
         [SerializeField] private CanvasGroup canvasGroup;
         
         private MissionCardUI[] currentCards = new MissionCardUI[3];
         private bool isOpen = false;
+        private bool showingWeekly = false;
         
         private void Start()
         {
@@ -44,12 +51,23 @@ namespace RobotTD.UI
 #endif
             }
             
+            if (dailyTabButton != null)
+            {
+                dailyTabButton.onClick.AddListener(ShowDailyTab);
+            }
+            
+            if (weeklyTabButton != null)
+            {
+                weeklyTabButton.onClick.AddListener(ShowWeeklyTab);
+            }
+            
             if (panel != null)
             {
                 panel.SetActive(false);
             }
             
             SubscribeToMissionEvents();
+            UpdateTabButtons();
         }
         
         private void OnDestroy()
@@ -123,6 +141,43 @@ namespace RobotTD.UI
                 Open();
         }
         
+        // ── Tab Switching ─────────────────────────────────────────────────────
+        
+        public void ShowDailyTab()
+        {
+            showingWeekly = false;
+            UpdateTabButtons();
+            RefreshDisplay();
+        }
+        
+        public void ShowWeeklyTab()
+        {
+            showingWeekly = true;
+            UpdateTabButtons();
+            RefreshDisplay();
+        }
+        
+        private void UpdateTabButtons()
+        {
+            if (dailyTabButton != null)
+            {
+                Image dailyImage = dailyTabButton.GetComponent<Image>();
+                if (dailyImage != null)
+                {
+                    dailyImage.color = showingWeekly ? inactiveTabColor : activeTabColor;
+                }
+            }
+            
+            if (weeklyTabButton != null)
+            {
+                Image weeklyImage = weeklyTabButton.GetComponent<Image>();
+                if (weeklyImage != null)
+                {
+                    weeklyImage.color = showingWeekly ? activeTabColor : inactiveTabColor;
+                }
+            }
+        }
+        
         // ── Display Refresh ───────────────────────────────────────────────────
         
         private void RefreshDisplay()
@@ -135,11 +190,13 @@ namespace RobotTD.UI
             
             ClearCards();
             
-            MissionData[] missions = MissionManager.Instance.CurrentMissions;
+            MissionData[] missions = showingWeekly 
+                ? MissionManager.Instance.CurrentWeeklyMissions 
+                : MissionManager.Instance.CurrentMissions;
             
             if (missions == null || missions.Length == 0)
             {
-                Debug.LogWarning("[DailyMissionsUI] No missions available");
+                Debug.LogWarning($"[DailyMissionsUI] No {(showingWeekly ? "weekly" : "daily")} missions available");
                 return;
             }
             
@@ -203,11 +260,22 @@ namespace RobotTD.UI
         {
             if (MissionManager.Instance == null) return;
             
-            TimeSpan timeUntilRotation = MissionManager.Instance.GetTimeUntilRotation();
+            TimeSpan timeUntilRotation = showingWeekly 
+                ? MissionManager.Instance.GetTimeUntilWeeklyRotation()
+                : MissionManager.Instance.GetTimeUntilRotation();
             
             if (timerText != null)
             {
-                timerText.text = $"Next Rotation: {timeUntilRotation.Hours:D2}:{timeUntilRotation.Minutes:D2}:{timeUntilRotation.Seconds:D2}";
+                string rotationType = showingWeekly ? "Weekly" : "Daily";
+                
+                if (timeUntilRotation.TotalDays >= 1)
+                {
+                    timerText.text = $"Next {rotationType} Rotation: {(int)timeUntilRotation.TotalDays}d {timeUntilRotation.Hours:D2}h {timeUntilRotation.Minutes:D2}m";
+                }
+                else
+                {
+                    timerText.text = $"Next {rotationType} Rotation: {timeUntilRotation.Hours:D2}:{timeUntilRotation.Minutes:D2}:{timeUntilRotation.Seconds:D2}";
+                }
             }
         }
         
@@ -215,8 +283,21 @@ namespace RobotTD.UI
         {
             if (MissionManager.Instance == null || completionText == null) return;
             
-            int completed = MissionManager.Instance.GetCompletedMissionsCount();
-            int total = MissionManager.Instance.CurrentMissions.Length;
+            MissionData[] missions = showingWeekly 
+                ? MissionManager.Instance.CurrentWeeklyMissions 
+                : MissionManager.Instance.CurrentMissions;
+            
+            int completed = 0;
+            foreach (var mission in missions)
+            {
+                var progress = MissionManager.Instance.GetMissionProgress(mission.MissionId);
+                if (progress != null && progress.completed)
+                {
+                    completed++;
+                }
+            }
+            
+            int total = missions.Length;
             
             completionText.text = $"Completed: {completed}/{total}";
             
@@ -244,6 +325,7 @@ namespace RobotTD.UI
                 MissionManager.Instance.OnMissionProgressUpdated += HandleMissionProgressUpdated;
                 MissionManager.Instance.OnMissionCompleted += HandleMissionCompleted;
                 MissionManager.Instance.OnMissionsRotated += HandleMissionsRotated;
+                MissionManager.Instance.OnWeeklyMissionsRotated += HandleWeeklyMissionsRotated;
             }
         }
         
@@ -254,6 +336,7 @@ namespace RobotTD.UI
                 MissionManager.Instance.OnMissionProgressUpdated -= HandleMissionProgressUpdated;
                 MissionManager.Instance.OnMissionCompleted -= HandleMissionCompleted;
                 MissionManager.Instance.OnMissionsRotated -= HandleMissionsRotated;
+                MissionManager.Instance.OnWeeklyMissionsRotated -= HandleWeeklyMissionsRotated;
             }
         }
         
@@ -288,7 +371,15 @@ namespace RobotTD.UI
         
         private void HandleMissionsRotated()
         {
-            if (isOpen)
+            if (isOpen && !showingWeekly)
+            {
+                RefreshDisplay();
+            }
+        }
+        
+        private void HandleWeeklyMissionsRotated()
+        {
+            if (isOpen && showingWeekly)
             {
                 RefreshDisplay();
             }
@@ -316,7 +407,14 @@ namespace RobotTD.UI
         {
             if (MissionManager.Instance != null)
             {
-                MissionManager.Instance.CheckAndRotateMissions();
+                if (showingWeekly)
+                {
+                    MissionManager.Instance.CheckAndRotateWeeklyMissions();
+                }
+                else
+                {
+                    MissionManager.Instance.CheckAndRotateMissions();
+                }
                 RefreshDisplay();
             }
         }
