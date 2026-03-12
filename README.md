@@ -153,7 +153,7 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Sort by: recent, played, rated, liked, name
   - Download and play community maps
 - Keyboard shortcuts: Ctrl+Z/Y (undo/redo), Ctrl+S (save)
-- Analytics integration: 50 events (20 editor + 8 wave config + 1 thumbnail + 6 community + 3 Steam + 5 events + 7 tournament)
+- Analytics integration: 63 events (20 editor + 8 wave config + 1 thumbnail + 6 community + 3 Steam + 5 events + 7 tournament + 13 customization)
 
 **✅ Seasonal Events System**
 - Limited-time events (Halloween, Christmas, etc.)
@@ -171,6 +171,25 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
 - Automatic sync on achievement unlock
 - Editor simulation mode for testing
 - Steamworks.NET SDK support
+
+**✅ Tournament Mode**
+- Competitive ladder with Elo-like rating system (K-factor 32)
+- Skill-based matchmaking with expanding search ranges
+- Rank tiers: Bronze, Silver, Gold, Platinum, Diamond, etc.
+- Rank decay for inactive players (14-day default)
+- Weekly tournaments with prize pools and leaderboards
+- Win/loss statistics and streak tracking
+- Tournament history tracking
+
+**✅ Advanced Customization**
+- Tower skins with 5 rarity levels (Common, Uncommon, Rare, Epic, Legendary)
+- Map themes (sci-fi, fantasy, post-apocalyptic visual packs)
+- UI themes: Standard, Dark Mode, High Contrast
+- Colorblind modes: Protanopia, Deuteranopia, Tritanopia
+- Player profiles: avatars, banners, titles
+- Collection tracking with completion percentages
+- Unlock requirements: achievements, levels, purchases, events
+- Local storage persistence for unlocked/equipped items
 
 **✅ Monetization Systems**
 - In-App Purchases (13 products: gems, credits, skins, subscriptions)
@@ -1004,7 +1023,7 @@ Copyright © 2026 Your Studio. All rights reserved.
 ### Version 3.0 (In Progress)
 - [x] Seasonal Events system (limited-time challenges, exclusive rewards) ✅
 - [x] Tournament Mode (competitive ladder, ranked matches, weekly tournaments) ✅
-- [ ] Advanced Customization (tower skins, map themes, UI themes)
+- [x] Advanced Customization (tower skins, map themes, UI themes, profile customization) ✅
 - [ ] Expanded Content Pack:
   - [ ] 5 new tower types (Laser Grid, EMP Tower, Mine Layer, Support Drone, Weather Control)
   - [ ] 8 new enemy types (Burrower, Phaser, Replicator, Vampire, Berserker, etc.)
