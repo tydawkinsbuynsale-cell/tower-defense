@@ -87,6 +87,13 @@ namespace RobotTD.Map
 
         private void Start()
         {
+            // Check for test play mode first
+            if (Core.MapEditorManager.IsTestPlayMode && Core.MapEditorManager.PendingTestPlayMap != null)
+            {
+                LoadCustomMap(Core.MapEditorManager.PendingTestPlayMap);
+                return;
+            }
+
             // Try to load map from MapSelector first (when launched from main menu)
             var mapSelector = Core.MapSelector.Instance;
             if (mapSelector != null)
@@ -131,6 +138,74 @@ namespace RobotTD.Map
 
             // Initialize placement grid
             InitializePlacementGrid();
+
+            // Inform other systems
+            Core.WaveManager.Instance?.SetPath(spawnPoint, waypoints);
+            Core.GameManager.Instance?.InitializeGame();
+        }
+
+        /// <summary>
+        /// Load a custom map from CustomMapData (for test play mode)
+        /// </summary>
+        public void LoadCustomMap(CustomMapData customMap)
+        {
+            if (customMap == null)
+            {
+                Debug.LogError("[MapManager] Cannot load null custom map!");
+                return;
+            }
+
+            Debug.Log($"[MapManager] Loading custom map: {customMap.mapName}");
+
+            // Convert path tiles to waypoints
+            List<Vector3> pathPoints = new List<Vector3>();
+            
+            // Find path tiles and create ordered waypoints
+            for (int y = 0; y < customMap.gridHeight; y++)
+            {
+                for (int x = 0; x < customMap.gridWidth; x++)
+                {
+                    if (customMap.GetTile(x, y) == TileType.Path || 
+                        customMap.GetTile(x, y) == TileType.SpawnPoint ||
+                        customMap.GetTile(x, y) == TileType.Base)
+                    {
+                        // Convert grid position to world position
+                        Vector3 worldPos = new Vector3(x * gridCellSize, 0, y * gridCellSize);
+                        pathPoints.Add(worldPos);
+                    }
+                }
+            }
+
+            if (pathPoints.Count == 0)
+            {
+                Debug.LogError("[MapManager] Custom map has no path!");
+                return;
+            }
+
+            // Create waypoints from path
+            CreateWaypointsFromData(pathPoints.ToArray());
+
+            // Initialize placement grid with custom map size
+            gridWidth = customMap.gridWidth;
+            gridHeight = customMap.gridHeight;
+            InitializePlacementGrid();
+
+            // Mark non-buildable cells
+            for (int y = 0; y < customMap.gridHeight; y++)
+            {
+                for (int x = 0; x < customMap.gridWidth; x++)
+                {
+                    TileType tile = customMap.GetTile(x, y);
+                    if (tile != TileType.Buildable)
+                    {
+                        // Mark as non-buildable
+                        if (x < gridWidth && y < gridHeight)
+                        {
+                            placementGrid[x, y] = false;
+                        }
+                    }
+                }
+            }
 
             // Inform other systems
             Core.WaveManager.Instance?.SetPath(spawnPoint, waypoints);
