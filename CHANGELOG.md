@@ -190,9 +190,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Testing procedures
   - Troubleshooting guide
 
+**Artillery Bot Tower** 💣
+- **New Tower Type**: Long-range siege tower with arc projectiles
+  - Fires shells in high parabolic arc over obstacles
+  - Deals splash damage on impact with damage falloff
+  - Minimum range limitation (can't hit close enemies)
+  - Highest range of all towers (~15-18 units)
+  - Slow fire rate (~2-3 seconds) balanced by high damage
+  - Visual arc trajectory and barrel aiming
+- **ArtilleryBot** (Tower Class):
+  - Extends Tower base class with arc firing logic
+  - Minimum range targeting (3+ units from tower)
+  - Barrel rotation with elevation angle calculation
+  - Splash damage helper method for projectiles
+  - Muzzle flash and fire sound effects
+  - Range gizmos showing min/max range and splash radius
+- **ArtilleryProjectile**:
+  - Position-based targeting (doesn't track moving targets)
+  - Parabolic trajectory physics with realistic arc
+  - Flight duration calculated from distance (0.5-2.5s)
+  - Shell rotation during flight for visual effect
+  - Explosion on impact with optional camera shake
+  - Gizmo visualization of trajectory prediction
+  - Damage falloff based on distance from impact
+- **Game Balance**:
+  - Cost: ~300 credits (expensive, mid-game tower)
+  - Damage: ~150 base (high single-instance damage)
+  - Range: ~18 units (extreme, covers large map areas)
+  - Fire Rate: 0.4 attacks/sec (~2.5s cooldown)
+  - Splash Radius: 2.5 units with 50% falloff
+  - Minimum Range: 3 units (requires other towers for close defense)
+- **Strategic Role**:
+  - Long-range area denial for grouped enemy clusters
+  - Pairs well with slow/freeze towers for static targets
+  - Weak against fast-moving or close-range threats
+  - Tests Challenge Mode (LimitedArsenal, tower cost modifiers)
+  - Provides content for Daily Missions (UseTowerType, PlaceTowers)
+- **Integration**:
+  - Added ArtilleryBot to TowerType enum
+  - New tower and projectile classes
+  - Compatible with all existing systems (upgrades, missions, challenges)
+  - Requires Unity asset setup (ScriptableObject, prefabs, UI button)
+- **Documentation**: Setup guide in this changelog (see below)
+
 ### Planned Features
 - Cloud save support with conflict resolution
-- Additional tower types (Artillery Bot)
 - Additional enemy types (Cloaker)
 - Weekly missions (extended version of daily missions)
 - Social features (friend leaderboards, sharing)

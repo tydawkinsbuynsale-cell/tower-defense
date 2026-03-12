@@ -29,7 +29,7 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
 ### Features
 
 **✅ Complete Tower System**
-- 11 unique tower types with distinct abilities
+- 12 unique tower types with distinct abilities
 - 3-tier upgrade system for each tower
 - 5 targeting priority modes (First, Last, Strongest, Weakest, Closest)
 - Advanced placement system with visual feedback
@@ -349,6 +349,7 @@ public class Tower : MonoBehaviour
 - Buff Station (damage boost to nearby towers)
 - Minelayer (trap placement)
 - Repair Station (tower HP regeneration)
+- Artillery Bot (long range arc projectile, splash damage)
 
 ### 2. Wave System
 
