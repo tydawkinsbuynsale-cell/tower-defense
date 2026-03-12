@@ -847,6 +847,82 @@ namespace RobotTD.Core
         // ── Utilities ─────────────────────────────────────────────────────────
         // ══════════════════════════════════════════════════════════════════════
 
+        // Static property to store map for test play session
+        public static CustomMapData PendingTestPlayMap { get; set; }
+        public static bool IsTestPlayMode { get; set; }
+
+        /// <summary>
+        /// Test play the current map. Validates first, then loads game scene.
+        /// </summary>
+        public void TestPlayCurrentMap()
+        {
+            if (currentMap == null)
+            {
+                Debug.LogError("[MapEditorManager] No map to test play!");
+                return;
+            }
+
+            // Validate map first
+            var validationResult = ValidateMap(currentMap);
+            
+            if (validationResult.Errors.Count > 0)
+            {
+                Debug.LogWarning($"[MapEditorManager] Cannot test play - map has {validationResult.Errors.Count} error(s)!");
+                
+                // Show error to user
+                string errorMessage = "Cannot test play map with errors:\n\n";
+                foreach (var error in validationResult.Errors)
+                {
+                    errorMessage += $"• {error}\n";
+                }
+                
+                OnMapValidated?.Invoke(errorMessage);
+                return;
+            }
+
+            // Save map before test play
+            bool saved = SaveCurrentMap();
+            if (!saved)
+            {
+                Debug.LogError("[MapEditorManager] Failed to save map before test play!");
+                return;
+            }
+
+            // Store map for test play
+            PendingTestPlayMap = currentMap.Clone();
+            IsTestPlayMode = true;
+
+            LogDebug($"Starting test play for map: {currentMap.mapName}");
+
+            // Track analytics
+            if (AnalyticsManager.Instance != null)
+            {
+                AnalyticsManager.Instance.TrackEvent("map_editor_test_play", new Dictionary<string, object>
+                {
+                    { "map_id", currentMap.mapId },
+                    { "map_name", currentMap.mapName },
+                    { "grid_width", currentMap.gridWidth },
+                    { "grid_height", currentMap.gridHeight },
+                    { "is_valid", validationResult.IsValid }
+                });
+            }
+
+            // Load game scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
+        }
+
+        /// <summary>
+        /// Return to map editor from test play.
+        /// </summary>
+        public static void ReturnToEditor()
+        {
+            IsTestPlayMode = false;
+            PendingTestPlayMap = null;
+            
+            // Load editor scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MapEditor");
+        }
+
         public CustomMapData GetCurrentMap() => currentMap;
         public bool IsEditing() => isEditing;
         public bool HasUnsavedChanges() => hasUnsavedChanges;
