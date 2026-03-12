@@ -147,6 +147,16 @@ namespace RobotTD.Analytics
         public const string CUSTOM_MAP_DOWNLOADED = "custom_map_downloaded";
         public const string CUSTOM_MAP_SHARED = "custom_map_shared";
         
+        // ── Wave Configuration Events ─────────────────────────────────────────
+        public const string WAVE_CONFIG_OPENED = "wave_config_opened";
+        public const string WAVE_CONFIG_WAVE_ADDED = "wave_config_wave_added";
+        public const string WAVE_CONFIG_WAVE_EDITED = "wave_config_wave_edited";
+        public const string WAVE_CONFIG_WAVE_DELETED = "wave_config_wave_deleted";
+        public const string WAVE_CONFIG_ENEMY_GROUP_ADDED = "wave_config_enemy_group_added";
+        public const string WAVE_CONFIG_ENEMY_GROUP_DELETED = "wave_config_enemy_group_deleted";
+        public const string WAVE_CONFIG_GENERATED = "wave_config_generated";
+        public const string WAVE_CONFIG_SAVED = "wave_config_saved";
+        
         // ── Map Storage Events ────────────────────────────────────────────────
         public const string MAP_STORAGE_DELETED = "map_storage_deleted";
         public const string MAP_STORAGE_EXPORTED = "map_storage_exported";
