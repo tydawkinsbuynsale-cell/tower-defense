@@ -233,9 +233,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Requires Unity asset setup (ScriptableObject, prefabs, UI button)
 - **Documentation**: Setup guide in this changelog (see below)
 
+**Cloaker Enemy** 👻
+- **New Enemy Type**: Stealth unit with invisibility mechanics
+  - Turns invisible (cloaked) - only 15% opacity
+  - Uncloaks when taking damage - becomes fully visible
+  - Re-cloaks after cooldown period (no damage for 5 seconds)
+  - Only targetable by towers within detection range when cloaked
+  - Creates strategic tower placement challenges
+  - Medium health (150 HP), medium-fast speed (2.5 units/sec)
+- **CloakerEnemy** (Enemy Class):
+  - Extends Enemy base class with stealth mechanics
+  - Smooth visual transitions (0.5s cloak/uncloak)
+  - Material transparency control with alpha blending
+  - Particle effects for cloak/uncloak events
+  - Audio feedback for state changes
+  - Uncloak duration timer (stays visible 2s after damage)
+  - Recloak cooldown system (3s delay before can recloak)
+  - Health bar visibility tied to cloak state
+- **Detection System**:
+  - Global detection range: 4 units (default for all towers)
+  - Towers can only target cloaked enemies within detection range
+  - Tower.GetDetectionRange() virtual method for custom detection
+  - CloakerEnemy.CanTarget() static helper for tower checks
+  - Supports enhanced detection for specialized towers
+- **Tower Targeting Integration**:
+  - Modified Tower.IsValidTarget() to check cloaking status
+  - Updated all targeting methods (First, Last, Strongest, Weakest, Closest)
+  - Cloaked enemies skipped unless within detection range
+  - Seamless integration with existing tower AI
+- **Visual System**:
+  - Transparency transitions using material alpha
+  - Standard shader rendering mode switching (Opaque ↔ Transparent)
+  - Original color preservation for smooth transitions
+  - Particle effects for cloak/uncloak events
+  - Gizmos showing detection radius in editor
+- **Game Balance**:
+  - Health: 150 HP (medium durability)
+  - Speed: 2.5 units/sec (medium-fast)
+  - Reward: 40 credits (higher than basic enemies)
+  - Detection Range: 4 units (requires close tower placement)
+  - Uncloak Duration: 2 seconds (window to deal damage)
+  - Recloak Cooldown: 3 seconds (strategic timing)
+  - Cloaked Alpha: 15% (mostly invisible but faintly visible)
+- **Strategic Role**:
+  - Forces tight tower placement for detection coverage
+  - Countered by close-range towers and strategic positioning
+  - Pairs well with tanks and healers (slips past defenses)
+  - Tests player awareness and map control
+  - Rewards forward-thinking tower placement
+  - Can be specialized with detection towers (future enhancement)
+- **Integration**:
+  - Added CloakerEnemy class to EnemyTypes.cs (260 lines)
+  - Enhanced Tower.cs with detection mechanics
+  - Compatible with all game systems (achievements, missions, challenges)
+  - Requires Unity asset setup (ScriptableObject, prefabs, VFX)
+  - EnemyData already has canCloak boolean (system-ready)
+- **Documentation**: [CLOAKER_ENEMY_SETUP.md](CLOAKER_ENEMY_SETUP.md)
+  - Complete Unity Editor setup guide (600+ lines)
+  - Material and shader configuration
+  - Particle effect creation
+  - Audio integration
+  - Wave composition guidelines
+  - Testing procedures with detection mechanics
+  - Balancing recommendations
+  - Troubleshooting guide
+  - Advanced features (detection towers, true sight)
+
 ### Planned Features
 - Cloud save support with conflict resolution
-- Additional enemy types (Cloaker)
 - Weekly missions (extended version of daily missions)
 - Social features (friend leaderboards, sharing)
 

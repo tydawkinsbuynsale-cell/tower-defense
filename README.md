@@ -35,10 +35,11 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
 - Advanced placement system with visual feedback
 
 **✅ Enemy System**
-- 11 enemy types with varied behaviors
+- 12 enemy types with varied behaviors
 - 3 boss encounters with special abilities
 - Dynamic difficulty scaling across 30 waves per map
 - Status effects: slow, stun, burn, shield
+- Stealth mechanics with cloaking/detection system
 
 **✅ Map System**
 - 5 campaign maps with 150 waves total
@@ -848,14 +849,14 @@ Copyright © 2026 Your Studio. All rights reserved.
 
 ### Version 1.1
 - [ ] Endless mode implementation
-- [ ] New tower: Artillery Bot (long-range siege)
-- [ ] New enemy: Cloaker (invisible unit)
+- [x] New tower: Artillery Bot (long-range siege) ✅
+- [x] New enemy: Cloaker (stealth unit with detection mechanics) ✅  
 - [ ] Cloud save support
 - [ ] Leaderboards
 
 ### Version 1.2
-- [ ] Challenge mode (special modifiers)
-- [ ] Daily missions
+- [x] Challenge mode (special modifiers) ✅
+- [x] Daily missions ✅
 - [ ] New map: Industrial Complex
 - [ ] Boss rush mode
 
