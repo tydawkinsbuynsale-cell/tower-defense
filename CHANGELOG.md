@@ -27,11 +27,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🚀 Coming Soon - V3.0 Features
 
 **Version 3.0 Roadmap** (In Planning)
-- **Seasonal Events System**:
-  - Limited-time challenges with exclusive rewards
-  - Holiday-themed events (Halloween, Christmas, etc.)
-  - Special event currencies and cosmetics
-  - Event leaderboards and milestones
+- **Seasonal Events System** ✅:
+  - **SeasonalEventManager Component**:
+    - Singleton design pattern with DontDestroyOnLoad persistence
+    - Automatic event activation based on date/time ranges
+    - Periodic event checking (5-minute intervals, configurable)
+    - Event lifecycle management (start, end, progress tracking)
+    - Local storage for progress, currencies, and claimed rewards
+  - **Event Data Structures**:
+    - SeasonalEventData: Complete event definition with metadata
+    - EventType enum: Halloween, Christmas, NewYear, Easter, Summer, Anniversary, Special
+    - EventChallenge: Challenge definition with target values and rewards
+    - EventReward: Purchasable rewards with currency costs
+    - EventProgress: Player progress tracking with challenge completion
+  - **Challenge System**:
+    - 10 challenge types: KillEnemies, CompleteWaves, PlaceTowers, EarnCredits, WinMaps, PlayGames, NoLivesLost, SpeedRun, UseSpecificTower, DefeatBosses
+    - UpdateChallengeProgress() for incremental progress tracking
+    - Automatic completion detection and reward distribution
+    - Individual challenge progress tracking per event
+    - Completion status with claimable rewards
+  - **Event Currency System**:
+    - Multiple currency types support (candies, snowflakes, etc.)
+    - AwardEventCurrency() for earning event-specific currency
+    - SpendEventCurrency() for purchasing rewards
+    - GetEventCurrency() for balance checking
+    - Local storage persistence across sessions
+  - **Reward System**:
+    - 8 reward types: TowerSkin, Cosmetic, Currency, PowerUp, Avatar, Banner, Title, Exclusive
+    - ClaimReward() for purchasing with event currency
+    - IsRewardClaimed() to prevent duplicate claims
+    - Reward cost validation before purchase
+    - Per-event reward tracking (prevents claiming across events)
+  - **Event Management**:
+    - CheckForActiveEvents() with automatic start/end detection
+    - ActivateEvent() for manual testing activation
+    - GetCurrentEvent() for active event retrieval
+    - IsEventActive() for event status checking
+    - Single active event at a time (priority-based)
+  - **Progress Tracking**:
+    - GetChallengeProgress() for individual challenge status
+    - IsChallengeCompleted() for completion checks
+    - Persistent progress storage (survives app restarts)
+    - Dictionary-based storage for O(1) lookups
+  - **Events System**:
+    - OnEventStarted(SeasonalEventData) - Event activation notification
+    - OnEventEnded(SeasonalEventData) - Event completion notification
+    - OnEventCurrencyEarned(string, int) - Currency award tracking
+    - OnRewardClaimed(EventReward) - Reward claim confirmation
+    - OnChallengeProgress(EventChallenge, int) - Progress updates
+    - OnChallengeCompleted(EventChallenge) - Challenge completion
+  - **Analytics Integration** (5 new events):
+    - seasonal_events_initialized: System startup tracking
+    - seasonal_event_started: Event activation with metadata
+    - seasonal_event_ended: Event completion with stats
+    - event_challenge_completed: Challenge completion tracking
+    - event_currency_earned: Currency award tracking
+    - event_reward_claimed: Reward purchase tracking
+  - **Local Storage**:
+    - EventProgress saved to PlayerPrefs (JSON serialization)
+    - EventCurrencies persisted across sessions
+    - ClaimedRewards tracking prevents duplicate claims
+    - Load/Save methods for all data structures
+  - **Configuration**:
+    - Configurable event check interval (default 5 minutes)
+    - Enable/disable events toggle
+    - Verbose logging for debugging
+    - SerializeField for event definitions in Inspector
 - **Tournament Mode**:
   - Competitive ladder system with ranked matches
   - Weekly tournaments with prize pools
