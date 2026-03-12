@@ -16,6 +16,7 @@ namespace RobotTD.Map
         public Sprite thumbnail;
         public int difficulty = 1; // 1-5
         public bool isUnlocked = true;
+        public string nextMapId; // Name of the MapData asset to unlock after this map
 
         [Header("Waves")]
         public int totalWaves = 30;
@@ -71,6 +72,8 @@ namespace RobotTD.Map
         public Transform SpawnPoint => spawnPoint;
         public Transform EndPoint => endPoint;
         public float GridCellSize => gridCellSize;
+        public string CurrentMapId => currentMapData != null ? currentMapData.name : string.Empty;
+        public string NextMapId => currentMapData != null ? currentMapData.nextMapId : string.Empty;
 
         private void Awake()
         {

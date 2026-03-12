@@ -29,15 +29,21 @@ namespace RobotTD.Core
         public int Credits { get; private set; }
         public int Lives { get; private set; }
         public int Score { get; private set; }
+        public int StartingLives => startingLives;
         public int CurrentWave => WaveManager.Instance?.CurrentWave ?? 0;
+        public bool IsPaused => CurrentState == GameState.Paused;
 
-        // Events for UI updates and other systems
+        // Unity inspector events
         public UnityEvent<int> OnCreditsChanged;
         public UnityEvent<int> OnLivesChanged;
         public UnityEvent<int> OnScoreChanged;
         public UnityEvent<GameState> OnGameStateChanged;
         public UnityEvent OnGameOver;
         public UnityEvent OnVictory;
+
+        // C# action events (for code-only subscriptions)
+        public System.Action OnGamePaused;
+        public System.Action OnGameResumed;
 
         // Speed control
         public float GameSpeed
@@ -199,6 +205,7 @@ namespace RobotTD.Core
             if (CurrentState == GameState.Playing)
             {
                 SetGameState(GameState.Paused);
+                OnGamePaused?.Invoke();
             }
         }
 
@@ -207,6 +214,7 @@ namespace RobotTD.Core
             if (CurrentState == GameState.Paused)
             {
                 SetGameState(GameState.Playing);
+                OnGameResumed?.Invoke();
             }
         }
 

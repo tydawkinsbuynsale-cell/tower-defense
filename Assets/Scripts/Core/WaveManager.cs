@@ -29,15 +29,20 @@ namespace RobotTD.Core
 
         // Runtime state
         public int CurrentWave { get; private set; } = 0;
+        public int TotalWaves => totalWaves;
         public bool WaveInProgress { get; private set; } = false;
         public int EnemiesRemaining { get; private set; } = 0;
         public int EnemiesToSpawn { get; private set; } = 0;
 
-        // Events
+        // Unity inspector events
         public UnityEvent<int> OnWaveStarted;
         public UnityEvent<int> OnWaveCompleted;
         public UnityEvent OnAllWavesCompleted;
         public UnityEvent<int> OnEnemyCountChanged;
+
+        // C# action events
+        public System.Action<Enemies.Enemy> OnEnemyKilled;
+        public System.Action OnBossSpawned;
 
         // Enemy prefabs - assign in inspector or load from Resources
         private Dictionary<EnemyType, GameObject> enemyPrefabs;
@@ -251,10 +256,17 @@ namespace RobotTD.Core
         /// <summary>
         /// Called when an enemy dies or reaches the end
         /// </summary>
-        public void OnEnemyRemoved()
+        public void OnEnemyRemoved(Enemies.Enemy enemy = null, bool wasKilled = false)
         {
             EnemiesRemaining--;
             OnEnemyCountChanged?.Invoke(EnemiesRemaining);
+
+            if (wasKilled && enemy != null)
+            {
+                OnEnemyKilled?.Invoke(enemy);
+                bool isBoss = enemy is Enemies.BossEnemy;
+                if (isBoss) OnBossSpawned?.Invoke(); // reuse event; bosses announce themselves
+            }
 
             if (EnemiesRemaining <= 0 && spawnQueue.Count == 0)
             {
@@ -307,6 +319,15 @@ namespace RobotTD.Core
         /// Get waypoints array for enemies
         /// </summary>
         public Transform[] GetWaypoints() => waypoints;
+
+        /// <summary>
+        /// Set spawn point and waypoints at runtime (called by MapManager)
+        /// </summary>
+        public void SetPath(Transform spawn, Transform[] points)
+        {
+            spawnPoint = spawn;
+            waypoints  = points;
+        }
 
         /// <summary>
         /// Set spawn point and waypoints (for map loading)
