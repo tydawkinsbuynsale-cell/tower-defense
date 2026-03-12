@@ -108,6 +108,131 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Version 1.4] - In-App Purchases System
+
+### Added
+
+**In-App Purchases (IAP)** 💳
+- **IAPManager**: Complete Unity IAP integration for monetization
+  - Unity IAP SDK integration with IStoreListener implementation
+  - Multi-platform support: iOS App Store, Google Play Store, and more
+  - Singleton pattern with DontDestroyOnLoad persistence
+  - 13-product catalog across all product types
+  - Automatic receipt validation (local + optional server)
+  - Purchase idempotency with transaction ID tracking
+  - Editor simulation mode for testing without real payments
+- **Product Catalog (13 Products)**:
+  - **Consumables (7 products)**: Repeatable purchases
+    - Gem bundles: 100 ($0.99), 500 ($4.99), 1200 ($9.99), 3000 ($19.99)
+    - Credit packs: 5000 ($0.99), 25000 ($4.99)
+    - Power-up bundle ($2.99): 5x all power-ups
+  - **Non-Consumables (5 products)**: One-time permanent purchases
+    - Starter Pack ($4.99): 3000 gems + 10000 credits + gold tower skin
+    - Remove Ads ($2.99): Permanently disable advertisements
+    - Tower Skin Gold ($1.99): Exclusive gold tower appearance
+    - Tower Skin Neon ($1.99): Exclusive neon tower appearance
+    - Map Pack 1 ($3.99): 3 additional challenge maps
+  - **Subscriptions (1 product)**: Recurring billing
+    - Premium Pass Monthly ($4.99/mo): 100 daily gems + exclusive rewards
+- **Purchase Flow**:
+  - One-click purchase initiation: `BuyProduct(productId)`
+  - Automatic store integration via Unity IAP
+  - Receipt processing and validation
+  - Reward granting by product type:
+    - Consumables: AddGems(), AddCredits() via SaveManager/GameManager
+    - Non-Consumables: UnlockTowerSkin(), SetAdsRemoved(), UnlockMapPack()
+    - Subscriptions: ActivatePremiumPass() with expiration tracking
+  - Success/failure callbacks with detailed error messages
+  - Transaction ID logging for support and fraud prevention
+- **Restore Purchases**:
+  - iOS App Store compliance feature (required by Apple)
+  - Restores all non-consumable purchases on new device
+  - Available for Android (optional but recommended)
+  - Integration with IAppleExtensions.RestoreTransactions()
+  - Event: OnRestoreComplete callback
+- **Shop UI System**:
+  - **ShopUI**: Tab-based shopping interface
+    - Three tabs: Consumables, Permanent, Subscriptions
+    - Product list with dynamic spawning from catalog
+    - Loading state indicator during initialization
+    - Success/error message display with auto-clear
+    - Restore Purchases button (iOS compliance)
+    - Analytics tracking: shop_opened event
+  - **ShopProductCard**: Individual product display component
+    - Product title, description, and localized price
+    - Purchase button with state management: "Buy" → "Processing..." → "Purchased"
+    - "Purchased" badge for owned non-consumables
+    - Product type color coding: Green (consumable), Blue (non-consumable), Orange (subscription)
+    - Button auto-disable after non-consumable purchase
+    - Refresh on purchase status change
+- **Integration with Game Systems**:
+  - **SaveManager**: Gems storage and persistence
+  - **GameManager**: Credits management via AddCredits()
+  - **PlayerPrefs**: Non-consumable ownership tracking
+    - Tower skins unlocked (gold, neon)
+    - Map packs unlocked
+    - Ads removed flag
+    - Premium pass status and expiration timestamp
+- **Analytics Integration**:
+  - All purchase events tracked via AnalyticsManager:
+    - iap_initialized: IAP system ready
+    - iap_purchase_initiated: User clicked "Buy"
+    - iap_purchase_success: Purchase completed (with product_id, price, transaction_id)
+    - iap_purchase_failed: Purchase failed (with product_id, error reason)
+    - iap_restore_initiated: Restore purchases clicked
+  - Conversion funnel tracking for monetization optimization
+  - Transaction metadata for analytics dashboards
+- **Localization Support**:
+  - Store-provided localized pricing strings
+  - GetLocalizedPrice(): Returns "$0.99" (US), "€0,99" (EU), "¥120" (JP), etc.
+  - Currency symbols and formatting per region
+- **Testing & Debugging**:
+  - Editor simulation mode: Test all purchases without real payments
+  - Context menu commands for quick testing:
+    - Buy 100 Gems (simulate gems_100 purchase)
+    - Buy Remove Ads (simulate remove_ads purchase)
+    - Restore Purchases (test restore flow)
+    - Print Product Catalog (log all 13 products)
+  - Verbose logging toggle for development
+  - Purchase validation checks before granting
+- **Query API**:
+  - GetProduct(productId): Retrieve product info
+  - GetProductsByType(type): Filter by Consumable/NonConsumable/Subscription
+  - HasPurchased(productId): Check non-consumable ownership
+  - GetPurchaseCount(productId): Track purchase frequency
+  - IsPremiumActive(): Check subscription validity with expiration
+  - AreAdsRemoved(): Check ad removal status
+- **Event System**:
+  - OnInitialized()
+  - OnInitializeFailed(string error)
+  - OnPurchaseComplete(string productId, string transactionId)
+  - OnPurchaseFailed(string productId, string reason)
+  - OnRestoreComplete()
+- **Configuration Options**:
+  - Enable/disable IAP system (for regions without monetization)
+  - Editor simulation toggle for development testing
+  - Verbose logging for debugging purchase flows
+  - Custom product definitions extendable for future products
+- **Security Features**:
+  - Receipt validation via Unity IAP
+  - Transaction ID deduplication to prevent double-grants
+  - Purchase records encrypted in PlayerPrefs
+  - Server-side validation ready (optional backend integration)
+  - Restore purchases prevents fraud via server verification
+- **Complete Documentation**: [IAP_GUIDE.md](IAP_GUIDE.md)
+  - Unity IAP setup and package installation
+  - Product catalog explanation with pricing strategy
+  - Store configuration guides (App Store Connect, Google Play Console)
+  - Purchase flow implementation details
+  - Shop UI setup instructions
+  - Integration examples with SaveManager and GameManager
+  - Testing procedures: Editor simulation, sandbox testing, production
+  - iOS restore purchases requirement and implementation
+  - Best practices for monetization
+  - Comprehensive troubleshooting guide
+
+---
+
 ## [Version 1.2] - Boss Rush & Mega Factory
 
 ### Added
