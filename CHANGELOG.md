@@ -233,6 +233,135 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Version 1.6] - Power-Ups System
+
+### Added
+
+**Power-Ups & Consumables** ⚡
+- **PowerUpManager**: Temporary gameplay boosts with inventory management
+  - Five power-up types: Damage Boost, Speed Boost, Credit Boost, Shield, Time Freeze
+  - Inventory system: Stack up to 99 of each type
+  - Duration-based effects: 30-60 second temporary boosts
+  - Persistent storage via PlayerPrefs
+  - Active power-up tracking with expiration timers
+  - Effect stacking: Extend duration if activated while active
+  - Singleton pattern with DontDestroyOnLoad persistence
+- **Power-Up Types (5)**:
+  - **Damage Boost**: 2x tower damage for 30 seconds
+    - Applies to all towers automatically
+    - Perfect for boss waves or tough enemies
+    - Multiplier configurable in Inspector (default 2.0)
+  - **Speed Boost**: 1.5x tower fire rate for 30 seconds
+    - Increases attack speed for all towers
+    - Great for dealing with fast enemy swarms
+    - Multiplier configurable (default 1.5)
+  - **Credit Boost**: 2x credits earned for 30 seconds
+    - Doubles all credit rewards from enemies
+    - Ideal for economy-focused waves
+    - Multiplier configurable (default 2.0)
+  - **Shield**: Protects base from damage for 60 seconds
+    - Blocks all incoming damage to base
+    - Emergency protection during overwhelming waves
+    - Duration configurable (default 60s)
+  - **Time Freeze**: Slows all enemies to 10% speed for 30 seconds
+    - Significantly slows enemy movement
+    - Buys time to build defenses
+    - Slowdown configurable (default 0.1)
+- **Inventory Management**:
+  - AddPowerUp(type, amount): Add to inventory
+  - RemovePowerUp(type, amount): Remove from inventory
+  - HasPowerUp(type, amount): Check availability
+  - GetPowerUpCount(type): Get inventory count
+  - GetTotalPowerUpCount(): Total across all types
+  - Max stack size: 99 per power-up type
+  - PlayerPrefs persistence across sessions
+- **Activation System**:
+  - ActivatePowerUp(type): Consume from inventory and activate
+  - IsActive(type): Check if power-up currently active
+  - GetRemainingTime(type): Get seconds remaining
+  - Extend duration: Stack activations to extend time
+  - Expiration callbacks: OnPowerUpExpired event
+  - Automatic effect cleanup on expiration
+- **UI Components**:
+  - **PowerUpButton**: Individual power-up activation button
+    - Icon display with power-up sprite
+    - Inventory count text
+    - Power-up name display
+    - Cooldown fill image (radial timer showing remaining time)
+    - Active indicator (glow/border when active)
+    - Timer text (countdown in seconds)
+    - Disable button when count = 0 or already active
+    - SetPowerUpType(): Configure dynamically
+  - **PowerUpPanel**: Container for all power-up buttons
+    - Toggle expand/collapse functionality
+    - Total power-up count display
+    - Dynamic button creation for all types
+    - Configurable start state (expanded/collapsed)
+    - Show/hide in gameplay (configurable)
+- **IAP Integration**:
+  - Power-up Bundle product already in IAPManager
+  - Price: $2.99 for 13 power-ups
+  - Contents: 3x Damage, 3x Speed, 3x Credit, 2x Shield, 2x Time Freeze
+  - GrantPowerUpBundle(): Called on IAP purchase
+  - Automatic inventory addition and save
+  - Toast notification on bundle receipt
+- **Ad Integration**:
+  - GrantFreePowerUp(type): Called after rewarded ad
+  - Watch ad → Earn 1 random power-up
+  - Integrates with AdManager seamlessly
+  - Toast notification on reward
+- **Gameplay Integration**:
+  - Tower damage calculation: ApplyDamageBoost()
+  - Tower fire rate: ApplySpeedBoost()
+  - Enemy speed: ApplyTimeFreeze()
+  - Base shield: IsShieldActive() check before damage
+  - Credit rewards: ApplyCreditBoost(amount) multiplier
+  - Automatic application/removal on activation/expiration
+- **Effect Management**:
+  - ActivatePowerUpEffect(): Apply gameplay changes
+  - DeactivatePowerUpEffect(): Remove gameplay changes
+  - Coroutine-based expiration timers
+  - Update() loop tracks remaining time
+  - OnPowerUpTimeUpdated: Real-time UI updates
+- **Analytics Integration**:
+  - All power-up events tracked via AnalyticsManager:
+    - powerup_added: Power-up added to inventory (type, amount, total)
+    - powerup_activated: Power-up consumed (type, duration, wave context)
+    - powerup_expired: Power-up effect ended (type)
+  - Usage statistics for balancing
+  - Popular power-up tracking
+  - Context tracking (which waves, which situations)
+- **Configuration Options**:
+  - Enable/disable power-ups globally
+  - Default duration (30s)
+  - Max stack size (99)
+  - Effect multipliers per type (2x, 1.5x, etc.)
+  - Shield duration (60s)
+  - Time freeze slowdown (0.1 = 10% speed)
+- **Event System**:
+  - OnInventoryChanged(type, newCount)
+  - OnPowerUpActivated(type, duration)
+  - OnPowerUpExpired(type)
+  - OnPowerUpTimeUpdated(type, remainingTime)
+- **Context Menu Testing**:
+  - Add All Power-Ups (x5)
+  - Activate Damage Boost
+  - Activate All Power-Ups
+  - Print Inventory
+  - Clear All Power-Ups
+- **Complete Documentation**: [POWERUPS_GUIDE.md](POWERUPS_GUIDE.md)
+  - Power-up type explanations and use cases
+  - Inventory management examples
+  - Activation and expiration mechanics
+  - IAP and Ad integration guides
+  - Tower/Enemy/GameManager integration code
+  - UI setup instructions (PowerUpButton, PowerUpPanel)
+  - Testing procedures and context menu commands
+  - Best practices for balancing
+  - Comprehensive troubleshooting guide
+
+---
+
 ## [Version 1.2] - Boss Rush & Mega Factory
 
 ### Added

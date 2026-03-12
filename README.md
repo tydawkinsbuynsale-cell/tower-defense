@@ -872,6 +872,18 @@ Copyright © 2026 Your Studio. All rights reserved.
 - [x] Shop UI with tab-based navigation ✅
 - [x] Editor simulation mode for testing ✅
 
+### Version 1.5 ✅ COMPLETE
+- [x] Ad monetization system (Unity Ads integration) ✅
+- [x] Interstitial, rewarded, and banner ads ✅
+- [x] Frequency controls and cooldowns ✅
+- [x] IAP integration (respects "Remove Ads" purchase) ✅
+
+### Version 1.6 ✅ COMPLETE
+- [x] Power-Ups system (temporary gameplay boosts) ✅
+- [x] 5 power-up types (Damage, Speed, Credit, Shield, Time Freeze) ✅
+- [x] Inventory and activation UI ✅
+- [x] IAP and Ad integration (bundle purchase, earn free) ✅
+
 ### Version 2.0
 - [ ] iOS support
 - [ ] Multiplayer co-op
