@@ -153,7 +153,7 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Sort by: recent, played, rated, liked, name
   - Download and play community maps
 - Keyboard shortcuts: Ctrl+Z/Y (undo/redo), Ctrl+S (save)
-- Analytics integration: 67 events (20 editor + 8 wave config + 1 thumbnail + 6 community + 3 Steam + 5 events + 7 tournament + 13 customization + 4 expansion)
+- Analytics integration: 75 events (20 editor + 8 wave config + 1 thumbnail + 6 community + 3 Steam + 5 events + 7 tournament + 13 customization + 4 expansion + 8 cross-platform)
 
 **✅ Seasonal Events System**
 - Limited-time events (Halloween, Christmas, etc.)
@@ -205,6 +205,16 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Volcanic Forge: Lava flows, heat damage (Difficulty 5/5, 40 waves)
 - Content unlock system with progression requirements
 - Expansion statistics tracking with completion percentage
+
+**✅ Cross-Platform Progression**
+- Unified account system across Android, iOS, Steam, and Web
+- Cloud save sync with auto-sync (5-minute intervals)
+- Platform linking/unlinking with primary platform protection
+- Cross-platform friends list with online status tracking
+- Unified leaderboards across all platforms
+- Platform-exclusive rewards (7 reward types)
+- Conflict resolution for cloud saves
+- Time tracking for last sync and sync status
 
 **✅ Monetization Systems**
 - In-App Purchases (13 products: gems, credits, skins, subscriptions)
@@ -1040,7 +1050,7 @@ Copyright © 2026 Your Studio. All rights reserved.
 - [x] Tournament Mode (competitive ladder, ranked matches, weekly tournaments) ✅
 - [x] Advanced Customization (tower skins, map themes, UI themes, profile customization) ✅
 - [x] Expanded Content Pack (5 new towers, 8 new enemies, 4 new maps) ✅
-- [ ] Cross-Platform Progression (play anywhere, progress synced)
+- [x] Cross-Platform Progression (unified accounts, cloud sync, cross-platform friends) ✅
 - [ ] Advanced AI Systems (dynamic difficulty, adaptive strategies)
 - [ ] Accessibility Features (colorblind modes, screen reader support, remappable controls)
 - [ ] Analytics Dashboard (in-game stats viewer, performance tracking)
