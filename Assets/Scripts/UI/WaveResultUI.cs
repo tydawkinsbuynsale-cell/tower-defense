@@ -34,6 +34,7 @@ namespace RobotTD.UI
         [SerializeField] private GameObject[] victoryStars;   // 3 star objects
         [SerializeField] private Button victoryMainMenuBtn;
         [SerializeField] private Button victoryRestartBtn;
+        [SerializeField] private Button victoryReturnToEditorBtn;
         [SerializeField] private ParticleSystem victoryConfetti;
 
         // ── Defeat Screen ─────────────────────────────────────────────────────
@@ -45,6 +46,7 @@ namespace RobotTD.UI
         [SerializeField] private TextMeshProUGUI defeatTipText;
         [SerializeField] private Button defeatMainMenuBtn;
         [SerializeField] private Button defeatRestartBtn;
+        [SerializeField] private Button defeatReturnToEditorBtn;
 
         [Header("Transition")]
         [SerializeField] private CanvasGroup fadeGroup;
@@ -83,8 +85,36 @@ namespace RobotTD.UI
             continueButton?.onClick.AddListener(HideWaveSummary);
             victoryMainMenuBtn?.onClick.AddListener(GoToMainMenu);
             victoryRestartBtn?.onClick.AddListener(RestartLevel);
+            victoryReturnToEditorBtn?.onClick.AddListener(ReturnToEditor);
             defeatMainMenuBtn?.onClick.AddListener(GoToMainMenu);
             defeatRestartBtn?.onClick.AddListener(RestartLevel);
+            defeatReturnToEditorBtn?.onClick.AddListener(ReturnToEditor);
+
+            // Setup test play mode UI
+            SetupTestPlayUI();
+        }
+
+        private void SetupTestPlayUI()
+        {
+            bool isTestPlayMode = Core.MapEditorManager.IsTestPlayMode;
+            
+            // Show/hide return to editor buttons
+            if (victoryReturnToEditorBtn != null)
+            {
+                victoryReturnToEditorBtn.gameObject.SetActive(isTestPlayMode);
+            }
+            
+            if (defeatReturnToEditorBtn != null)
+            {
+                defeatReturnToEditorBtn.gameObject.SetActive(isTestPlayMode);
+            }
+
+            // In test play mode, hide main menu buttons and show editor returns
+            if (isTestPlayMode)
+            {
+                if (victoryMainMenuBtn != null) victoryMainMenuBtn.gameObject.SetActive(false);
+                if (defeatMainMenuBtn != null) defeatMainMenuBtn.gameObject.SetActive(false);
+            }
         }
 
         // ── Wave complete ────────────────────────────────────────────────────
@@ -214,6 +244,32 @@ namespace RobotTD.UI
             Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UIConfirm);
             Time.timeScale = 1f;
             StartCoroutine(FadeAndLoad(SceneManager.GetActiveScene().name));
+        }
+
+        private void ReturnToEditor()
+        {
+            if (!Core.MapEditorManager.IsTestPlayMode)
+            {
+                Debug.LogWarning("Not in test play mode!");
+                return;
+            }
+
+            Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UIConfirm);
+
+            // Track analytics
+            if (Analytics.AnalyticsManager.Instance != null)
+            {
+                var gm = Core.GameManager.Instance;
+                Analytics.AnalyticsManager.Instance.TrackEvent("map_editor_return_from_test", new System.Collections.Generic.Dictionary<string, object>
+                {
+                    { "final_wave", Core.WaveManager.Instance?.CurrentWave ?? 0 },
+                    { "final_score", gm?.Score ?? 0 },
+                    { "result", gm?.CurrentState == Core.GameManager.GameState.Victory ? "victory" : "defeat" }
+                });
+            }
+
+            Time.timeScale = 1f;
+            Core.MapEditorManager.ReturnToEditor();
         }
 
         private IEnumerator FadeAndLoad(string scene)

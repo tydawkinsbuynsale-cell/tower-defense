@@ -105,12 +105,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Custom map loading in MapManager via LoadCustomMap()
   - Conversion of tile grid to waypoints for enemy pathing
   - Placement grid generation from custom map data
-  - Return to editor functionality (planned)
+  - Return to editor functionality ✅
   - Test play analytics tracking (map_editor_test_play event)
   - Unsaved changes warning before test play
   - Error display if validation fails
   - Static property system for cross-scene custom map transfer
   - Test play mode flag to distinguish from normal gameplay
+- **Return to Editor System** ✅:
+  - Return to Editor button in GameHUD (test play mode only)
+  - Test play mode indicator in HUD ("TEST PLAY MODE" badge)
+  - Return to Editor buttons in victory and defeat panels
+  - Analytics tracking for editor returns with game results
+  - Automatic cleanup of test play state
+  - Main menu buttons hidden in test play mode
+  - MapEditorManager.ReturnToEditor() static method
+  - Scene transition back to MapEditor scene
+  - Session data tracking (final wave, score, result)
+  - Audio feedback on return to editor
 - **Save/Load System**:
   - JSON serialization for custom maps
   - Local storage via PlayerPrefs
