@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using RobotTD.Online;
 
 namespace RobotTD.Core
 {
@@ -166,7 +167,7 @@ namespace RobotTD.Core
 
         /// <summary>
         /// Call this to post the endless score (e.g. on game over).
-        /// Replace the body with your actual leaderboard SDK call.
+        /// Submits to LeaderboardManager with wave and score data.
         /// </summary>
         public void PostEndlessScore()
         {
@@ -175,10 +176,10 @@ namespace RobotTD.Core
             // Combined score: GameManager base score + endless bonus
             long totalScore = (GameManager.Instance?.Score ?? 0) + EndlessScore;
 
-            // TODO: integrate Google Play Games leaderboard
-            // PlayGamesPlatform.Instance.ReportScore(totalScore, GPGSIds.leaderboard_endless, null);
+            // Submit to leaderboard
+            LeaderboardManager.Instance?.SubmitEndlessScore(EndlessWaveNumber, totalScore);
 
-            Debug.Log($"[EndlessMode] Final endless score: {totalScore} (endless portion: {EndlessScore})");
+            Debug.Log($"[EndlessMode] Final endless score: {totalScore} (endless portion: {EndlessScore}, wave: {EndlessWaveNumber})");
 
             // Save personal best
             var sm = SaveManager.Instance;
