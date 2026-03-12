@@ -140,6 +140,7 @@ namespace RobotTD.Analytics
         public const string MAP_EDITOR_DRAW_PATH = "map_editor_draw_path";
         public const string MAP_EDITOR_VALIDATE = "map_editor_validate";
         public const string MAP_EDITOR_TEST_PLAY = "map_editor_test_play";
+        public const string MAP_EDITOR_RETURN_FROM_TEST = "map_editor_return_from_test";
         public const string MAP_EDITOR_PUBLISH = "map_editor_publish";
         public const string CUSTOM_MAP_PLAYED = "custom_map_played";
         public const string CUSTOM_MAP_RATED = "custom_map_rated";

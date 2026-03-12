@@ -33,6 +33,10 @@ namespace RobotTD.UI
         [SerializeField] private Sprite speed2xIcon;
         [SerializeField] private Sprite speed3xIcon;
 
+        [Header("Test Play Mode")]
+        [SerializeField] private GameObject returnToEditorButton;
+        [SerializeField] private TextMeshProUGUI testPlayIndicator;
+
         [Header("Bottom Bar - Tower Buttons")]
         [SerializeField] private Transform towerButtonContainer;
         [SerializeField] private TowerButton towerButtonPrefab;
@@ -91,6 +95,38 @@ namespace RobotTD.UI
             // Initial UI state
             RefreshUI();
             HideAllPanels();
+
+            // Setup test play mode UI
+            SetupTestPlayUI();
+        }
+
+        private void SetupTestPlayUI()
+        {
+            bool isTestPlayMode = MapEditorManager.IsTestPlayMode;
+            
+            // Show/hide return to editor button
+            if (returnToEditorButton != null)
+            {
+                returnToEditorButton.SetActive(isTestPlayMode);
+                
+                // Add click listener
+                Button returnBtn = returnToEditorButton.GetComponent<Button>();
+                if (returnBtn != null)
+                {
+                    returnBtn.onClick.RemoveAllListeners();
+                    returnBtn.onClick.AddListener(OnReturnToEditorClicked);
+                }
+            }
+
+            // Show test play indicator
+            if (testPlayIndicator != null)
+            {
+                testPlayIndicator.gameObject.SetActive(isTestPlayMode);
+                if (isTestPlayMode)
+                {
+                    testPlayIndicator.text = "<color=#FFD700>TEST PLAY MODE</color>";
+                }
+            }
         }
 
         private void OnDestroy()
@@ -457,6 +493,28 @@ namespace RobotTD.UI
         public void OnSettingsClicked()
         {
             // TODO: Show settings panel
+        }
+
+        public void OnReturnToEditorClicked()
+        {
+            if (!MapEditorManager.IsTestPlayMode)
+            {
+                ShowWarningNotification("Not in test play mode!");
+                return;
+            }
+
+            // Track analytics
+            if (AnalyticsManager.Instance != null)
+            {
+                AnalyticsManager.Instance.TrackEvent("map_editor_return_from_test", new System.Collections.Generic.Dictionary<string, object>
+                {
+                    { "current_wave", GameManager.Instance?.CurrentWave ?? 0 },
+                    { "final_score", GameManager.Instance?.Score ?? 0 }
+                });
+            }
+
+            // Return to editor
+            MapEditorManager.ReturnToEditor();
         }
 
         #endregion
