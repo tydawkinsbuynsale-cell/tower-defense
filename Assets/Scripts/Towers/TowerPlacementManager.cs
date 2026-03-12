@@ -418,6 +418,8 @@ namespace RobotTD.Towers
 
         public List<Tower> GetAllTowers() => placedTowers;
 
+        public int PlacedTowerCount => placedTowers.Count;
+
         public void RemoveTower(Tower tower)
         {
             placedTowers.Remove(tower);
