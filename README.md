@@ -312,14 +312,30 @@ public static event System.Action<Achievement> OnAchievementUnlocked;
 
 ## 🛠️ Setup Instructions
 
-### Prerequisites
+### 🚀 Quick Start (Automated Installer) - **RECOMMENDED**
+
+**Just double-click:** `Launch Game.bat`
+
+That's it! The automated installer will:
+- ✅ Download and install Unity Hub (if needed)
+- ✅ Install Unity 2022.3 LTS (if needed)
+- ✅ Set up the project structure automatically
+- ✅ Launch the game in Unity Editor
+
+> 📖 **For detailed instructions, see:** [INSTALL.md](INSTALL.md)
+
+---
+
+### 🔧 Manual Installation
+
+#### Prerequisites
 
 1. **Unity 2022.3 LTS** (or newer)
-2. **Android Build Support** module installed
+2. **Android Build Support** module installed (optional, for building)
 3. **Git** for version control
-4. **Visual Studio 2022** or **JetBrains Rider** (recommended)
+4. **Visual Studio 2022** or **JetBrains Rider** (recommended for development)
 
-### Initial Setup
+#### Initial Setup
 
 1. **Clone the Repository**
    ```bash
@@ -327,20 +343,22 @@ public static event System.Action<Achievement> OnAchievementUnlocked;
    cd tower-defense
    ```
 
-2. **Open in Unity**
+2. **Install Unity Hub**
+   - Download from: https://unity.com/download
+   - Install Unity 2022.3 LTS with these modules:
+     - Android Build Support
+     - iOS Build Support
+     - Windows Build Support
+
+3. **Open in Unity**
    - Launch Unity Hub
    - Click "Add" → Select the `RobotTowerDefense` folder
    - Wait for Unity to import assets (first import may take 5-10 minutes)
 
-3. **Configure Project Settings**
-   - Open `Edit → Project Settings`
-   - Verify **Player Settings** → **Scripting Backend**: IL2CPP
-   - Verify **Quality Settings** presets exist (Low/Medium/High)
-
 4. **Test in Editor**
-   - Open `Scenes/MainMenu`
-   - Press Play
-   - Verify all UI elements load correctly
+   - Open `Scenes/MainMenu` in the Project window
+   - Press Play (▶) button
+   - The tutorial will auto-start for first-time players
 
 ---
 
