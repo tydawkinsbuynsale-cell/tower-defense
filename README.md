@@ -866,6 +866,12 @@ Copyright © 2026 Your Studio. All rights reserved.
 - [x] Session management and persistence ✅
 - [x] Integration with cloud save and leaderboards ✅
 
+### Version 1.4 ✅ COMPLETE
+- [x] In-App Purchase system (Unity IAP integration) ✅
+- [x] 13-product catalog (gems, credits, skins, maps, subscriptions) ✅
+- [x] Shop UI with tab-based navigation ✅
+- [x] Editor simulation mode for testing ✅
+
 ### Version 2.0
 - [ ] iOS support
 - [ ] Multiplayer co-op
