@@ -10,10 +10,172 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🎯 Coming Soon - V2.0 Features
 
 **Version 2.0 Roadmap**
-- iOS platform support with mobile-optimized UI
-- Multiplayer co-op mode with real-time collaboration
-- Custom map editor with sharing capabilities
+- iOS platform support with mobile-optimized UI ✅
+- Multiplayer co-op mode with real-time collaboration ✅
+- Custom map editor with sharing capabilities ✅
 - Steam platform release with achievements
+
+---
+
+## [Version 2.1] - Custom Map Editor
+
+### Added
+
+**Custom Map Editor System** 🗺️
+- **MapEditorManager**: Complete map creation and editing system
+  - Grid-based tile editing with undo/redo (50-step history)
+  - Configurable grid sizes (default 20x15, customizable)
+  - Multiple editor modes: Tile, Path, Spawn, Base, Obstacle, Decoration
+  - Auto-save functionality (60-second intervals)
+  - Keyboard shortcuts (Ctrl+Z/Y for undo/redo, Ctrl+S for save)
+- **Custom Map Data Structure**:
+  - Comprehensive map metadata (name, author, description, creation date)
+  - 2D tile grid with 7 tile types:
+    - Buildable (towers can be placed)
+    - Path (enemy route)
+    - Obstacle (blocked terrain)
+    - Water (visual decoration)
+    - SpawnPoint (enemy spawner)
+    - Base (player objective)
+    - Decoration (visual only)
+  - Spawn point configuration with wave scheduling
+  - Base position tracking
+  - Obstacle and decoration placement data
+  - Custom wave configuration system
+  - Map statistics (play count, ratings, likes)
+- **Tile Editing Tools**:
+  - Single tile placement
+  - Brush tool with adjustable size (1x1 to 5x5)
+  - Flood fill tool for quick region painting
+  - Path drawing system with drag-to-draw functionality
+  - Spawn point and base placement tools
+  - Support for obstacles and decorations
+- **Path Drawing System**:
+  - Interactive path drawing with mouse drag
+  - 4-directional adjacency validation
+  - Path preview during drawing
+  - Cancel path drawing (right-click)
+  - Automatic path tile list tracking
+- **Undo/Redo System**:
+  - 50-step undo history
+  - Full state cloning for each undo step
+  - Redo stack cleared on new actions
+  - Visual buttons with enabled/disabled states
+  - Stack size management to prevent memory overflow
+- **Map Validation System**:
+  - Comprehensive validation before save/publish
+  - Error detection:
+    - Map name validation (min 3 characters)
+    - Spawn point requirement check
+    - Base placement requirement
+    - Path connectivity verification (spawn to base)
+  - Warning system:
+    - No wave configuration warning
+    - Insufficient buildable space detection
+  - Suggestion engine:
+    - Starting credits recommendations
+    - Wave count suggestions
+  - A* pathfinding for connectivity validation
+  - Validation result UI with color-coded messages
+- **Map Properties Configuration**:
+  - Map name and description fields
+  - Starting credits (default: 500, customizable)
+  - Starting lives (default: 20, customizable)
+  - Recommended difficulty slider (1-5: Tutorial/Easy/Normal/Hard/Expert)
+  - Estimated play time metadata
+  - Author information (linked to authenticated player)
+- **MapEditor UI**:
+  - Professional tool palette with visual feedback
+  - Mode selection buttons (Tile/Path/Spawn/Base/Obstacle/Decoration)
+  - Tile type selector (Buildable/Path/Obstacle/Water)
+  - Brush size slider (1-5)
+  - Undo/Redo buttons with state indicators
+  - Unsaved changes indicator (visual dot)
+  - Coordinate display for hovered tile
+  - Current mode display
+  - Properties panel for map configuration
+  - Validation panel with error/warning/suggestion display
+  - Confirmation dialogs for destructive actions
+  - Status message system with auto-hide
+  - Test play button (planned)
+- **Save/Load System**:
+  - JSON serialization for custom maps
+  - Local storage via PlayerPrefs
+  - Map ID generation (GUID-based)
+  - Version tracking for future compatibility
+  - Clone functionality for map duplication
+  - Auto-save with configurable interval
+  - Unsaved changes detection
+  - Backup/restore capability (via SaveManager integration)
+- **Mouse Input Handling**:
+  - Left-click for placement
+  - Left-drag for continuous painting
+  - Right-click for removal/cancel
+  - Grid raycasting for tile selection
+  - Coordinate display on hover
+  - Mode-specific input behavior
+- **Visual Grid System**:
+  - Tile prefab instantiation for visual feedback
+  - Parent-child hierarchy for organization
+  - Tile visual updates on placement
+  - Color coding by tile type
+  - Spawn point and base prefab support
+  - Path marker visualization
+- **Custom Wave Configuration** (planned):
+  - Wave-by-wave enemy composition
+  - Spawn timing configuration
+  - Boss wave setup
+  - Credits reward per wave
+  - Enemy spawn groups with intervals
+- **Community Features** (planned):
+  - Map publishing to cloud
+  - Community map browser
+  - Rating and like system
+  - Play count tracking
+  - Tag-based categorization
+  - Search and filter functionality
+  - Download and play community maps
+- **Analytics Integration** (14 new events):
+  - `map_editor_opened`: Track editor sessions
+  - `map_editor_new_map`: New map creation
+  - `map_editor_load_map`: Existing map loading
+  - `map_editor_save_map`: Map save events
+  - `map_editor_place_spawn`: Spawn point placement
+  - `map_editor_place_base`: Base placement
+  - `map_editor_draw_path`: Path drawing actions
+  - `map_editor_validate`: Validation attempts
+  - `map_editor_test_play`: Test play sessions
+  - `map_editor_publish`: Map publishing
+  - `custom_map_played`: Community map plays
+  - `custom_map_rated`: Player ratings
+  - `custom_map_downloaded`: Map downloads
+  - `custom_map_shared`: Social sharing
+- **Analytics Parameters** (11 new params):
+  - `map_id`, `map_name`, `map_author`: Map identification
+  - `grid_width`, `grid_height`: Map dimensions
+  - `is_valid`, `validation_errors`: Validation state
+  - `play_count`, `rating`: Community metrics
+  - `tile_count`, `spawn_count`,`path_length`: Map statistics
+- **Editor Features**:
+  - Context menu commands for testing
+  - Debug logging toggle
+  - Test map generation
+  - Map validation command
+  - Grid offset configuration
+  - Tile size customization
+- **Integration Points**:
+  - AuthenticationManager: Author identification
+  - AnalyticsManager: Event tracking
+  - SaveManager: Local persistence
+  - MapSelector: Custom map loading (future)
+  - CloudSaveManager: Cloud storage (future)
+- **Best Practices**:
+  - Singleton pattern for MapEditorManager
+  - Event-driven architecture for UI updates
+  - State cloning for undo/redo
+  - Validation before save/publish
+  - Auto-save to prevent data loss
+  - Confirmation dialogs for destructive actions
 
 ---
 

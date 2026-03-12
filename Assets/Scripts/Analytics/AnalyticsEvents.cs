@@ -129,6 +129,22 @@ namespace RobotTD.Analytics
         public const string ACHIEVEMENT_SHARED_SOCIAL = "achievement_shared_social";
         public const string FRIEND_LEADERBOARD_VIEWED = "friend_leaderboard_viewed";
         public const string FRIENDS_LIST_VIEWED = "friends_list_viewed";
+        
+        // ── Map Editor Events ─────────────────────────────────────────────────
+        public const string MAP_EDITOR_OPENED = "map_editor_opened";
+        public const string MAP_EDITOR_NEW_MAP = "map_editor_newmap";
+        public const string MAP_EDITOR_LOAD_MAP = "map_editor_load_map";
+        public const string MAP_EDITOR_SAVE_MAP = "map_editor_save_map";
+        public const string MAP_EDITOR_PLACE_SPAWN = "map_editor_place_spawn";
+        public const string MAP_EDITOR_PLACE_BASE = "map_editor_place_base";
+        public const string MAP_EDITOR_DRAW_PATH = "map_editor_draw_path";
+        public const string MAP_EDITOR_VALIDATE = "map_editor_validate";
+        public const string MAP_EDITOR_TEST_PLAY = "map_editor_test_play";
+        public const string MAP_EDITOR_PUBLISH = "map_editor_publish";
+        public const string CUSTOM_MAP_PLAYED = "custom_map_played";
+        public const string CUSTOM_MAP_RATED = "custom_map_rated";
+        public const string CUSTOM_MAP_DOWNLOADED = "custom_map_downloaded";
+        public const string CUSTOM_MAP_SHARED = "custom_map_shared";
     }
 
     /// <summary>
@@ -200,6 +216,20 @@ namespace RobotTD.Analytics
         public const string SHARE_PLATFORM = "share_platform";
         public const string LEADERBOARD_ID = "leaderboard_id";
         public const string LEADERBOARD_SCOPE = "leaderboard_scope";
+        
+        // Map Editor
+        public const string MAP_ID = "map_id";
+        public const string MAP_NAME = "map_name";
+        public const string MAP_AUTHOR = "map_author";
+        public const string GRID_WIDTH = "grid_width";
+        public const string GRID_HEIGHT = "grid_height";
+        public const string IS_VALID = "is_valid";
+        public const string VALIDATION_ERRORS = "validation_errors";
+        public const string PLAY_COUNT = "play_count";
+        public const string RATING = "rating";
+        public const string TILE_COUNT = "tile_count";
+        public const string SPAWN_COUNT = "spawn_count";
+        public const string PATH_LENGTH = "path_length";
     }
 
     /// <summary>
