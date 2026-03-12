@@ -71,11 +71,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Testing procedures
   - Best practices
 
+**Challenge Mode System** 🎮
+- **ChallengeData**: ScriptableObject-based challenge configuration
+  - 20+ challenge modifiers (Speed Rush, Tower Limit, Budget Crisis, Perfect Defense, etc.)
+  - 4 difficulty tiers (Easy, Medium, Hard, Extreme) with score multipliers
+  - Reward system (credits + tech points)
+  - Rotation types (Daily, Weekly, Permanent)
+- **ChallengeManager**: Core challenge lifecycle management
+  - Challenge selection and activation
+  - Modifier application to game systems
+  - Progress tracking (completion status, best scores, attempt counts)
+  - Daily/weekly rotation system with automatic scheduling
+  - Tower limit enforcement
+  - Rewards on first completion
+  - Analytics integration
+- **Challenge UI Components**:
+  - **ChallengeSelectorUI**: Main browsing panel with tabs
+    - Daily/Weekly/Permanent challenge tabs
+    - Automatic rotation timers
+    - Challenge card spawning and pooling
+  - **ChallengeCardUI**: Individual challenge display
+    - Difficulty visualization with stars and colors
+    - Modifier icons with tooltips
+    - Completion badges and best scores
+    - Reward display
+  - **ChallengeResultUI**: Completion screen
+    - Victory/defeat display
+    - Final score with difficulty multiplier
+    - First completion rewards notification
+    - Retry/Next Challenge/Menu options
+- **Game Integration**:
+  - GameManager: Static events for challenge hooks, starting credits/lives override
+  - AnalyticsManager: challenge_started, challenge_completed event tracking
+  - AchievementManager: Challenge milestone achievements
+  - Analytics Events: 5 new challenge-specific event types
+- **Complete Documentation**: [CHALLENGE_MODE_GUIDE.md](CHALLENGE_MODE_GUIDE.md)
+  - Quick start (5 minutes)
+  - 20+ modifier descriptions
+  - Challenge creation guide
+  - UI setup instructions
+  - Integration examples
+  - Testing procedures
+  - Best practices and balance guidelines
+
 ### Planned Features
 - Cloud save support with conflict resolution
 - Additional tower types (Artillery Bot)
 - Additional enemy types (Cloaker)
-- Challenge mode with special modifiers
 - Daily missions system
 - Social features (friend leaderboards, sharing)
 

@@ -45,6 +45,11 @@ namespace RobotTD.Core
         // C# action events (for code-only subscriptions)
         public System.Action OnGamePaused;
         public System.Action OnGameResumed;
+        
+        // Static events for cross-system communication
+        public static event System.Action OnGameStarted;
+        public static event System.Action OnVictory;
+        public static event System.Action OnGameOver;
 
         // Speed control
         public float GameSpeed
@@ -111,6 +116,9 @@ namespace RobotTD.Core
 
             // Reset achievement session tracking
             Progression.AchievementManager.Instance?.ResetSessionTracking();
+            
+            // Notify other systems
+            OnGameStarted?.Invoke();
         }
 
         /// <summary>
@@ -290,6 +298,7 @@ namespace RobotTD.Core
         {
             SetGameState(GameState.GameOver);
             OnGameOver?.Invoke();
+            RobotTD.Core.GameManager.OnGameOver?.Invoke();
             
             // Post endless score if active
             EndlessMode.Instance?.PostEndlessScore();
@@ -314,6 +323,7 @@ namespace RobotTD.Core
         public void TriggerVictory()
         {
             SetGameState(GameState.Victory);
+            RobotTD.Core.GameManager.OnVictory?.Invoke();
             OnVictory?.Invoke();
             
             // Post endless score if active
@@ -371,6 +381,28 @@ namespace RobotTD.Core
             UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
         }
 
+        
+        #region Challenge Mode Support
+        
+        /// <summary>
+        /// Set starting credits (used by challenge modifiers)
+        /// </summary>
+        public void SetStartingCredits(int amount)
+        {
+            Credits = amount;
+            OnCreditsChanged?.Invoke(Credits);
+        }
+        
+        /// <summary>
+        /// Set current lives (used by challenge modifiers)
+        /// </summary>
+        public void SetLives(int amount)
+        {
+            Lives = amount;
+            OnLivesChanged?.Invoke(Lives);
+        }
+        
+        #endregion
         #endregion
     }
 }
