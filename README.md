@@ -955,7 +955,7 @@ Copyright © 2026 Your Studio. All rights reserved.
 ### Version 2.0
 - [x] iOS support ✅
 - [x] Multiplayer co-op ✅
-- [ ] Custom map editor
+- [x] Custom map editor ✅
 - [ ] Steam release
 
 ---
