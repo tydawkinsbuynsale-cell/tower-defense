@@ -106,6 +106,33 @@ namespace RobotTD.Online
 
         private IEnumerator InitializeBackend()
         {
+            // Wait for AuthenticationManager to be ready
+            var authManager = AuthenticationManager.Instance;
+            if (authManager != null)
+            {
+                // Wait for authentication to complete
+                float timeout = 10f;
+                float elapsed = 0f;
+                while (!authManager.IsInitialized && elapsed < timeout)
+                {
+                    yield return new WaitForSeconds(0.1f);
+                    elapsed += 0.1f;
+                }
+
+                if (!authManager.IsAuthenticated)
+                {
+                    LogDebug("Authentication not available - cloud save will work offline only");
+                }
+                else
+                {
+                    LogDebug($"Authenticated as: {authManager.PlayerName} ({authManager.PlayerId})");
+                }
+            }
+            else
+            {
+                LogDebug("AuthenticationManager not found - cloud save will work offline only");
+            }
+
             #if UNITY_CLOUD_SAVE
             yield return InitializeUnityCloudSave();
             #elif PLAYFAB
@@ -138,6 +165,15 @@ namespace RobotTD.Online
                 return;
             }
 
+            // Check authentication
+            var authManager = AuthenticationManager.Instance;
+            if (authManager == null || !authManager.IsAuthenticated)
+            {
+                LogDebug("Sync skipped - not authenticated");
+                OnSyncError?.Invoke("Authentication required for cloud sync");
+                return;
+            }
+
             StartCoroutine(SyncCoroutine());
         }
 
@@ -152,6 +188,15 @@ namespace RobotTD.Online
                 return;
             }
 
+            // Check authentication
+            var authManager = AuthenticationManager.Instance;
+            if (authManager == null || !authManager.IsAuthenticated)
+            {
+                LogDebug("Push skipped - not authenticated");
+                OnSyncError?.Invoke("Authentication required for cloud sync");
+                return;
+            }
+
             StartCoroutine(PushCoroutine());
         }
 
@@ -163,6 +208,15 @@ namespace RobotTD.Online
             if (!enableCloudSave || !isInitialized || isSyncing)
             {
                 LogDebug("Pull skipped - not ready or already syncing");
+                return;
+            }
+
+            // Check authentication
+            var authManager = AuthenticationManager.Instance;
+            if (authManager == null || !authManager.IsAuthenticated)
+            {
+                LogDebug("Pull skipped - not authenticated");
+                OnSyncError?.Invoke("Authentication required for cloud sync");
                 return;
             }
 

@@ -66,9 +66,22 @@ namespace RobotTD.Online
                 return;
             }
 
-            // Initialize player ID
-            playerId = GetOrCreatePlayerId();
-            playerName = GetPlayerName();
+            // Check if AuthenticationManager is available
+            var authManager = AuthenticationManager.Instance;
+            if (authManager != null && authManager.IsAuthenticated)
+            {
+                // Use authenticated player info
+                playerId = authManager.PlayerId;
+                playerName = authManager.PlayerName;
+                LogDebug($"Using authenticated player: {playerName} ({playerId})");
+            }
+            else
+            {
+                // Fall back to local player ID
+                playerId = GetOrCreatePlayerId();
+                playerName = GetPlayerName();
+                LogDebug($"Using local player ID (not authenticated): {playerName} ({playerId})");
+            }
 
             // Load local scores from PlayerPrefs
             LoadLocalScores();

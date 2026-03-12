@@ -847,18 +847,24 @@ Copyright © 2026 Your Studio. All rights reserved.
 
 ## 🎯 Roadmap
 
-### Version 1.1
+### Version 1.1 ✅ COMPLETE
 - [x] Endless mode implementation ✅
 - [x] New tower: Artillery Bot (long-range siege) ✅
 - [x] New enemy: Cloaker (stealth unit with detection mechanics) ✅  
 - [x] Cloud save support ✅
-- [ ] Leaderboards
+- [x] Leaderboards ✅
 
-### Version 1.2
+### Version 1.2 ✅ COMPLETE
 - [x] Challenge mode (special modifiers) ✅
 - [x] Daily missions ✅
 - [x] Boss rush mode ✅
 - [x] New map: Mega Factory (endgame challenge) ✅
+
+### Version 1.3 ✅ COMPLETE
+- [x] Authentication system (Anonymous, Email/Password, Device ID) ✅
+- [x] Multi-backend auth support (Unity Gaming Services, PlayFab, Custom) ✅
+- [x] Session management and persistence ✅
+- [x] Integration with cloud save and leaderboards ✅
 
 ### Version 2.0
 - [ ] iOS support
