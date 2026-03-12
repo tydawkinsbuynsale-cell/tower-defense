@@ -93,11 +93,132 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Enable/disable events toggle
     - Verbose logging for debugging
     - SerializeField for event definitions in Inspector
-- **Tournament Mode**:
-  - Competitive ladder system with ranked matches
-  - Weekly tournaments with prize pools
-  - Matchmaking by skill rating
-  - Tournament history and replay system
+- **Tournament Mode** ✅:
+  - **TournamentManager Component**:
+    - Singleton design pattern with DontDestroyOnLoad persistence
+    - Separate namespace RobotTD.Competitive for tournament systems
+    - Authentication-gated features (requires player login)
+    - Configurable matchmaking timeout and rank decay
+    - Verbose logging for debugging
+  - **Ranking System**:
+    - PlayerRankData: Rating, tier, wins/losses, match history
+    - Elo-like rating calculation with K-factor 32
+    - Expected score calculation: 1 / (1 + 10^(diff/400))
+    - Performance bonus multiplier (5x bonus to rating change)
+    - Starting rating: 1000 (Bronze tier)
+    - Rating floor: 0 (prevents negative ratings)
+  - **Rank Tiers**:
+    - Configurable rank tier system (Bronze, Silver, Gold, Platinum, Diamond, etc.)
+    - MinRating thresholds for tier promotion/demotion
+    - Tier colors and icons for visual representation
+    - Automatic tier updates after each match
+    - Tier change analytics tracking
+  - **Rank Decay System**:
+    - Configurable inactivity period (default: 14 days)
+    - Decay formula: (inactivity_days / decay_days) * 10 rating per period
+    - Automatic decay check on initialization
+    - Prevents rating loss below 0
+    - Resets decay timer after each match
+  - **Win/Loss Tracking**:
+    - Total matches, wins, losses statistics
+    - Current win streak tracking
+    - Best win streak record
+    - Win rate calculation support
+    - Last match timestamp for decay calculation
+  - **Matchmaking System**:
+    - Skill-based matchmaking with rating ranges
+    - Initial range: ±100 rating
+    - Expanding ranges over time (200 at 10s, 300 at 20s)
+    - Configurable matchmaking timeout (default: 30 seconds)
+    - Authentication requirement validation
+    - Queue management system
+  - **Match Finding**:
+    - StartMatchmaking() to begin search
+    - CancelMatchmaking() to abort search
+    - IsMatchmaking() status check
+    - MatchData structure: opponent name, rating, tier, map
+    - OnMatchFound event with opponent details
+    - Simulation mode for editor testing (3-5 second mock matches)
+  - **Production Matchmaking**:
+    - Server query stub for real matchmaking
+    - Rating range filtering
+    - Expandable search criteria over time
+    - Timeout handling with analytics
+  - **Ranked Match Processing**:
+    - UpdateRating(RankedMatchResult) for post-match updates
+    - RankedMatchResult: victory status, opponent rating, performance bonus
+    - Automatic win/loss record updates
+    - Win streak tracking and reset
+    - Rating change calculation and application
+    - Tier promotion/demotion check
+  - **Tournament System**:
+    - Weekly tournament creation (7-day duration)
+    - TournamentData: ID, name, start/end dates, participant limit
+    - Automatic tournament lifecycle (creation, participation, completion)
+    - Prize pool configuration with reward tiers
+    - Participant limit enforcement (default: 100)
+  - **Tournament Participation**:
+    - JoinTournament() for registration
+    - Authentication requirement
+    - Duplicate join prevention
+    - Full tournament detection
+    - TournamentEntry: player ID, name, score, rank, dates
+  - **Tournament Leaderboard**:
+    - Real-time score tracking with UpdateTournamentScore()
+    - Best score retention (keeps highest score)
+    - Automatic ranking updates on score change
+    - GetTournamentLeaderboard(count) for top N players
+    - Rank calculation based on score sorting
+  - **Tournament History**:
+    - EndTournament() for completion handling
+    - Tournament history storage (local persistence)
+    - GetTournamentHistory() for past tournaments
+    - Final participant count tracking
+    - Prize distribution stub
+  - **Local Storage**:
+    - PlayerRankData saved to PlayerPrefs (JSON serialization)
+    - TournamentHistory persistent storage
+    - Load on initialization, save after updates
+    - Separate keys: "PlayerRankData", "TournamentHistory"
+  - **Events System**:
+    - OnRankChanged(PlayerRankData) - Rating/tier updates
+    - OnTournamentStarted(TournamentData) - New tournament notification
+    - OnTournamentEnded(TournamentData) - Tournament completion
+    - OnMatchFound(MatchData) - Matchmaking success
+    - OnMatchmakingStarted - Search initiated
+    - OnMatchmakingCancelled - Search aborted/timeout
+    - OnRankedMatchCompleted(RankedMatchResult) - Match result processed
+    - OnTournamentJoined(string) - Tournament registration confirmed
+  - **Analytics Integration** (7 new events):
+    - tournament_system_initialized: System startup with player rank
+    - ranked_match_completed: Match results with rating changes
+    - rank_tier_changed: Tier promotion/demotion tracking
+    - matchmaking_started: Search initiated with player rating
+    - matchmaking_cancelled: Search aborted by player
+    - matchmaking_timeout: Search failed due to timeout
+    - match_found: Successful match with opponent details and search time
+    - tournament_created: Weekly tournament creation
+    - tournament_joined: Player registration with participant count
+    - tournament_ended: Tournament completion with final stats
+  - **Configuration Options**:
+    - Enable/disable tournaments toggle
+    - Enable/disable ranked mode toggle
+    - Matchmaking timeout setting (seconds)
+    - Rank decay period setting (days)
+    - Weekly tournament duration (days)
+    - Tournament participant limit
+    - Prize pool array configuration
+    - Rank tier array configuration
+  - **Data Structures**:
+    - PlayerRankData: Complete player ranking information
+    - RankTier: Tier definition with name, rating, color, icon
+    - MatchData: Matchmaking result with opponent details
+    - RankedMatchResult: Match outcome for rating calculation
+    - TournamentData: Complete tournament definition
+    - TournamentReward: Prize definition for rankings
+    - TournamentEntry: Player tournament participation data
+    - MatchmakingQueue: Server queue management helper
+    - TournamentHistoryData: Serialization helper for history
 - **Advanced Customization**:
   - Tower skin system (30+ cosmetic skins)
   - Map theme packs (sci-fi, fantasy, post-apocalyptic)
