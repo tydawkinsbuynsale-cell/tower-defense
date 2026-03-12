@@ -22,7 +22,7 @@ namespace RobotTD.Core
         [SerializeField] private float interestRate = 0.05f; // 5% interest on saved credits
 
         // Game State
-        public enum GameState { MainMenu, Playing, Paused, Victory, GameOver }
+        public enum GameState { MainMenu, Playing, Paused, Tutorial, Victory, GameOver }
         public GameState CurrentState { get; private set; } = GameState.MainMenu;
 
         // Economy
@@ -118,6 +118,10 @@ namespace RobotTD.Core
             {
                 case GameState.Playing:
                     Time.timeScale = gameSpeed;
+                    break;
+                case GameState.Tutorial:
+                    // Keep time running during tutorial for animations
+                    Time.timeScale = 1f;
                     break;
                 case GameState.Paused:
                 case GameState.MainMenu:

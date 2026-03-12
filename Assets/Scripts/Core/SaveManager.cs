@@ -40,6 +40,7 @@ namespace RobotTD.Core
         public int graphicsQuality = 2; // 0=low 1=med 2=high
 
         // Game state
+        public bool tutorialCompleted = false;
         public List<string> unlockedMaps = new List<string> { "TrainingGrounds" };
         public List<string> completedAchievements = new List<string>();
         public TechTreeSaveData techTree = new TechTreeSaveData();
