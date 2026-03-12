@@ -42,7 +42,7 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
 - Stealth mechanics with cloaking/detection system
 
 **✅ Map System**
-- 5 campaign maps with 150 waves total
+- 6 campaign maps with 180 waves total
 - Dynamic wave composition based on map difficulty
 - MapRegistry for extensible map library
 - Path validation and placement grid system
@@ -858,7 +858,7 @@ Copyright © 2026 Your Studio. All rights reserved.
 - [x] Challenge mode (special modifiers) ✅
 - [x] Daily missions ✅
 - [x] Boss rush mode ✅
-- [ ] New map: Industrial Complex
+- [x] New map: Mega Factory (endgame challenge) ✅
 
 ### Version 2.0
 - [ ] iOS support

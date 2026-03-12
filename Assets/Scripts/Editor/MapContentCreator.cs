@@ -63,7 +63,7 @@ namespace RobotTD.Editor
             EditorGUILayout.Space(12);
 
             // Create buttons
-            if (GUILayout.Button("Create All 5 Campaign Maps", GUILayout.Height(40)))
+            if (GUILayout.Button("Create All 6 Campaign Maps", GUILayout.Height(40)))
             {
                 CreateAllMaps();
             }
@@ -87,11 +87,15 @@ namespace RobotTD.Editor
             if (GUILayout.Button("Map 5: Final Assault (Hard)", GUILayout.Height(30)))
                 CreateMap5_FinalAssault();
 
+            if (GUILayout.Button("Map 6: Mega Factory (Very Hard)", GUILayout.Height(30)))
+                CreateMap6_MegaFactory();
+
             EditorGUILayout.Space(12);
 
             EditorGUILayout.HelpBox(
                 "Maps will be created in sequence with unlock progression.\n" +
-                "Each map includes 30 waves with increasing difficulty.",
+                "Each map includes 30 waves with increasing difficulty.\n" +
+                "Map 6 (Mega Factory) is a post-release endgame challenge map.",
                 MessageType.None);
 
             EditorGUILayout.EndScrollView();
@@ -117,13 +121,14 @@ namespace RobotTD.Editor
         {
             EnsureDirectories();
 
-            Debug.Log("[MapContentCreator] Creating all 5 campaign maps...");
+            Debug.Log("[MapContentCreator] Creating all 6 campaign maps...");
 
             CreateMap1_TrainingGrounds();
             CreateMap2_IndustrialComplex();
             CreateMap3_DesertOutpost();
             CreateMap4_FrozenFortress();
             CreateMap5_FinalAssault();
+            CreateMap6_MegaFactory();
 
             // Create MapRegistry
             CreateMapRegistry();
@@ -132,17 +137,18 @@ namespace RobotTD.Editor
             AssetDatabase.Refresh();
 
             EditorUtility.DisplayDialog("Success", 
-                "Created 5 campaign maps with wave configurations!\n\n" +
+                "Created 6 campaign maps with wave configurations!\n\n" +
                 "Maps are unlocked in sequence:\n" +
                 "1. Training Grounds\n" +
                 "2. Industrial Complex\n" +
                 "3. Desert Outpost\n" +
                 "4. Frozen Fortress\n" +
-                "5. Final Assault\n\n" +
+                "5. Final Assault\n" +
+                "6. Mega Factory (Endgame ++)\n\n" +
                 "MapRegistry created at Assets/Data/MapRegistry.asset", 
                 "OK");
 
-            Debug.Log("[MapContentCreator] All maps created successfully!");
+            Debug.Log("[MapContentCreator] All 6 maps created successfully!");
         }
 
         // ═══════════════════════════════════════════════════════════════════════
@@ -625,7 +631,7 @@ namespace RobotTD.Editor
             map.description = "The ultimate challenge. Survive overwhelming enemy forces and defeat all three boss types.";
             map.difficulty = 5;
             map.isUnlocked = false;
-            map.nextMapId = ""; // Last map
+            map.nextMapId = "Map06_MegaFactory"; // Unlocks Mega Factory
             map.totalWaves = 30;
             map.difficultyMultiplier = 1.6f;
             map.startingCredits = 400;
@@ -743,6 +749,193 @@ namespace RobotTD.Editor
         }
 
         // ═══════════════════════════════════════════════════════════════════════
+        // MAP 6: MEGA FACTORY (VERY HARD) - Version 1.2 Endgame Map
+        // ═══════════════════════════════════════════════════════════════════════
+
+        private void CreateMap6_MegaFactory()
+        {
+            EnsureDirectories();
+
+            MapData map = CreateMapAsset("Map06_MegaFactory");
+            map.mapName = "Mega Factory";
+            map.description = "The ultimate industrial warfare challenge. Face relentless waves of advanced enemies in this massive automated complex. Endgame content for elite players.";
+            map.difficulty = 5;
+            map.isUnlocked = false;
+            map.nextMapId = ""; // No next map - final challenge
+            map.totalWaves = 30;
+            map.difficultyMultiplier = 1.6f; // Significantly harder
+            map.startingCredits = 700; // More credits to handle difficulty
+            map.startingLives = 15; // Fewer lives - unforgiving
+            map.ambientColor = new Color(0.5f, 0.55f, 0.6f); // Dark industrial
+            map.fogColor = new Color(0.3f, 0.35f, 0.4f); // Heavy fog
+            map.fogDensity = 0.04f; // Atmospheric
+            
+            // Complex multi-loop industrial path
+            map.pathPoints = new Vector3[]
+            {
+                new Vector3(-12f, 0f, -8f),   // Entry from far left
+                new Vector3(-8f, 0f, -6f),
+                new Vector3(-4f, 0f, -2f),
+                new Vector3(-6f, 0f, 2f),     // Loop back
+                new Vector3(-2f, 0f, 4f),     // Forward
+                new Vector3(2f, 0f, 2f),      // Cross center
+                new Vector3(4f, 0f, -2f),
+                new Vector3(8f, 0f, 0f),      // Right side loop
+                new Vector3(6f, 0f, 4f),
+                new Vector3(10f, 0f, 6f),
+                new Vector3(12f, 0f, 2f),     // Exit far right
+                new Vector3(14f, 0f, -4f)
+            };
+
+            WaveSetData waveSet = CreateWaveSetAsset("WaveSet_MegaFactory");
+            waveSet.setName = "Mega Factory Assault Waves";
+            waveSet.description = "Extreme endgame content. Massive enemy counts, multiple bosses, and unforgiving difficulty scaling. Requires mastery of all tower types and perfect strategy.";
+            waveSet.difficulty = 5;
+            waveSet.globalHealthMultiplier = 1.6f;
+            waveSet.waves = GenerateMegaFactoryWaves();
+
+            EditorUtility.SetDirty(map);
+            EditorUtility.SetDirty(waveSet);
+
+            Debug.Log($"[MapContentCreator] Created Map 6: Mega Factory (ENDGAME) with {waveSet.waves.Count} waves");
+        }
+
+        private List<WaveData> GenerateMegaFactoryWaves()
+        {
+            List<WaveData> waves = new List<WaveData>();
+
+            for (int i = 1; i <= 30; i++)
+            {
+                WaveData wave = new WaveData();
+                wave.waveNumber = i;
+                wave.waveName = $"Wave {i}";
+                wave.preparationTime = 6f; // Less prep time
+                wave.timeBetweenSpawns = 0.5f; // Faster spawns
+                wave.healthMultiplier = 1.2f + (i * 0.25f); // Aggressive scaling
+                wave.speedMultiplier = 1.1f + (i * 0.04f); // Much faster enemies
+                wave.rewardMultiplier = 1.2f + (i * 0.08f); // Higher rewards to compensate
+                wave.waveCompletionBonus = 100 + (i * 20);
+
+                if (i <= 3)
+                {
+                    // Start hard - no easy intro
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Soldier", count = 15 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Tank", count = 5 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Flying", count = 8 });
+                }
+                else if (i <= 7)
+                {
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 10 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Tank", count = 8 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Flying", count = 12 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Healer", count = 2 });
+                }
+                else if (i == 10)
+                {
+                    // Early boss wave
+                    wave.isBossWave = true;
+                    wave.waveName = "Wave 10 - Shield Commander";
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Boss_ShieldCommander", count = 2 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 15 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Tank", count = 10 });
+                    wave.waveCompletionBonus = 400;
+                    wave.techPointsReward = 3;
+                }
+                else if (i <= 14)
+                {
+                    // Advanced enemy mix
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 15 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Splitter", count = 10 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Teleporter", count = 8 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Flying", count = 15 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Healer", count = 3 });
+                }
+                else if (i == 15)
+                {
+                    // Mid boss wave
+                    wave.isBossWave = true;
+                    wave.waveName = "Wave 15 - Swarm Mother";
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Boss_SwarmMother", count = 2 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Flying", count = 25 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 20 });
+                    wave.waveCompletionBonus = 500;
+                    wave.techPointsReward = 4;
+                }
+                else if (i <= 19)
+                {
+                    // Heavy assault waves
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Tank", count = 20 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 18 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Splitter", count = 15 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Teleporter", count = 10 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Healer", count = 4 });
+                }
+                else if (i == 20)
+                {
+                    // Major boss wave
+                    wave.isBossWave = true;
+                    wave.waveName = "Wave 20 - Titan Assault";
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Boss_Titan", count = 3 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 25 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Tank", count = 20 });
+                    wave.waveCompletionBonus = 700;
+                    wave.techPointsReward = 5;
+                }
+                else if (i <= 24)
+                {
+                    // Maximum difficulty regular waves
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 30 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Tank", count = 25 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Flying", count = 20 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Splitter", count = 18 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Teleporter", count = 15 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Healer", count = 6 });
+                }
+                else if (i == 25)
+                {
+                    // Pre-final boss wave
+                    wave.isBossWave = true;
+                    wave.waveName = "Wave 25 - Combined Forces";
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Boss_ShieldCommander", count = 2 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Boss_SwarmMother", count = 2 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 30 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Flying", count = 25 });
+                    wave.waveCompletionBonus = 900;
+                    wave.techPointsReward = 6;
+                }
+                else if (i == 30)
+                {
+                    // ULTIMATE FINAL BOSS WAVE
+                    wave.isBossWave = true;
+                    wave.waveName = "WAVE 30 - MEGA FACTORY APOCALYPSE";
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Boss_Titan", count = 5 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Boss_ShieldCommander", count = 4 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Boss_SwarmMother", count = 3 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 40 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Flying", count = 30 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Tank", count = 30 });
+                    wave.waveCompletionBonus = 2000;
+                    wave.techPointsReward = 15; // Massive reward
+                }
+                else
+                {
+                    // Waves 26-29: Ultra endgame
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Elite", count = 35 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Tank", count = 30 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Flying", count = 25 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Splitter", count = 20 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Teleporter", count = 18 });
+                    wave.enemies.Add(new WaveEnemySpawn { enemyPrefabId = "Healer", count = 8 });
+                    wave.waveCompletionBonus = 150 + (i * 20);
+                }
+
+                waves.Add(wave);
+            }
+
+            return waves;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
         // HELPER METHODS
         // ═══════════════════════════════════════════════════════════════════════
 
@@ -816,7 +1009,8 @@ namespace RobotTD.Editor
                 $"{mapDirectory}/Map02_IndustrialComplex.asset",
                 $"{mapDirectory}/Map03_DesertOutpost.asset",
                 $"{mapDirectory}/Map04_FrozenFortress.asset",
-                $"{mapDirectory}/Map05_FinalAssault.asset"
+                $"{mapDirectory}/Map05_FinalAssault.asset",
+                $"{mapDirectory}/Map06_MegaFactory.asset"
             };
 
             foreach (string path in mapPaths)
@@ -833,7 +1027,7 @@ namespace RobotTD.Editor
             EditorUtility.SetDirty(registry);
             AssetDatabase.SaveAssets();
 
-            Debug.Log($"[MapContentCreator] Created MapRegistry with {registry.maps.Count} maps");
+            Debug.Log($"[MapContentCreator] Created MapRegistry with {registry.maps.Count} maps (including Mega Factory endgame map)");
         }
     }
 }

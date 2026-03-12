@@ -459,6 +459,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Works with existing WaveManager infrastructure
   - Uses ObjectPooler for efficient boss spawning
 
+**Mega Factory Map** 🏭
+- **Map 6: Mega Factory**: Ultimate endgame challenge map (Difficulty: 5/5)
+  - Post-release content for elite players who completed main campaign
+  - 30 waves of extreme difficulty with aggressive scaling
+  - Complex multi-loop industrial path requiring strategic tower placement
+  - Starting resources: 700 credits, 15 lives (fewer lives, higher challenge)
+  - Difficulty multiplier: 1.6x (significantly harder than campaign maps)
+  - Dark industrial atmosphere with heavy fog effects
+  - No next map - final ultimate challenge
+- **Wave Composition**:
+  - No easy introduction - starts hard immediately with mixed enemy types
+  - Multiple boss waves: 10, 15, 20, 25, 30 (5 boss encounters total)
+  - Wave 10: 2x Shield Commander + Elite support
+  - Wave 15: 2x Swarm Mother + Massive flying assault
+  - Wave 20: 3x Titan + Heavy armor support
+  - Wave 25: Multi-boss combo (Shield Commander + Swarm Mother)
+  - Wave 30: "Mega Factory Apocalypse" - 12 total bosses + 100+ support enemies
+- **Scaling Parameters**:
+  - Health: 1.2x + 0.25x per wave (much more aggressive than campaign)
+  - Speed: 1.1x + 0.04x per wave (fastest enemies in game)
+  - Spawn rate: 0.5s between enemies (relentless pressure)
+  - Preparation time: 6s (less time to strategize)
+  - Rewards: 1.2x + 0.08x per wave (compensates for difficulty)
+- **Enemy Counts** (Late Game):
+  - Waves 21-24: 30+ Elites, 25+ Tanks, 20+ Flying, full enemy roster
+  - Wave 25: 2 Commanders + 2 Mothers + 55 support units
+  - Wave 30 (Final): 5 Titans + 4 Commanders + 3 Mothers + 100 elites
+  - Ultra endgame test of tower mastery and strategic planning
+- **Rewards**:
+  - Wave completion bonuses: 100 + (20 × wave number)
+  - Boss waves grant 3-6 tech points each
+  - Wave 30 grants 15 tech points + 2000 credit bonus
+  - Designed for players who want maximum challenge
+- **Strategic Requirements**:
+  - Requires mastery of all tower types and synergies
+  - Early-game economy management critical with higher starting credits
+  - Must handle all enemy types simultaneously (no gaps allowed)
+  - Boss waves require burst damage, crowd control, AND sustained DPS
+  - Map path has multiple loops - requires full coverage
+- **Integration**:
+  - Created via MapContentCreator: Tools → Robot TD → Create Map Content
+  - Map 6 button in editor tool
+  - Unlocks after completing Map 5 (Final Assault)
+  - Generates Map06_MegaFactory.asset and WaveSet_MegaFactory.asset
+  - Automatically added to MapRegistry
+  - Compatible with all game modes (Campaign, Challenge, etc.)
+- **Challenge Integration**:
+  - Works with Challenge Mode modifiers for even harder difficulty
+  - Boss Rush mode excludes regular maps (separate boss gauntlet)
+  - Endless Mode can activate after completing Mega Factory
+  - Achievement system supports Mega Factory milestones
+  - Leaderboard tracking for completion time and score
+
 ### Planned Features
 - Cloud save support with conflict resolution
 - Weekly missions (extended version of daily missions)
