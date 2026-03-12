@@ -76,12 +76,23 @@ namespace RobotTD.UI
                 WaveManager.Instance.OnEnemyCountChanged.AddListener(UpdateEnemyCount);
             }
 
+            // Subscribe to endless mode events
+            EndlessMode.OnEndlessWaveStarted += OnEndlessWaveStarted;
+            EndlessMode.OnMilestoneReached += OnEndlessMilestone;
+
             // Setup tower buttons
             CreateTowerButtons();
 
             // Initial UI state
             RefreshUI();
             HideAllPanels();
+        }
+
+        private void OnDestroy()
+        {
+            // Unsubscribe from endless mode events
+            EndlessMode.OnEndlessWaveStarted -= OnEndlessWaveStarted;
+            EndlessMode.OnMilestoneReached -= OnEndlessMilestone;
         }
 
         private void Update()
@@ -187,6 +198,29 @@ namespace RobotTD.UI
             
             // Show wave complete notification
             ShowNotification($"Wave {wave} Complete! +$100");
+        }
+
+        private void OnEndlessWaveStarted(int endlessWave)
+        {
+            waveText.text = $"<color=#FFD700>Endless Wave {endlessWave}</color>";
+            startWaveButton.interactable = false;
+            startWaveText.text = "Endless Mode";
+            waveProgressSlider.value = 0;
+
+            if (endlessWave == 1)
+            {
+                ToastNotification.Instance?.Show("Endless Mode Activated!", ToastNotification.ToastType.Success);
+            }
+        }
+
+        private void OnEndlessMilestone(int milestoneWave, long bonusCredits)
+        {
+            ToastNotification.Instance?.Show(
+                $"Milestone Reached! Wave {milestoneWave} - Bonus: ${bonusCredits:N0}",
+                ToastNotification.ToastType.Success);
+            
+            // Play celebration sound
+            Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UISuccess);
         }
 
         public void OnStartWaveClicked()

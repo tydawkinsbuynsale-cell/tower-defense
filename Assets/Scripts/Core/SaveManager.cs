@@ -51,6 +51,11 @@ namespace RobotTD.Core
         // Daily/weekly challenges (future expansion)
         public int dailyStreak = 0;
         public long lastDailyLoginTimestamp = 0;
+
+        // Endless mode
+        public int endlessHighWave = 0;
+        public long endlessHighScore = 0;
+        public int endlessGamesPlayed = 0;
     }
 
     [Serializable]
