@@ -93,6 +93,13 @@ namespace RobotTD.Analytics
         public const string DAILY_LOGIN = "daily_login";
         public const string RETURN_AFTER_ABSENCE = "return_after_absence";
         public const string FIRST_SESSION = "first_session";
+        
+        // ── Challenge Mode Events ─────────────────────────────────────────────
+        public const string CHALLENGE_STARTED = "challenge_started";
+        public const string CHALLENGE_COMPLETED = "challenge_completed";
+        public const string CHALLENGE_FAILED = "challenge_failed";
+        public const string DAILY_CHALLENGE_COMPLETE = "daily_challenge_complete";
+        public const string WEEKLY_CHALLENGE_COMPLETE = "weekly_challenge_complete";
     }
 
     /// <summary>

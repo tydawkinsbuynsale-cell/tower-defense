@@ -399,5 +399,42 @@ namespace RobotTD.Progression
             
             Debug.Log($"[Achievement] Endless milestone wave {endlessWave} checked.");
         }
+        
+        // ── Challenge Mode Achievements ──────────────────────────────────────
+        
+        /// <summary>Check challenge completion achievements.</summary>
+        public void CheckChallengeComplete(string challengeId, string difficulty)
+        {
+            // Track first challenge completion
+            int totalChallengesCompleted = PlayerPrefs.GetInt("ChallengesCompleted", 0) + 1;
+            PlayerPrefs.SetInt("ChallengesCompleted", totalChallengesCompleted);
+            PlayerPrefs.Save();
+            
+            // Unlock achievements based on challenge count
+            if (totalChallengesCompleted == 1)
+            {
+                // First challenge (you'd need to add this to AchievementId enum)
+                Debug.Log("[Achievement] First challenge completed!");
+            }
+            if (totalChallengesCompleted >= 5)
+            {
+                Debug.Log("[Achievement] 5 challenges completed!");
+            }
+            if (totalChallengesCompleted >= 25)
+            {
+                Debug.Log("[Achievement] 25 challenges completed!");
+            }
+            
+            // Track difficulty-specific completions
+            if (difficulty == "Extreme")
+            {
+                int extremeCount = PlayerPrefs.GetInt("ExtremeChallengesCompleted", 0) + 1;
+                PlayerPrefs.SetInt("ExtremeChallengesCompleted", extremeCount);
+                if (extremeCount == 1)
+                {
+                    Debug.Log("[Achievement] First extreme challenge completed!");
+                }
+            }
+        }
     }
 }

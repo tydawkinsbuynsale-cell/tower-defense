@@ -397,6 +397,29 @@ namespace RobotTD.Analytics
                 { "battery_level", batteryLevel }
             });
         }
+        
+        // ── Challenge Mode Events ─────────────────────────────────────────────
+        
+        public void TrackChallengeStarted(string challengeId, string challengeName, string difficulty)
+        {
+            TrackEvent(AnalyticsEvents.CHALLENGE_STARTED, new Dictionary<string, object>
+            {
+                { "challenge_id", challengeId },
+                { "challenge_name", challengeName },
+                { "difficulty", difficulty }
+            });
+        }
+        
+        public void TrackChallengeCompleted(string challengeId, bool victory, long score, int wave)
+        {
+            TrackEvent(AnalyticsEvents.CHALLENGE_COMPLETED, new Dictionary<string, object>
+            {
+                { "challenge_id", challengeId },
+                { "victory", victory },
+                { "score", score },
+                { "wave", wave }
+            });
+        }
 
         // ── Error Tracking ────────────────────────────────────────────────────
 
