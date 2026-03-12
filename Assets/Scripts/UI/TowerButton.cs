@@ -71,7 +71,9 @@ namespace RobotTD.UI
         {
             if (towerData == null) return;
 
-            bool canAfford = GameManager.Instance?.CanAfford(towerData.cost) ?? false;
+            // Get cost with challenge modifiers
+            int cost = GetModifiedCost();
+            bool canAfford = GameManager.Instance?.CanAfford(cost) ?? false;
 
             // Update cost text color
             if (costText != null)
@@ -96,8 +98,25 @@ namespace RobotTD.UI
         {
             if (costText != null && towerData != null)
             {
-                costText.text = $"${towerData.cost}";
+                // Display cost with challenge modifiers
+                int cost = GetModifiedCost();
+                costText.text = $"${cost}";
             }
+        }
+        
+        /// <summary>
+        /// Get tower cost with challenge modifiers applied.
+        /// </summary>
+        private int GetModifiedCost()
+        {
+            if (towerData == null) return 0;
+            
+            if (TowerPlacementManager.Instance != null)
+            {
+                return TowerPlacementManager.Instance.GetModifiedTowerCost(towerData.cost);
+            }
+            
+            return towerData.cost;
         }
 
         #region Selection
@@ -105,7 +124,10 @@ namespace RobotTD.UI
         public void Select()
         {
             if (!isUnlocked) return;
-            if (!GameManager.Instance.CanAfford(towerData.cost))
+            
+            // Check affordability with challenge modifiers
+            int cost = GetModifiedCost();
+            if (!GameManager.Instance.CanAfford(cost))
             {
                 // Play error sound / shake animation
                 return;

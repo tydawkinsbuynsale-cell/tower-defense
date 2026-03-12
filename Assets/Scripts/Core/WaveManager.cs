@@ -28,6 +28,11 @@ namespace RobotTD.Core
         [Header("References")]
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private Transform[] waypoints;
+        
+        // Challenge Mode multipliers
+        private float challengeHealthMultiplier = 1f;
+        private float challengeSpeedMultiplier = 1f;
+        private float challengeCountMultiplier = 1f;
 
         // Runtime state
         public int CurrentWave { get; private set; } = 0;
@@ -377,12 +382,12 @@ namespace RobotTD.Core
                 enemy.transform.position = spawnPoint.position;
                 enemy.SetActive(true);
 
-                // Configure enemy with wave scaling
+                // Configure enemy with wave scaling + challenge modifiers
                 var enemyComponent = enemy.GetComponent<Enemies.Enemy>();
                 if (enemyComponent != null)
                 {
-                    float healthMultiplier = 1f + (CurrentWave - 1) * healthScalePerWave;
-                    float speedMultiplier = 1f + (CurrentWave - 1) * speedScalePerWave;
+                    float healthMultiplier = (1f + (CurrentWave - 1) * healthScalePerWave) * challengeHealthMultiplier;
+                    float speedMultiplier = (1f + (CurrentWave - 1) * speedScalePerWave) * challengeSpeedMultiplier;
                     enemyComponent.Initialize(waypoints, healthMultiplier, speedMultiplier);
                 }
             }
@@ -451,11 +456,37 @@ namespace RobotTD.Core
 
         private IEnumerator AutoStartNextWave()
         {
-            yield return new WaitForSeconds(timeBetweenWaves);
+            float delay = GetWaveDelay();
+            yield return new WaitForSeconds(delay);
             if (!WaveInProgress)
             {
                 StartNextWave();
             }
+        }
+        
+        /// <summary>
+        /// Get wave delay with challenge modifiers applied.
+        /// </summary>
+        private float GetWaveDelay()
+        {
+            float baseDelay = timeBetweenWaves;
+            
+            if (ChallengeManager.Instance != null)
+            {
+                // NoBreaks: eliminate wave delay entirely
+                if (ChallengeManager.Instance.HasActiveModifier(ChallengeData.ChallengeModifier.NoBreaks))
+                {
+                    return 0.1f; // Minimal frame delay
+                }
+                
+                // FastForward: halve wave delay
+                if (ChallengeManager.Instance.HasActiveModifier(ChallengeData.ChallengeModifier.FastForward))
+                {
+                    return baseDelay * 0.5f;
+                }
+            }
+            
+            return baseDelay;
         }
 
         /// <summary>
@@ -566,10 +597,47 @@ namespace RobotTD.Core
 
             if (go.TryGetComponent<Enemies.Enemy>(out var enemy))
             {
+                // Apply both endless mode and challenge mode multipliers
                 enemy.Initialize(waypoints,
-                    healthMultiplier: hpMult,
-                    speedMultiplier: spdMult);
+                    healthMultiplier: hpMult * challengeHealthMultiplier,
+                    speedMultiplier: spdMult * challengeSpeedMultiplier);
             }
+        }
+        
+        // ── Challenge Mode Integration ───────────────────────────────────────
+        
+        /// <summary>
+        /// Set challenge mode multipliers for enemy stats.
+        /// Called by ChallengeManager when a challenge starts.
+        /// </summary>
+        public void SetChallengeMultipliers(float health = 1f, float speed = 1f, float count = 1f)
+        {
+            challengeHealthMultiplier = health;
+            challengeSpeedMultiplier = speed;
+            challengeCountMultiplier = count;
+            
+            Debug.Log($"[WaveManager] Challenge multipliers set: HP x{health:F2}, Speed x{speed:F2}, Count x{count:F2}");
+        }
+        
+        /// <summary>
+        /// Reset challenge modifiers to default (1.0).
+        /// Called by ChallengeManager when a challenge ends.
+        /// </summary>
+        public void ResetChallengeMultipliers()
+        {
+            challengeHealthMultiplier = 1f;
+            challengeSpeedMultiplier = 1f;
+            challengeCountMultiplier = 1f;
+            
+            Debug.Log("[WaveManager] Challenge multipliers reset");
+        }
+        
+        /// <summary>
+        /// Get the challenge-modified enemy count for a wave.
+        /// </summary>
+        public int GetChallengeModified EnemyCount(int baseCount)
+        {
+            return Mathf.RoundToInt(baseCount * challengeCountMultiplier);
         }
     }
 }

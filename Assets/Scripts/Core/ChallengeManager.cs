@@ -42,6 +42,11 @@ namespace RobotTD.Core
         [SerializeField] private float placementDelay = 3f;
         [SerializeField] private float fastForwardWaveDelay = 3f;
         
+        // Active modifier multipliers (for tower systems to query)
+        private float activeTowerCostMultiplier = 1f;
+        private float activeTowerDamageMultiplier = 1f;
+        private float activeEconomyMultiplier = 1f;
+        
         // ── State ────────────────────────────────────────────────────────────
         
         public bool IsChallengeActive { get; private set; }
@@ -231,6 +236,12 @@ namespace RobotTD.Core
                     Progression.AchievementManager.Instance?.UnlockAchievement(challenge.AchievementId);
                 }
                 
+                // Check challenge completion achievements
+                Progression.AchievementManager.Instance?.CheckChallengeComplete(
+                    challenge.ChallengeId, 
+                    challenge.Difficulty.ToString()
+                );
+                
                 Debug.Log($"[ChallengeManager] Challenge completed! Rewards: {challenge.CreditReward} credits, {challenge.TechPointReward} tech points");
             }
             
@@ -241,6 +252,11 @@ namespace RobotTD.Core
         
         private void ApplyModifiers(ChallengeData challenge)
         {
+            // Accumulate all multipliers before applying
+            float totalHealthMult = 1f;
+            float totalSpeedMult = 1f;
+            float totalCountMult = 1f;
+            
             foreach (var modifier in challenge.Modifiers)
             {
                 Debug.Log($"[ChallengeManager] Applying modifier: {modifier}");
@@ -248,15 +264,15 @@ namespace RobotTD.Core
                 switch (modifier)
                 {
                     case ChallengeModifier.SpeedRush:
-                        ApplySpeedModifier(speedRushMultiplier);
+                        totalSpeedMult *= speedRushMultiplier;
                         break;
                     
                     case ChallengeModifier.ArmoredAssault:
-                        ApplyHealthModifier(armoredAssaultHPMultiplier);
+                        totalHealthMult *= armoredAssaultHPMultiplier;
                         break;
                     
                     case ChallengeModifier.SwarmMode:
-                        ApplyEnemyCountModifier(swarmModeCountMultiplier);
+                        totalCountMult *= swarmModeCountMultiplier;
                         break;
                     
                     case ChallengeModifier.BudgetCrisis:
@@ -284,43 +300,35 @@ namespace RobotTD.Core
                         break;
                 }
             }
-        }
-        
-        private void RemoveModifiers(ChallengeData challenge)
-        {
-            // Reset all modifiers to default
-            // This should restore normal game state
-            Debug.Log("[ChallengeManager] Removing challenge modifiers");
-        }
-        
-        // Individual modifier methods
-        private void ApplySpeedModifier(float multiplier)
-        {
-            // This would be applied to enemy spawning in WaveManager
+            
+            // Apply accumulated enemy modifiers to WaveManager
             if (WaveManager.Instance != null)
             {
-                // WaveManager would need a SetSpeedMultiplier method
-                Debug.Log($"[ChallengeManager] Speed multiplier: {multiplier}x");
+                WaveManager.Instance.SetChallengeMultipliers(totalHealthMult, totalSpeedMult, totalCountMult);
             }
         }
         
-        private void ApplyHealthModifier(float multiplier)
-        {
-            Debug.Log($"[ChallengeManager] Health multiplier: {multiplier}x");
-        }
-        
-        private void ApplyEnemyCountModifier(float multiplier)
-        {
-            Debug.Log($"[ChallengeManager] Enemy count multiplier: {multiplier}x");
-        }
-        
+        private void RemoveModifiers(ChallengeData challenge)
+        {individual modifier methods (for non-enemy modifiers)
         private void ApplyTowerCostModifier(float multiplier)
         {
-            Debug.Log($"[ChallengeManager] Tower cost multiplier: {multiplier}x");
+            activeTowerCostMultiplier = 1f;
+            activeTowerDamageMultiplier = 1f;
+            activeEconomyMultiplier = 1f;
+            activeTowerCostMultiplier *= multiplier;
+            Debug.Log($"[ChallengeManager] Tower cost multiplier: {activeTowerCostMultiplier}x");
         }
         
         private void ApplyTowerDamageModifier(float multiplier)
         {
+            activeTowerDamageMultiplier *= multiplier;
+            Debug.Log($"[ChallengeManager] Tower damage multiplier: {activeTowerDamageMultiplier}x");
+        }
+        
+        private void ApplyEconomyModifier(float multiplier)
+        {
+            activeEconomyMultiplier *= multiplier;
+            Debug.Log($"[ChallengeManager] Economy multiplier: {activeEconomyM
             Debug.Log($"[ChallengeManager] Tower damage multiplier: {multiplier}x");
         }
         
@@ -496,6 +504,43 @@ namespace RobotTD.Core
         {
             if (IsChallengeActive)
                 EndChallenge(false);
+        }
+        
+        // ── Public Helper API ────────────────────────────────────────────────
+        
+        /// <summary>
+        /// Get the tower cost multiplier for current challenge (1.0 = no modifier).
+        /// Call this when calculating tower purchase or upgrade costs.
+        /// </summary>
+        public float GetTowerCostMultiplier()
+        {
+            return IsChallengeActive ? activeTowerCostMultiplier : 1f;
+        }
+        
+        /// <summary>
+        /// Get the tower damage multiplier for current challenge (1.0 = no modifier).
+        /// Call this when calculating tower damage output.
+        /// </summary>
+        public float GetTowerDamageMultiplier()
+        {
+            return IsChallengeActive ? activeTowerDamageMultiplier : 1f;
+        }
+        
+        /// <summary>
+        /// Get the economy multiplier for current challenge (1.0 = no modifier).
+        /// Call this when calculating enemy kill rewards.
+        /// </summary>
+        public float GetEconomyMultiplier()
+        {
+            return IsChallengeActive ? activeEconomyMultiplier : 1f;
+        }
+        
+        /// <summary>
+        /// Check if a specific modifier is active in the current challenge.
+        /// </summary>
+        public bool HasActiveModifier(ChallengeModifier modifier)
+        {
+            return IsChallengeActive && CurrentChallenge != null && CurrentChallenge.HasModifier(modifier);
         }
         
         // ── Persistence ──────────────────────────────────────────────────────
