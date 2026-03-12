@@ -97,7 +97,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Validation panel with error/warning/suggestion display
   - Confirmation dialogs for destructive actions
   - Status message system with auto-hide
-  - Test play button (planned)
+  - Test play button with validation and scene loading ✅
+- **Test Play System** ✅:
+  - Test play button in MapEditorUI for instant map testing
+  - Pre-test validation to ensure map is playable
+  - Automatic map save before test play
+  - Custom map loading in MapManager via LoadCustomMap()
+  - Conversion of tile grid to waypoints for enemy pathing
+  - Placement grid generation from custom map data
+  - Return to editor functionality (planned)
+  - Test play analytics tracking (map_editor_test_play event)
+  - Unsaved changes warning before test play
+  - Error display if validation fails
+  - Static property system for cross-scene custom map transfer
+  - Test play mode flag to distinguish from normal gameplay
 - **Save/Load System**:
   - JSON serialization for custom maps
   - Local storage via PlayerPrefs
@@ -107,6 +120,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Auto-save with configurable interval
   - Unsaved changes detection
   - Backup/restore capability (via SaveManager integration)
+- **CustomMapStorage Manager**:
+  - Complete local file system storage for custom maps
+  - Save/Load operations with JSON serialization
+  - Map library management (up to 100 local maps)
+  - Automatic backup system (max 5 backups per map)
+  - Backup/restore functionality with timestamp tracking
+  - Storage limit enforcement (configurable max maps)
+  - File size tracking and storage usage monitoring
+  - Map metadata caching for fast browsing
+  - Thumbnail generation and storage
+  - Export/Import functionality for map sharing
+  - Search functionality by name and author
+  - Filter by difficulty level
+  - Sort options: Date modified/created, name, play count, rating
+  - Duplicate map functionality (Save As)
+  - Delete with backup protection
+  - Directory structure: CustomMaps/, Thumbnails/, Backups/
+  - Event system: OnMapSaved, OnMapLoaded, OnMapDeleted, OnLibraryRefreshed
+- **Map Library Browser UI**:
+  - Professional map library interface with grid/list views
+  - Map card display with thumbnails, difficulty, stats
+  - Search bar for finding maps by name/author
+  - Sort dropdown (8 sort options)
+  - Difficulty filter dropdown
+  - Storage usage indicator (map count + total size)
+  - Selected map details panel:
+    - Full map information
+    - Thumbnail preview
+    - Grid size and difficulty
+    - Play count and rating statistics
+    - Creation/modification dates
+    - File size information
+  - Map actions:
+    - Load Map (play in campaign)
+    - Edit Map (open in editor)
+    - Delete Map (with confirmation)
+    - Export Map (save to file)
+    - Duplicate Map (clone with new name)
+  - Confirmation dialogs for destructive actions
+  - Status message system
+  - Auto-refresh on map changes
+  - Empty state message
+  - LeanTween animations for smooth transitions
+- **Map Card UI Component**:
+  - Compact card view for map list
+  - Thumbnail display with placeholder fallback
+  - Map name and author display
+  - Grid size badge
+  - Difficulty indicator with color coding
+  - Star rating display (0-5 stars)
+  - Play count statistic
+  - Date modified (smart formatting: "2h ago", "3d ago", "Jan 15")
+  - File size display
+  - Selection outline
+  - Hover animation (scale up 1.05x)
+  - Click to select and view details
+- **Thumbnail System**:
+  - PNG format thumbnail storage
+  - Automatic thumbnail generation (planned)
+  - Manual thumbnail upload support
+  - Lazy loading for performance
+  - Placeholder image fallback
+  - Thumbnail deletion on map delete
 - **Mouse Input Handling**:
   - Left-click for placement
   - Left-drag for continuous painting
@@ -135,7 +211,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Tag-based categorization
   - Search and filter functionality
   - Download and play community maps
-- **Analytics Integration** (14 new events):
+- **Analytics Integration** (20 new events):
   - `map_editor_opened`: Track editor sessions
   - `map_editor_new_map`: New map creation
   - `map_editor_load_map`: Existing map loading
@@ -150,12 +226,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `custom_map_rated`: Player ratings
   - `custom_map_downloaded`: Map downloads
   - `custom_map_shared`: Social sharing
-- **Analytics Parameters** (11 new params):
+  - `map_storage_deleted`: Map deletion tracking
+  - `map_storage_exported`: Map export events
+  - `map_storage_imported`: Map import tracking
+  - `map_library_opened`: Library browser usage
+  - `map_backup_created`: Backup creation events
+  - `map_backup_restored`: Backup restore tracking
+- **Analytics Parameters** (14 new params):
   - `map_id`, `map_name`, `map_author`: Map identification
   - `grid_width`, `grid_height`: Map dimensions
   - `is_valid`, `validation_errors`: Validation state
   - `play_count`, `rating`: Community metrics
-  - `tile_count`, `spawn_count`,`path_length`: Map statistics
+  - `tile_count`, `spawn_count`, `path_length`: Map statistics
+  - `file_size`: Storage metrics
+  - `total_maps`: Library size
+  - `storage_size`: Total storage used
 - **Editor Features**:
   - Context menu commands for testing
   - Debug logging toggle
@@ -166,7 +251,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Integration Points**:
   - AuthenticationManager: Author identification
   - AnalyticsManager: Event tracking
-  - SaveManager: Local persistence
+  - CustomMapStorage: File system persistence and library management
+  - SaveManager: Backup integration
   - MapSelector: Custom map loading (future)
   - CloudSaveManager: Cloud storage (future)
 - **Best Practices**:

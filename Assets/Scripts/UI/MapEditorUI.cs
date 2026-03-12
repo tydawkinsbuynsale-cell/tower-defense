@@ -507,9 +507,27 @@ namespace RobotTD.UI
 
         private void OnTestPlayClicked()
         {
-            // TODO: Implement test play functionality
-            // Validate map, then load it into the game scene for testing
-            ShowStatus("Test play not yet implemented", 2f);
+            if (MapEditorManager.Instance == null)
+            {
+                ShowStatus("Map Editor not initialized!", 2f);
+                return;
+            }
+
+            // Check if map has unsaved changes
+            if (MapEditorManager.Instance.HasUnsavedChanges())
+            {
+                ShowConfirmDialog(
+                    "You have unsaved changes. Save before test play?",
+                    () => {
+                        MapEditorManager.Instance.SaveCurrentMap();
+                        MapEditorManager.Instance.TestPlayCurrentMap();
+                    }
+                );
+            }
+            else
+            {
+                MapEditorManager.Instance.TestPlayCurrentMap();
+            }
         }
 
         private void OnUndoClicked()
