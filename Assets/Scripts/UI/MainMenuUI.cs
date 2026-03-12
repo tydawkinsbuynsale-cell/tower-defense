@@ -189,6 +189,7 @@ namespace RobotTD.UI
     {
         [Header("References")]
         [SerializeField] private MapEntry[] maps;
+        [SerializeField] private Map.MapRegistry mapRegistry; // NEW: Use MapRegistry for dynamic map loading
         [SerializeField] private Transform mapButtonContainer;
         [SerializeField] private GameObject mapButtonPrefab;
         [SerializeField] private MainMenuUI mainMenu;
@@ -221,7 +222,10 @@ namespace RobotTD.UI
 
             var save = Core.SaveManager.Instance?.Data;
 
-            foreach (var map in maps)
+            // Use MapRegistry if available, otherwise fall back to manual MapEntry array
+            MapEntry[] mapsToDisplay = GetMapsToDisplay();
+
+            foreach (var map in mapsToDisplay)
             {
                 bool unlocked = save == null || save.unlockedMaps.Contains(map.mapId);
                 bool prereqMet = ArePrerequisitesMet(map, save);
@@ -236,6 +240,18 @@ namespace RobotTD.UI
                     mapBtn.Setup(map, unlocked && prereqMet, record, () => SelectMap(map));
                 }
             }
+        }
+
+        private MapEntry[] GetMapsToDisplay()
+        {
+            // Prefer MapRegistry if set (dynamic loading from ScriptableObjects)
+            if (mapRegistry != null && mapRegistry.MapCount > 0)
+            {
+                return mapRegistry.ToMapEntries();
+            }
+
+            // Fallback to manually configured MapEntry array
+            return maps;
         }
 
         private bool ArePrerequisitesMet(MapEntry map, Core.PlayerSaveData save)
@@ -287,6 +303,18 @@ namespace RobotTD.UI
             launchButton.onClick.AddListener(() =>
             {
                 Audio.AudioManager.Instance?.PlaySFX(Audio.SFX.UIConfirm);
+                
+                // Set the selected map in MapSelector before loading scene
+                var mapSelector = Core.MapSelector.Instance;
+                if (mapSelector != null && mapRegistry != null)
+                {
+                    var mapData = mapRegistry.GetMap(map.mapId);
+                    if (mapData != null)
+                    {
+                        mapSelector.SelectMap(mapData);
+                    }
+                }
+                
                 mainMenu.LoadScene(map.sceneName);
             });
         }
