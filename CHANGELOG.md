@@ -233,6 +233,123 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Version 1.5] - Ad Monetization System
+
+### Added
+
+**Ad Monetization** 📺
+- **AdManager**: Complete Unity Ads integration for mobile monetization
+  - Unity Ads SDK integration with IUnityAdsInitializationListener, IUnityAdsLoadListener, IUnityAdsShowListener
+  - Multi-platform support: Android and iOS with platform-specific Game IDs
+  - Test mode for development and production mode for release
+  - Singleton pattern with DontDestroyOnLoad persistence
+  - Automatic ad loading and pre-caching for instant display
+  - Editor simulation mode for testing without Unity Ads SDK
+- **Ad Types (3 placements)**:
+  - **Interstitial Ads**: Full-screen ads shown between gameplay sessions
+    - Shown after game over, mission complete, or map transitions
+    - Frequency-controlled with cooldown (default 3 minutes)
+    - Gameplay-based triggers (show after X completed games, default 3)
+    - Never interrupts active gameplay
+  - **Rewarded Ads**: Opt-in ads that grant player bonuses
+    - Rewards: Gems, credits, continue game, double rewards, extra life
+    - 1-minute cooldown (configurable)
+    - Available even if "Remove Ads" purchased (optional bonus)
+    - Clear value proposition shown before ad
+  - **Banner Ads**: Small persistent ads for menu screens
+    - Configurable position (top/bottom/center, left/center/right)
+    - Show on main menu, shop, leaderboards
+    - Hide during active gameplay
+    - Low-value but constant revenue stream
+- **Frequency Controls**:
+  - Interstitial cooldown: 3 minutes default (prevent spam)
+  - Rewarded cooldown: 1 minute default (reasonable re-watch interval)
+  - Gameplay count: Show interstitial after 3 games (not every game)
+  - Query API: `CanShowInterstitial()`, `CanShowRewarded()`
+  - Cooldown helpers: `GetInterstitialCooldownRemaining()`, `GetRewardedCooldownRemaining()`
+  - Gameplay counter: `OnGameplaySessionComplete()` tracks session count
+- **IAP Integration**:
+  - Automatically checks `IAPManager.AreAdsRemoved()`
+  - Interstitial ads skipped if "Remove Ads" purchased
+  - Banner ads hidden if "Remove Ads" purchased
+  - Rewarded ads still available for premium users (optional bonus)
+  - Seamless integration without code duplication
+- **RewardedAdButton UI Component**:
+  - Reusable UI component for rewarded ad placements
+  - Displays reward preview: "Watch Ad\n+50 Gems"
+  - Dynamic reward configuration: SetReward(RewardType, amount)
+  - Cooldown timer display with countdown text
+  - Cooldown fill bar (radial or linear)
+  - Auto-hide if "Remove Ads" purchased (configurable)
+  - Reward types: Gems, Credits, ContinueGame, DoubleReward, ExtraLife
+  - Automatic reward granting on ad completion
+  - Toast notifications for success/failure
+- **Ad Flow Management**:
+  - OnUnityAdsAdLoaded: Cache loaded ads for instant display
+  - OnUnityAdsShowStart: Pause game (Time.timeScale = 0, AudioListener.pause = true)
+  - OnUnityAdsShowComplete: Resume game, grant rewards, reload next ad
+  - OnUnityAdsShowFailure: Graceful failure handling, resume game
+  - Retry logic: Auto-reload failed ads after 5-second delay
+  - Transaction tracking: Prevent duplicate reward grants
+- **Analytics Integration**:
+  - All ad events tracked via AnalyticsManager:
+    - ads_initialized: Unity Ads ready
+    - ad_shown: Ad started (type, placement)
+    - ad_clicked: User clicked ad
+    - ad_completed: Ad finished (completion state)
+    - ad_reward_earned: Rewarded ad completed (reward type, amount)
+    - ad_load_failed: Ad failed to load (error, message)
+    - ad_show_failed: Ad failed to display (error, message)
+    - rewarded_ad_reward_claimed: Reward granted to player
+  - Conversion funnel tracking for optimization
+  - Revenue metrics: Impressions, clicks, eCPM
+- **Editor Simulation**:
+  - Simulate all ad types without Unity Ads SDK
+  - Configurable simulated ad duration (default 2 seconds)
+  - Full event callbacks (OnAdShown, OnAdClosed, OnRewardEarned)
+  - Test reward granting logic without real ads
+  - Context menu commands:
+    - Show Interstitial Ad
+    - Show Rewarded Ad
+    - Show Banner
+    - Hide Banner
+    - Print Ad Status (cooldowns, initialization, IAP status)
+- **Platform Configuration**:
+  - Separate Game IDs for Android and iOS
+  - Platform-specific placement IDs
+  - Test mode toggle (development vs production)
+  - Enable/disable ads globally (for regions without monetization)
+  - Banner position per platform (Android often bottom, iOS safer at top)
+- **Event System**:
+  - OnAdsInitialized(): Ads ready, start showing
+  - OnAdShown(placementId): Ad started, pause gameplay
+  - OnAdClosed(placementId): Ad finished, resume gameplay
+  - OnAdFailed(placementId, error): Handle failures gracefully
+  - OnRewardEarned(rewardType): Notify UI of reward grant
+- **Best Practices Built-In**:
+  - Never show interstitials during active gameplay
+  - Always show value for rewarded ads
+  - Respect "Remove Ads" IAP purchase
+  - Cooldowns prevent ad fatigue
+  - Graceful failure handling (never block gameplay)
+  - Analytics for revenue optimization
+- **Complete Documentation**: [ADS_GUIDE.md](ADS_GUIDE.md)
+  - Unity Ads setup and SDK installation
+  - Game ID and placement ID configuration
+  - Ad type explanations (when to use each)
+  - Frequency control tuning guidelines
+  - IAP integration architecture
+  - RewardedAdButton UI setup
+  - Integration examples (game over, victory, shop, main menu)
+  - Editor simulation testing procedures
+  - Device testing checklist
+  - Production launch checklist
+  - Best practices for player-friendly monetization
+  - Comprehensive troubleshooting guide
+  - Ad performance optimization tips
+
+---
+
 ## [Version 1.6] - Power-Ups System
 
 ### Added
