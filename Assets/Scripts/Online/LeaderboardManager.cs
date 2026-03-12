@@ -400,6 +400,70 @@ namespace RobotTD.Online
             }
         }
 
+        /// <summary>
+        /// Fetch friend leaderboard scores.
+        /// Requires SocialManager to be initialized with friends list.
+        /// </summary>
+        public void FetchFriendLeaderboard(string leaderboardId, int maxResults = 50)
+        {
+            if (!enableLeaderboards)
+                return;
+
+            // Get friend IDs from SocialManager
+            if (SocialManager.Instance == null)
+            {
+                LogDebug("SocialManager not available, cannot fetch friend leaderboard");
+                OnScoresLoaded?.Invoke(leaderboardId, new List<LeaderboardEntry>());
+                return;
+            }
+
+            List<string> friendIds = SocialManager.Instance.GetFriendIds();
+            
+            if (friendIds == null || friendIds.Count == 0)
+            {
+                LogDebug("No friends found, returning empty leaderboard");
+                OnScoresLoaded?.Invoke(leaderboardId, new List<LeaderboardEntry>());
+                return;
+            }
+
+            // Add player's own ID to include them in results
+            if (!friendIds.Contains(playerId))
+            {
+                friendIds.Add(playerId);
+            }
+
+            if (!offlineMode)
+            {
+                StartCoroutine(FetchFriendLeaderboardOnline(leaderboardId, friendIds, maxResults));
+            }
+            else
+            {
+                // Filter local scores by friend IDs
+                if (localScores.ContainsKey(leaderboardId))
+                {
+                    var friendScores = localScores[leaderboardId]
+                        .Where(e => friendIds.Contains(e.playerId))
+                        .OrderByDescending(e => e.score)
+                        .Take(maxResults)
+                        .ToList();
+
+                    // Recalculate ranks for friend-only list
+                    for (int i = 0; i < friendScores.Count; i++)
+                    {
+                        friendScores[i].rank = i + 1;
+                    }
+
+                    OnScoresLoaded?.Invoke(leaderboardId, friendScores);
+                }
+                else
+                {
+                    OnScoresLoaded?.Invoke(leaderboardId, new List<LeaderboardEntry>());
+                }
+            }
+
+            LogDebug($"Fetching friend leaderboard for {friendIds.Count} friends");
+        }
+
         private IEnumerator FetchLeaderboardOnline(string leaderboardId, LeaderboardScope scope, int maxResults)
         {
             #if UNITY_GAMING_SERVICES
@@ -423,6 +487,17 @@ namespace RobotTD.Online
             // Implementation depends on backend
             yield return null;
             LogDebug($"Nearby scores fetch not implemented for current backend");
+        }
+
+        private IEnumerator FetchFriendLeaderboardOnline(string leaderboardId, List<string> friendIds, int maxResults)
+        {
+            #if UNITY_GAMING_SERVICES
+            yield return FetchFriendLeaderboardUGS(leaderboardId, friendIds, maxResults);
+            #elif PLAYFAB
+            yield return FetchFriendLeaderboardPlayFab(leaderboardId, friendIds, maxResults);
+            #else
+            yield return FetchFriendLeaderboardCustom(leaderboardId, friendIds, maxResults);
+            #endif
         }
 
         // ── Backend Implementations ───────────────────────────────────────────
@@ -451,6 +526,17 @@ namespace RobotTD.Online
             LogDebug($"[UGS] Fetching leaderboard: {leaderboardId}");
             // var result = await Unity.Services.Leaderboards.LeaderboardsService.Instance.GetScoresAsync(leaderboardId);
             // Convert and cache results
+            yield return null;
+        }
+
+        private IEnumerator FetchFriendLeaderboardUGS(string leaderboardId, List<string> friendIds, int maxResults)
+        {
+            LogDebug($"[UGS] Fetching friend leaderboard: {leaderboardId}");
+            // Unity Gaming Services friend leaderboard implementation
+            // var result = await Unity.Services.Leaderboards.LeaderboardsService.Instance.GetPlayerRangeAsync(leaderboardId, friendIds);
+            // List<LeaderboardEntry> entries = ConvertUGSResults(result);
+            // CacheScores(leaderboardId + "_friends", entries);
+            // OnScoresLoaded?.Invoke(leaderboardId, entries);
             yield return null;
         }
         #endif
@@ -491,6 +577,21 @@ namespace RobotTD.Online
             //     MaxResultsCount = maxResults
             // };
             // PlayFab.PlayFabClientAPI.GetLeaderboard(request, OnGetLeaderboardSuccess, OnPlayFabError);
+            yield return null;
+        }
+
+        private IEnumerator FetchFriendLeaderboardPlayFab(string leaderboardId, List<string> friendIds, int maxResults)
+        {
+            LogDebug($"[PlayFab] Fetching friend leaderboard: {leaderboardId}");
+            // PlayFab friend leaderboard implementation
+            // var request = new PlayFab.ClientModels.GetFriendLeaderboardRequest
+            // {
+            //     StatisticName = leaderboardId,
+            //     MaxResultsCount = maxResults,
+            //     IncludeSteamFriends = false,
+            //     IncludeFacebookFriends = false
+            // };
+            // PlayFab.PlayFabClientAPI.GetFriendLeaderboard(request, OnGetFriendLeaderboardSuccess, OnPlayFabError);
             yield return null;
         }
         #endif
@@ -558,6 +659,41 @@ namespace RobotTD.Online
                 {
                     OnError?.Invoke($"Failed to fetch leaderboard: {www.error}");
                     LogDebug($"Error fetching leaderboard: {www.error}");
+                }
+            }
+        }
+
+        private IEnumerator FetchFriendLeaderboardCustom(string leaderboardId, List<string> friendIds, int maxResults)
+        {
+            LogDebug($"[Custom] Fetching friend leaderboard: {leaderboardId}");
+
+            string url = $"https://your-server.com/api/leaderboards/{leaderboardId}/friends";
+
+            var payload = new Dictionary<string, object>
+            {
+                { "friend_ids", friendIds },
+                { "limit", maxResults }
+            };
+
+            string json = JsonUtility.ToJson(payload);
+
+            using (UnityEngine.Networking.UnityWebRequest www = UnityEngine.Networking.UnityWebRequest.Post(url, json))
+            {
+                www.SetRequestHeader("Content-Type", "application/json");
+                yield return www.SendWebRequest();
+
+                if (www.result == UnityEngine.Networking.UnityWebRequest.Result.Success)
+                {
+                    // Parse JSON response
+                    // List<LeaderboardEntry> entries = ParseCustomResponse(www.downloadHandler.text);
+                    // CacheScores(leaderboardId + "_friends", entries);
+                    // OnScoresLoaded?.Invoke(leaderboardId, entries);
+                    LogDebug($"Friend leaderboard fetched successfully ({friendIds.Count} friends)");
+                }
+                else
+                {
+                    OnError?.Invoke($"Failed to fetch friend leaderboard: {www.error}");
+                    LogDebug($"Error fetching friend leaderboard: {www.error}");
                 }
             }
         }

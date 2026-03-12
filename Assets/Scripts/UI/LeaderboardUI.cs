@@ -27,6 +27,12 @@ namespace RobotTD.UI
         [SerializeField] private Button dailyTabButton;
         [SerializeField] private Button weeklyTabButton;
         
+        [Header("Scope Buttons")]
+        [SerializeField] private Button globalScopeButton;
+        [SerializeField] private Button friendsScopeButton;
+        [SerializeField] private Color activeScopeButtonColor = new Color(0.2f, 0.6f, 1f);
+        [SerializeField] private Color inactiveScopeButtonColor = new Color(0.5f, 0.5f, 0.5f);
+        
         [Header("Player Info")]
         [SerializeField] private TMP_Text playerNameText;
         [SerializeField] private TMP_Text playerRankText;
@@ -66,6 +72,12 @@ namespace RobotTD.UI
             
             if (weeklyTabButton != null)
                 weeklyTabButton.onClick.AddListener(() => ShowLeaderboard("weekly_challenge"));
+            
+            if (globalScopeButton != null)
+                globalScopeButton.onClick.AddListener(() => SetScope(LeaderboardScope.Global));
+            
+            if (friendsScopeButton != null)
+                friendsScopeButton.onClick.AddListener(() => SetScope(LeaderboardScope.Friends));
             
             if (panel != null)
                 panel.SetActive(false);
@@ -136,6 +148,16 @@ namespace RobotTD.UI
             LoadLeaderboard();
         }
         
+        /// <summary>
+        /// Set the leaderboard scope (global/friends)
+        /// </summary>
+        public void SetScope(LeaderboardScope scope)
+        {
+            currentScope = scope;
+            UpdateScopeButtons();
+            LoadLeaderboard();
+        }
+        
         // ── Private Methods ──────────────────────────────────────────────────
         
         private void UpdateTitle()
@@ -143,20 +165,39 @@ namespace RobotTD.UI
             if (titleText == null)
                 return;
             
+            string scopeText = currentScope == LeaderboardScope.Friends ? " (Friends)" : "";
+            
             switch (currentLeaderboardId)
             {
                 case "endless_high_score":
-                    titleText.text = "Endless Mode Leaderboard";
+                    titleText.text = "Endless Mode Leaderboard" + scopeText;
                     break;
                 case "daily_challenge":
-                    titleText.text = "Daily Challenge";
+                    titleText.text = "Daily Challenge" + scopeText;
                     break;
                 case "weekly_challenge":
-                    titleText.text = "Weekly Challenge";
+                    titleText.text = "Weekly Challenge" + scopeText;
                     break;
                 default:
-                    titleText.text = "Leaderboard";
+                    titleText.text = "Leaderboard" + scopeText;
                     break;
+            }
+        }
+        
+        private void UpdateScopeButtons()
+        {
+            if (globalScopeButton != null)
+            {
+                var colors = globalScopeButton.colors;
+                colors.normalColor = currentScope == LeaderboardScope.Global ? activeScopeButtonColor : inactiveScopeButtonColor;
+                globalScopeButton.colors = colors;
+            }
+            
+            if (friendsScopeButton != null)
+            {
+                var colors = friendsScopeButton.colors;
+                colors.normalColor = currentScope == LeaderboardScope.Friends ? activeScopeButtonColor : inactiveScopeButtonColor;
+                friendsScopeButton.colors = colors;
             }
         }
         
@@ -209,13 +250,38 @@ namespace RobotTD.UI
             isLoading = true;
             ShowLoading(true);
             HideError();
+            UpdateScopeButtons();
+            
+            // Track analytics
+            if (Analytics.AnalyticsManager.Instance != null)
+            {
+                string eventName = currentScope == LeaderboardScope.Friends 
+                    ? Analytics.AnalyticsEvents.FRIEND_LEADERBOARD_VIEWED 
+                    : Analytics.AnalyticsEvents.LEADERBOARD_VIEWED;
+                    
+                Analytics.AnalyticsManager.Instance.TrackEvent(eventName, new Dictionary<string, object>
+                {
+                    { Analytics.AnalyticsParameters.LEADERBOARD_ID, currentLeaderboardId },
+                    { Analytics.AnalyticsParameters.LEADERBOARD_SCOPE, currentScope.ToString() }
+                });
+            }
             
             // Fetch leaderboard (will trigger OnScoresLoaded callback)
-            LeaderboardManager.Instance.FetchLeaderboard(
-                currentLeaderboardId,
-                currentScope,
-                maxDisplayedEntries
-            );
+            if (currentScope == LeaderboardScope.Friends)
+            {
+                LeaderboardManager.Instance.FetchFriendLeaderboard(
+                    currentLeaderboardId,
+                    maxDisplayedEntries
+                );
+            }
+            else
+            {
+                LeaderboardManager.Instance.FetchLeaderboard(
+                    currentLeaderboardId,
+                    currentScope,
+                    maxDisplayedEntries
+                );
+            }
         }
         
         private void OnScoresLoaded(string leaderboardId, List<LeaderboardEntry> entries)

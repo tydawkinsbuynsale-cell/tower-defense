@@ -116,6 +116,19 @@ namespace RobotTD.Analytics
         public const string WEEKLY_MISSION_COMPLETED = "weekly_mission_completed";
         public const string WEEKLY_MISSION_REWARD_CLAIMED = "weekly_mission_reward_claimed";
         public const string ALL_WEEKLY_MISSIONS_COMPLETE = "all_weekly_missions_complete";
+        public const string WEEKLY_BONUS_REWARD_CLAIMED = "weekly_bonus_reward_claimed";
+        
+        // ── Social Features Events ────────────────────────────────────────────
+        public const string FRIEND_REQUEST_SENT = "friend_request_sent";
+        public const string FRIEND_REQUEST_RECEIVED = "friend_request_received";
+        public const string FRIEND_REQUEST_ACCEPTED = "friend_request_accepted";
+        public const string FRIEND_REQUEST_DECLINED = "friend_request_declined";
+        public const string FRIEND_REMOVED = "friend_removed";
+        public const string PLAYER_SEARCHED = "player_searched";
+        public const string SCORE_SHARED = "score_shared";
+        public const string ACHIEVEMENT_SHARED_SOCIAL = "achievement_shared_social";
+        public const string FRIEND_LEADERBOARD_VIEWED = "friend_leaderboard_viewed";
+        public const string FRIENDS_LIST_VIEWED = "friends_list_viewed";
     }
 
     /// <summary>
@@ -177,6 +190,16 @@ namespace RobotTD.Analytics
         public const string MISSION_PROGRESS = "mission_progress";
         public const string TARGET_VALUE = "target_value";
         public const string REWARD_AMOUNT = "reward_amount";
+        
+        // Social
+        public const string FRIEND_ID = "friend_id";
+        public const string FRIEND_NAME = "friend_name";
+        public const string FRIEND_COUNT = "friend_count";
+        public const string REQUEST_ID = "request_id";
+        public const string SEARCH_QUERY = "search_query";
+        public const string SHARE_PLATFORM = "share_platform";
+        public const string LEADERBOARD_ID = "leaderboard_id";
+        public const string LEADERBOARD_SCOPE = "leaderboard_scope";
     }
 
     /// <summary>
