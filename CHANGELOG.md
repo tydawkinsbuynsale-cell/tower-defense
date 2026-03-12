@@ -337,27 +337,164 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - CollectionStats: Complete collection statistics
     - UnlockedItemsData: Serialization helper for unlocked items
     - EquippedItemsData: Serialization helper for equipped items
-- **Expanded Content Pack**:
-  - 5 new tower types:
-    * Laser Grid: Area denial with sweeping beams
-    * EMP Tower: Disables enemy abilities temporarily
-    * Mine Layer: Deploys explosive mines on paths
-    * Support Drone: Buffs nearby towers with auras
-    * Weather Control: Environmental damage (lightning, frost)
-  - 8 new enemy types:
-    * Burrower: Underground movement, bypasses towers
-    * Phaser: Teleports short distances randomly
-    * Replicator: Splits into copies when damaged
-    * Vampire: Heals by draining tower health
-    * Berserker: Speed/damage increases when low HP
-    * Mimic: Changes type to counter tower types
-    * Engineer: Repairs nearby damaged enemies
-    * Siege Engine: Long-range attacks on towers
-  - 4 new campaign maps:
-    * Space Station: Zero-gravity mechanics, multi-level paths
-    * Underwater Lab: Pressure zones, bubble shields
-    * Arctic Base: Freezing weather effects, ice hazards
-    * Volcanic Forge: Lava flows, heat damage over time
+- **Expanded Content Pack** ✅:
+  - **ContentExpansionManager Component**:
+    - Singleton design pattern with DontDestroyOnLoad persistence
+    - Separate namespace RobotTD.Content for expansion content
+    - Registration system for towers, enemies, and maps
+    - Unlock/lock mechanisms with feature gating
+    - Dictionary-based registries for O(1) lookups
+    - Auto-unlock in editor for testing
+    - Verbose logging for debugging
+  - **5 New Tower Types**:
+    - ExpandedTowerData: Tower ID, name, description, category, stats, special ability
+    - 5 tower categories: AreaDenial, Disable, Trap, Support, Environmental
+    - **Laser Grid** (AreaDenial):
+      * Area denial with sweeping laser beams
+      * High continuous damage in wide area
+      * Special: Beam sweep pattern (configurable angle/speed)
+    - **EMP Tower** (Disable):
+      * Disables enemy abilities temporarily
+      * AOE electromagnetic pulse
+      * Special: Ability shutdown duration and cooldown
+    - **Mine Layer** (Trap):
+      * Deploys explosive mines on enemy paths
+      * Triggered damage on proximity
+      * Special: Mine count, damage radius, detonation delay
+    - **Support Drone** (Support):
+      * Buffs nearby towers with auras
+      * Attack speed, damage, or range bonuses
+      * Special: Aura radius, buff percentage, buff type
+    - **Weather Control** (Environmental):
+      * Environmental damage (lightning strikes, frost waves)
+      * Random target selection within range
+      * Special: Effect type (lightning/frost), damage, cooldown
+  - **8 New Enemy Types**:
+    - ExpandedEnemyData: Enemy ID, name, description, class, stats, special ability, resistances
+    - 8 enemy classes: Infiltrator, Teleporter, Splitter, Drainer, Berserker, Adaptive, Support, Artillery
+    - **Burrower** (Infiltrator):
+      * Underground movement, bypasses towers
+      * Surfaces periodically to attack
+      * Special: Burrow duration, surface interval
+      * Resistances: High physical, low explosive
+    - **Phaser** (Teleporter):
+      * Teleports short distances randomly
+      * Unpredictable movement patterns
+      * Special: Teleport range, teleport cooldown
+      * Resistances: Balanced across all types
+    - **Replicator** (Splitter):
+      * Splits into copies when damaged
+      * Each copy has reduced health
+      * Special: Split threshold (% HP), copy count, copy health %
+      * Resistances: Low energy, high explosive
+    - **Vampire** (Drainer):
+      * Heals by draining tower health
+      * Lifesteal on attacks
+      * Special: Lifesteal %, drain range, drain rate
+      * Resistances: High physical, low energy
+    - **Berserker** (Berserker):
+      * Speed and damage increase when low HP
+      * Enrage mechanic at HP thresholds
+      * Special: Enrage threshold (% HP), speed/damage multipliers
+      * Resistances: Low all types when enraged
+    - **Mimic** (Adaptive):
+      * Changes type to counter current tower types
+      * Adapts resistances dynamically
+      * Special: Adaptation cooldown, resistance bonuses
+      * Resistances: Dynamic, changes based on tower composition
+    - **Engineer** (Support):
+      * Repairs nearby damaged enemies
+      * Healing aura effect
+      * Special: Heal rate, heal radius, heal targets
+      * Resistances: Balanced, moderate across all types
+    - **Siege Engine** (Artillery):
+      * Long-range attacks on towers
+      * Damages player defenses
+      * Special: Attack range, tower damage, attack cooldown
+      * Resistances: High physical, low explosive
+  - **4 New Campaign Maps**:
+    - ExpandedMapData: Map ID, name, description, theme, waves, paths, difficulty, unique mechanic, hazards
+    - 4 map themes: SpaceStation, Underwater, Arctic, Volcanic
+    - **Space Station** (SpaceStation theme):
+      * Zero-gravity mechanics affect movement
+      * Multi-level paths with elevation changes
+      * Unique mechanic: "Zero Gravity" - projectiles arc differently
+      * Hazards: Depressurization zones, equipment malfunctions
+      * Difficulty: 4/5, 35 waves, 3 paths
+    - **Underwater Lab** (Underwater theme):
+      * Pressure zones affect tower performance
+      * Bubble shields protect certain areas
+      * Unique mechanic: "Pressure System" - depth affects damage
+      * Hazards: Water leaks, pressure failures, currents
+      * Difficulty: 3/5, 30 waves, 2 paths
+    - **Arctic Base** (Arctic theme):
+      * Freezing weather effects slow enemies and towers
+      * Ice hazards create slippery surfaces
+      * Unique mechanic: "Extreme Cold" - periodic freeze effects
+      * Hazards: Blizzards, ice storms, frostbite damage
+      * Difficulty: 4/5, 35 waves, 3 paths
+    - **Volcanic Forge** (Volcanic theme):
+      * Lava flows deal periodic damage
+      * Heat damage over time affects all units
+      * Unique mechanic: "Volcanic Activity" - eruptions deal AOE damage
+      * Hazards: Lava flows, eruptions, heat waves, falling rocks
+      * Difficulty: 5/5, 40 waves, 4 paths
+  - **Content Registration**:
+    - RegisterTowerTypes() populates tower registry
+    - RegisterEnemyTypes() populates enemy registry
+    - RegisterMaps() populates map registry
+    - Dictionary<string, ExpandedTowerData> for tower lookups
+    - Dictionary<string, ExpandedEnemyData> for enemy lookups
+    - Dictionary<string, ExpandedMapData> for map lookups
+  - **Unlock System**:
+    - UnlockTower(towerId) unlocks new tower types
+    - UnlockEnemy(enemyId) unlocks new enemy types
+    - UnlockMap(mapId) unlocks new maps
+    - IsTowerUnlocked/IsEnemyUnlocked/IsMapUnlocked checks
+    - Unlock requirements: level, achievements, purchases
+    - Editor auto-unlock for testing
+  - **Content Queries**:
+    - GetUnlockedTowers() returns unlocked tower list
+    - GetUnlockedEnemies() returns unlocked enemy list
+    - GetUnlockedMaps() returns unlocked map list
+    - GetTowerData/GetEnemyData/GetMapData retrieves specific items
+    - GetAllExpansionTowers/Enemies/Maps returns full catalogs
+  - **Statistics Tracking**:
+    - GetExpansionCompletion() calculates completion %
+    - GetExpansionStats() returns detailed statistics
+    - ExpansionStats: Unlocked/total counts per category
+    - Completion tracking for progression systems
+  - **Local Storage**:
+    - ExpansionContentData: Arrays for unlocked content IDs
+    - Load on initialization, save after unlocks
+    - PlayerPrefs key: "ExpansionContent"
+    - JSON serialization for persistence
+  - **Events System**:
+    - OnTowerTypeUnlocked(ExpandedTowerData) - New tower acquired
+    - OnEnemyTypeUnlocked(ExpandedEnemyData) - New enemy acquired
+    - OnMapUnlocked(ExpandedMapData) - New map acquired
+    - OnExpansionContentInitialized - System ready
+  - **Analytics Integration** (4 new events):
+    - expansion_content_initialized: System startup with unlock counts
+    - expansion_tower_unlocked: Tower acquisition with category
+    - expansion_enemy_unlocked: Enemy acquisition with class
+    - expansion_map_unlocked: Map acquisition with theme
+  - **Configuration Options**:
+    - Enable/disable expansion content toggle
+    - Verbose logging for debugging
+    - SerializeField arrays for content definitions:
+      * New tower types array (5 towers)
+      * New enemy types array (8 enemies)
+      * New map data array (4 maps)
+  - **Data Structures**:
+    - ExpandedTowerData: Complete tower definition with stats, abilities, visuals, unlock requirements
+    - TowerCategory: Enum with 5 categories (AreaDenial, Disable, Trap, Support, Environmental)
+    - ExpandedEnemyData: Complete enemy definition with stats, abilities, resistances, visuals
+    - EnemyClass: Enum with 8 classes (Infiltrator, Teleporter, Splitter, Drainer, Berserker, Adaptive, Support, Artillery)
+    - ExpandedMapData: Complete map definition with theme, mechanics, hazards, difficulty
+    - MapTheme: Enum with 4 themes (SpaceStation, Underwater, Arctic, Volcanic)
+    - ExpansionStats: Complete expansion statistics
+    - ExpansionContentData: Serialization helper for unlocked content
 - **Cross-Platform Progression**:
   - Unified account system across all platforms
   - Cloud save sync for Android, iOS, Steam, Web
