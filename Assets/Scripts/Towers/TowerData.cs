@@ -109,6 +109,7 @@ namespace RobotTD.Towers
         SniperBot,       // Extreme range, high damage
         Flamethrower,    // Damage over time
         TeslaCoil,       // Auto-targets multiple enemies
-        MissileBattery   // Multiple rockets
+        MissileBattery,  // Multiple rockets
+        ArtilleryBot     // Long-range siege with arc projectiles
     }
 }
