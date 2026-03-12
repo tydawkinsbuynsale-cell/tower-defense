@@ -16,24 +16,30 @@ namespace RobotTD.Core
         [Header("Mission Library")]
         [SerializeField] private MissionData[] availableMissions;
         [SerializeField] private int missionsPerDay = 3;
+        [SerializeField] private int missionsPerWeek = 3;
         
         [Header("Rotation Settings")]
         [SerializeField] private bool autoRotateDaily = true;
+        [SerializeField] private bool autoRotateWeekly = true;
         [SerializeField] private int rotationHourUTC = 0; // Midnight UTC
         
         // Events
         public event Action<MissionData> OnMissionProgressUpdated;
         public event Action<MissionData> OnMissionCompleted;
         public event Action OnMissionsRotated;
+        public event Action OnWeeklyMissionsRotated;
         
         // State
         private DailyMissionSet currentMissionSet;
+        private WeeklyMissionSet currentWeeklyMissionSet;
         private Dictionary<string, MissionProgress> missionProgress = new Dictionary<string, MissionProgress>();
         private Dictionary<string, MissionData> missionDataCache = new Dictionary<string, MissionData>();
         
         // Properties
         public MissionData[] CurrentMissions => GetCurrentMissionData();
+        public MissionData[] CurrentWeeklyMissions => GetCurrentWeeklyMissionData();
         public bool HasActiveMissions => currentMissionSet != null && currentMissionSet.missionIds.Length > 0;
+        public bool HasActiveWeeklyMissions => currentWeeklyMissionSet != null && currentWeeklyMissionSet.missionIds.Length > 0;
         
         private void Awake()
         {
@@ -52,6 +58,11 @@ namespace RobotTD.Core
             if (autoRotateDaily)
             {
                 CheckAndRotateMissions();
+            }
+            
+            if (autoRotateWeekly)
+            {
+                CheckAndRotateWeeklyMissions();
             }
         }
         
@@ -111,8 +122,8 @@ namespace RobotTD.Core
             
             currentMissionSet = new DailyMissionSet();
             
-            // Select missions using weighted random
-            List<MissionData> selectedMissions = SelectRandomMissions(missionsPerDay);
+            // Select missions using weighted random (daily missions only)
+            List<MissionData> selectedMissions = SelectRandomMissions(missionsPerDay, MissionRotationType.Daily);
             
             for (int i = 0; i < selectedMissions.Count && i < missionsPerDay; i++)
             {
@@ -153,19 +164,82 @@ namespace RobotTD.Core
             }
         }
         
-        private List<MissionData> SelectRandomMissions(int count)
+        public void CheckAndRotateWeeklyMissions()
+        {
+            int currentWeekIndex = WeeklyMissionSet.GetCurrentWeekIndex();
+            
+            // First time initialization or week has changed
+            if (currentWeeklyMissionSet == null || currentWeeklyMissionSet.weekIndex != currentWeekIndex)
+            {
+                RotateWeeklyMissions();
+            }
+        }
+        
+        public void RotateWeeklyMissions()
+        {
+            if (availableMissions == null || availableMissions.Length < missionsPerWeek)
+            {
+                Debug.LogWarning("[MissionManager] Not enough weekly missions in library for rotation!");
+                return;
+            }
+            
+            currentWeeklyMissionSet = new WeeklyMissionSet();
+            
+            // Select missions using weighted random (weekly missions only)
+            List<MissionData> selectedMissions = SelectRandomMissions(missionsPerWeek, MissionRotationType.Weekly);
+            
+            for (int i = 0; i < selectedMissions.Count && i < missionsPerWeek; i++)
+            {
+                currentWeeklyMissionSet.missionIds[i] = selectedMissions[i].MissionId;
+                
+                // Create progress entry if doesn't exist
+                if (!missionProgress.ContainsKey(selectedMissions[i].MissionId))
+                {
+                    missionProgress[selectedMissions[i].MissionId] = new MissionProgress(selectedMissions[i].MissionId);
+                }
+                else
+                {
+                    // Reset progress for new rotation
+                    var progress = missionProgress[selectedMissions[i].MissionId];
+                    progress.currentProgress = 0;
+                    progress.completed = false;
+                    progress.rewardClaimed = false;
+                    progress.assignedDate = DateTime.Now;
+                }
+            }
+            
+            SaveProgress();
+            OnWeeklyMissionsRotated?.Invoke();
+            
+            Debug.Log($"[MissionManager] Rotated weekly missions for week {currentWeeklyMissionSet.weekIndex}");
+            
+            // Track analytics
+            if (Analytics.AnalyticsManager.Instance != null)
+            {
+                Analytics.AnalyticsManager.Instance.TrackEvent(
+                    "weekly_missions_rotated",
+                    new Dictionary<string, object>
+                    {
+                        { "week_index", currentWeeklyMissionSet.weekIndex },
+                        { "mission_count", missionsPerWeek }
+                    }
+                );
+            }
+        }
+        
+        private List<MissionData> SelectRandomMissions(int count, MissionRotationType rotationType)
         {
             // Get player level for filtering
             int playerLevel = SaveManager.Instance?.Data.playerLevel ?? 1;
             
-            // Filter by level requirement
+            // Filter by level requirement and rotation type
             var eligibleMissions = availableMissions
-                .Where(m => m != null && m.MinimumPlayerLevel <= playerLevel)
+                .Where(m => m != null && m.MinimumPlayerLevel <= playerLevel && m.RotationType == rotationType)
                 .ToList();
             
             if (eligibleMissions.Count < count)
             {
-                Debug.LogWarning($"[MissionManager] Not enough eligible missions ({eligibleMissions.Count} < {count})");
+                Debug.LogWarning($"[MissionManager] Not enough eligible {rotationType} missions ({eligibleMissions.Count} < {count})");
                 return eligibleMissions;
             }
             
@@ -202,43 +276,71 @@ namespace RobotTD.Core
         
         public void UpdateMissionProgress(MissionType missionType, int amount = 1, string parameter = "")
         {
-            if (currentMissionSet == null || currentMissionSet.missionIds == null)
-                return;
+            bool progressUpdated = false;
             
-            foreach (string missionId in currentMissionSet.missionIds)
+            // Update daily missions
+            if (currentMissionSet != null && currentMissionSet.missionIds != null)
             {
-                if (string.IsNullOrEmpty(missionId)) continue;
-                
-                if (!missionDataCache.TryGetValue(missionId, out MissionData missionData))
-                    continue;
-                
-                if (!missionProgress.TryGetValue(missionId, out MissionProgress progress))
-                    continue;
-                
-                // Skip if already completed
-                if (progress.completed) continue;
-                
-                // Check if this mission type matches
-                if (missionData.Type != missionType) continue;
-                
-                // Check parameter match if specified
-                if (!string.IsNullOrEmpty(missionData.TargetParameter) && 
-                    missionData.TargetParameter != parameter)
-                    continue;
-                
-                // Update progress
-                progress.currentProgress += amount;
-                
-                OnMissionProgressUpdated?.Invoke(missionData);
-                
-                // Check completion
-                if (missionData.IsComplete(progress.currentProgress) && !progress.completed)
+                foreach (string missionId in currentMissionSet.missionIds)
                 {
-                    CompleteMission(missionId);
+                    if (UpdateSingleMissionProgress(missionId, missionType, amount, parameter))
+                    {
+                        progressUpdated = true;
+                    }
                 }
             }
             
-            SaveProgress();
+            // Update weekly missions
+            if (currentWeeklyMissionSet != null && currentWeeklyMissionSet.missionIds != null)
+            {
+                foreach (string missionId in currentWeeklyMissionSet.missionIds)
+                {
+                    if (UpdateSingleMissionProgress(missionId, missionType, amount, parameter))
+                    {
+                        progressUpdated = true;
+                    }
+                }
+            }
+            
+            if (progressUpdated)
+            {
+                SaveProgress();
+            }
+        }
+        
+        private bool UpdateSingleMissionProgress(string missionId, MissionType missionType, int amount, string parameter)
+        {
+            if (string.IsNullOrEmpty(missionId)) return false;
+            
+            if (!missionDataCache.TryGetValue(missionId, out MissionData missionData))
+                return false;
+            
+            if (!missionProgress.TryGetValue(missionId, out MissionProgress progress))
+                return false;
+            
+            // Skip if already completed
+            if (progress.completed) return false;
+            
+            // Check if this mission type matches
+            if (missionData.Type != missionType) return false;
+            
+            // Check parameter match if specified
+            if (!string.IsNullOrEmpty(missionData.TargetParameter) && 
+                missionData.TargetParameter != parameter)
+                return false;
+            
+            // Update progress
+            progress.currentProgress += amount;
+            
+            OnMissionProgressUpdated?.Invoke(missionData);
+            
+            // Check completion
+            if (missionData.IsComplete(progress.currentProgress) && !progress.completed)
+            {
+                CompleteMission(missionId);
+            }
+            
+            return true;
         }
         
         private void CompleteMission(string missionId)
@@ -360,6 +462,24 @@ namespace RobotTD.Core
             return missions.ToArray();
         }
         
+        private MissionData[] GetCurrentWeeklyMissionData()
+        {
+            if (currentWeeklyMissionSet == null || currentWeeklyMissionSet.missionIds == null)
+                return new MissionData[0];
+            
+            List<MissionData> missions = new List<MissionData>();
+            
+            foreach (string id in currentWeeklyMissionSet.missionIds)
+            {
+                if (!string.IsNullOrEmpty(id) && missionDataCache.TryGetValue(id, out MissionData data))
+                {
+                    missions.Add(data);
+                }
+            }
+            
+            return missions.ToArray();
+        }
+        
         public int GetCompletedMissionsCount()
         {
             if (currentMissionSet == null) return 0;
@@ -383,6 +503,26 @@ namespace RobotTD.Core
             if (nextRotation < now)
             {
                 nextRotation = nextRotation.AddDays(1);
+            }
+            
+            return nextRotation - now;
+        }
+        
+        public TimeSpan GetTimeUntilWeeklyRotation()
+        {
+            if (currentWeeklyMissionSet == null)
+            {
+                return TimeSpan.Zero;
+            }
+            
+            DateTime assignedDate = currentWeeklyMissionSet.assignedDate;
+            DateTime nextRotation = assignedDate.AddDays(7);
+            DateTime now = DateTime.Now;
+            
+            if (nextRotation < now)
+            {
+                // Handle case where we've passed the rotation time
+                return TimeSpan.Zero;
             }
             
             return nextRotation - now;
@@ -483,10 +623,16 @@ namespace RobotTD.Core
                 var wrapper = JsonUtility.FromJson<MissionSaveData>(json);
                 if (wrapper != null)
                 {
-                    // Load mission set
+                    // Load daily mission set
                     if (wrapper.currentMissionSet != null)
                     {
                         currentMissionSet = wrapper.currentMissionSet;
+                    }
+                    
+                    // Load weekly mission set
+                    if (wrapper.currentWeeklyMissionSet != null)
+                    {
+                        currentWeeklyMissionSet = wrapper.currentWeeklyMissionSet;
                     }
                     
                     // Load progress
@@ -513,6 +659,7 @@ namespace RobotTD.Core
             var wrapper = new MissionSaveData
             {
                 currentMissionSet = currentMissionSet,
+                currentWeeklyMissionSet = currentWeeklyMissionSet,
                 missionProgress = missionProgress.Values.ToArray()
             };
             
@@ -531,18 +678,39 @@ namespace RobotTD.Core
             Debug.Log("[MissionManager] Forced mission rotation");
         }
         
+        [ContextMenu("Force Rotate Weekly Missions")]
+        private void DEBUG_ForceRotateWeekly()
+        {
+            RotateWeeklyMissions();
+            Debug.Log("[MissionManager] Forced weekly mission rotation");
+        }
+        
         [ContextMenu("Complete All Current Missions")]
         private void DEBUG_CompleteAll()
         {
-            if (currentMissionSet == null) return;
-            
-            foreach (string id in currentMissionSet.missionIds)
+            if (currentMissionSet != null)
             {
-                if (missionProgress.TryGetValue(id, out MissionProgress progress) &&
-                    missionDataCache.TryGetValue(id, out MissionData data))
+                foreach (string id in currentMissionSet.missionIds)
                 {
-                    progress.currentProgress = data.TargetValue;
-                    CompleteMission(id);
+                    if (missionProgress.TryGetValue(id, out MissionProgress progress) &&
+                        missionDataCache.TryGetValue(id, out MissionData data))
+                    {
+                        progress.currentProgress = data.TargetValue;
+                        CompleteMission(id);
+                    }
+                }
+            }
+            
+            if (currentWeeklyMissionSet != null)
+            {
+                foreach (string id in currentWeeklyMissionSet.missionIds)
+                {
+                    if (missionProgress.TryGetValue(id, out MissionProgress progress) &&
+                        missionDataCache.TryGetValue(id, out MissionData data))
+                    {
+                        progress.currentProgress = data.TargetValue;
+                        CompleteMission(id);
+                    }
                 }
             }
         }
@@ -552,6 +720,7 @@ namespace RobotTD.Core
         {
             missionProgress.Clear();
             currentMissionSet = null;
+            currentWeeklyMissionSet = null;
             SaveProgress();
             Debug.Log("[MissionManager] Reset all mission progress");
         }
@@ -564,6 +733,7 @@ namespace RobotTD.Core
     public class MissionSaveData
     {
         public DailyMissionSet currentMissionSet;
+        public WeeklyMissionSet currentWeeklyMissionSet;
         public MissionProgress[] missionProgress;
     }
 }

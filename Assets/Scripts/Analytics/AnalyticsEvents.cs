@@ -111,6 +111,7 @@ namespace RobotTD.Analytics
         
         // ── Weekly Mission Events ─────────────────────────────────────────────
         public const string WEEKLY_MISSIONS_ROTATED = "weekly_missions_rotated";
+        public const string WEEKLY_MISSION_STARTED = "weekly_mission_started";
         public const string WEEKLY_MISSION_PROGRESS = "weekly_mission_progress";
         public const string WEEKLY_MISSION_COMPLETED = "weekly_mission_completed";
         public const string WEEKLY_MISSION_REWARD_CLAIMED = "weekly_mission_reward_claimed";

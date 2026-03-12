@@ -53,6 +53,15 @@ namespace RobotTD.Core
     }
     
     /// <summary>
+    /// Rotation type for missions.
+    /// </summary>
+    public enum MissionRotationType
+    {
+        Daily,          // Rotates every 24 hours
+        Weekly          // Rotates every 7 days
+    }
+    
+    /// <summary>
     /// ScriptableObject defining a daily mission configuration.
     /// </summary>
     [CreateAssetMenu(fileName = "New Mission", menuName = "Robot TD/Mission Data", order = 6)]
@@ -75,6 +84,7 @@ namespace RobotTD.Core
         [SerializeField] private int techPointReward = 5;
         
         [Header("Rotation")]
+        [SerializeField] private MissionRotationType rotationType = MissionRotationType.Daily;
         [SerializeField] private int rotationWeight = 10; // Higher = more likely to appear
         [SerializeField] private int minimumPlayerLevel = 1; // Unlock requirement
         
@@ -89,6 +99,7 @@ namespace RobotTD.Core
         public string TargetParameter => targetParameter;
         public int CreditReward => creditReward;
         public int TechPointReward => techPointReward;
+        public MissionRotationType RotationType => rotationType;
         public int RotationWeight => rotationWeight;
         public int MinimumPlayerLevel => minimumPlayerLevel;
         
@@ -187,6 +198,29 @@ namespace RobotTD.Core
         public static int GetCurrentDayIndex()
         {
             return (int)(DateTime.Now - new DateTime(2020, 1, 1)).TotalDays;
+        }
+    }
+    
+    /// <summary>
+    /// Container for weekly mission set.
+    /// </summary>
+    [Serializable]
+    public class WeeklyMissionSet
+    {
+        public string[] missionIds = new string[3];
+        public DateTime assignedDate;
+        public int weekIndex; // Weeks since epoch for rotation tracking
+        
+        public WeeklyMissionSet()
+        {
+            missionIds = new string[3];
+            assignedDate = DateTime.Now;
+            weekIndex = GetCurrentWeekIndex();
+        }
+        
+        public static int GetCurrentWeekIndex()
+        {
+            return (int)(DateTime.Now - new DateTime(2020, 1, 1)).TotalDays / 7;
         }
     }
 }
