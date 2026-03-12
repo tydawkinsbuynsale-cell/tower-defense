@@ -17,6 +17,175 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Version 1.8] - Weekly Missions & Social Features
+
+### Added
+
+**Weekly Missions System** 📅
+- **Mission Rotation System**: 7-day rotating weekly missions
+  - Separate weekly mission pool independent from daily missions
+  - 3 weekly missions active simultaneously (vs 3 daily missions)
+  - 7-day rotation cycle (Monday to Monday)
+  - Progressive difficulty scaling comparable to daily missions
+  - Mission types: Tower placement, enemy elimination, wave survival, resource management
+- **WeeklyMissionSet Class**: Tracks weekly rotation state
+  - Start timestamp for current week
+  - Mission ID array for active weekly missions
+  - Completion tracking separate from daily missions
+  - Automatic rollover on week expiration
+- **MissionRotationType Enum**: Daily vs Weekly classification
+  - Used to differentiate mission types in MissionData
+  - Enables dual-tracking in MissionManager
+  - Separate analytics events per rotation type
+- **Dual Mission UI**: Tabbed interface for Daily/Weekly missions
+  - DailyMissionsUI enhanced with tab switching
+  - Daily tab: Shows 3 daily missions with 24-hour timer
+  - Weekly tab: Shows 3 weekly missions with day counter (e.g., "3d 15h")
+  - Tab visual feedback (color coding, active state)
+  - Smooth transitions between tabs
+  - Shared mission card prefab for consistency
+- **Weekly Mission Analytics** (6 new events):
+  - `weekly_missions_rotated`: Fired every Monday midnight
+  - `weekly_mission_progress`: Tracked with mission_id, progress, target
+  - `weekly_mission_completed`: Logged with rewards and completion time
+  - `weekly_mission_reward_claimed`: Tracks reward distribution
+  - `all_weekly_missions_complete`: Bonus reward eligibility tracking
+  - `weekly_bonus_reward_claimed`: Tracks bonus payouts
+- **Backend Integration**:
+  - SaveManager stores weekly mission state separately
+  - JSON serialization for WeeklyMissionSet
+  - Cloud sync support (if CloudSaveManager enabled)
+  - Offline-first design with local persistence
+- **Enhanced MissionManager**:
+  - `CheckAndRotateWeeklyMissions()`: Validates weekly expiration
+  - `RotateWeeklyMissions()`: Generates new weekly set
+  - `GetTimeUntilWeeklyRotation()`: Returns TimeSpan for UI countdown
+  - `GetActiveWeeklyMissions()`: Returns current weekly mission list
+  - Separate event triggers for weekly mission lifecycle
+- **Configuration**:
+  - Weekly rotation time: Monday 00:00 UTC (configurable)
+  - Mission count per week: 3 (matches daily count)
+  - Bonus reward for completing all weeklies
+  - Weekly missions persist across sessions
+
+**Social Features System** 👥
+- **SocialManager**: Complete friend management system
+  - Multi-backend support: Unity Gaming Services, PlayFab, Custom HTTP API
+  - Friend list management with max 100 friends
+  - Pending request tracking (max 50 requests)
+  - Player search functionality
+  - Score and achievement sharing
+  - Event-driven architecture for UI updates
+  - Editor simulation mode for testing without backend
+- **Friend Management**:
+  - Send/receive friend requests with player ID or name
+  - Accept/decline friend requests
+  - Remove friends from list
+  - Block/unblock functionality (backend-dependent)
+  - Friend status tracking (online/offline, last seen)
+  - Friend count limits (100 friends, 50 pending requests)
+- **Friend Leaderboards**:
+  - LeaderboardManager extended with friend filtering
+  - `FetchFriendLeaderboard()`: Query scores from friends only
+  - Friend ID list integration with SocialManager
+  - Efficient friend-only score filtering
+  - Offline mode: Filter local scores by friend IDs
+  - Backend implementations for UGS, PlayFab, Custom API
+  - Friend leaderboard caching (5-minute cache lifetime)
+- **Score & Achievement Sharing**:
+  - Share high scores with friends
+  - Share unlocked achievements
+  - Broadcast to specific friends or all friends
+  - Custom message support
+  - Share feed/timeline (UI component ready)
+  - Backend notification system integration
+- **Player Search**:
+  - Search players by name or player ID
+  - Autocomplete suggestions (backend-dependent)
+  - Search result filtering (exclude existing friends)
+  - Friend status display in search results
+  - Quick "Add Friend" from search results
+- **UI Components**:
+  - **FriendsUI**: Tab-based interface
+    - Friends tab: Scrollable friend list with online status
+    - Requests tab: Pending friend requests (incoming)
+    - Search tab: Player search with add friend button
+    - Tab switching with visual feedback
+    - Refresh button for manual list updates
+    - Friend count display (e.g., "Friends: 42/100")
+  - **FriendCardUI**: Individual friend list entry
+    - Player name and online status indicator
+    - Last seen timestamp ("2h ago", "3d ago")
+    - View profile button (future: full profile view)
+    - Remove friend button with confirmation
+    - Online indicator color (green = online, gray = offline)
+  - **FriendRequestCardUI**: Pending request item
+    - Requester name and time ago
+    - Accept/Decline buttons
+    - Auto-disable buttons after action (prevent double-click)
+  - **PlayerSearchResultCardUI**: Search result item
+    - Player name and online status
+    - "Add Friend" button (or "Already Friends" indicator)
+    - Request sent feedback ("Request Sent" button state)
+  - **LeaderboardUI Enhanced**:
+    - Global/Friends scope toggle buttons
+    - Active scope visual feedback (color coding)
+    - Title updates based on scope ("Endless Mode (Friends)")
+    - Smooth scope switching without full reload
+    - Analytics tracking for friend leaderboard views
+- **Social Analytics** (10 new events):
+  - `friend_request_sent`: Tracks outgoing requests
+  - `friend_request_received`: Tracks incoming requests
+  - `friend_request_accepted`: Successful friend additions
+  - `friend_request_declined`: Rejected requests
+  - `friend_removed`: Unfriend actions
+  - `player_searched`: Search queries (with search term)
+  - `score_shared`: Score sharing events with friend count
+  - `achievement_shared_social`: Achievement sharing
+  - `friend_leaderboard_viewed`: Friend leaderboard opens
+  - `friends_list_viewed`: Friends UI opens
+- **Backend API Endpoints** (Custom HTTP):
+  - `POST /api/social/friends/request`: Send friend request
+  - `POST /api/social/friends/accept`: Accept request
+  - `POST /api/social/friends/decline`: Decline request
+  - `POST /api/social/friends/remove`: Remove friend
+  - `GET /api/social/friends/{player_id}`: Get friend list
+  - `GET /api/social/friends/requests/{player_id}`: Get pending requests
+  - `POST /api/leaderboards/{id}/friends`: Friend leaderboard query
+  - `GET /api/social/search?query=name`: Player search
+- **Integration Points**:
+  - AuthenticationManager: Uses authenticated player ID
+  - LeaderboardManager: Friend filtering for leaderboards
+  - AnalyticsManager: Tracks all social interactions
+  - SaveManager: Local friend data caching
+  - MessageBox: Friend removal confirmations
+- **Configuration Options**:
+  - Enable/disable friend features
+  - Max friends limit (default: 100)
+  - Max pending requests (default: 50)
+  - Friend leaderboard cache duration (default: 5 min)
+  - Auto-accept friend requests (optional)
+  - Privacy settings (who can send requests)
+- **Security & Privacy**:
+  - Friend request spam prevention (rate limiting)
+  - Block list support (backend-dependent)
+  - Privacy controls for leaderboard visibility
+  - Secure friend ID validation
+  - Request validation on backend
+- **Complete Documentation**: [SOCIAL_FEATURES_GUIDE.md](SOCIAL_FEATURES_GUIDE.md)
+  - Architecture overview and component relationships
+  - Backend setup guides (Unity/PlayFab/Custom)
+  - Friend system usage examples
+  - Friend leaderboard integration
+  - Score/achievement sharing workflows
+  - UI setup instructions with prefab requirements
+  - Testing scenarios with editor simulation
+  - Analytics event reference
+  - Comprehensive troubleshooting guide
+  - Security best practices
+
+---
+
 ## [Version 1.3] - Authentication System
 
 ### Added

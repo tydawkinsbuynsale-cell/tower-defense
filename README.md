@@ -82,6 +82,32 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
 - Scene hierarchy builder
 - Asset processor and validator
 
+**✅ Online Systems**
+- Authentication system (Anonymous, Email, Device ID)
+- Cloud save synchronization
+- Leaderboards (global and friend-only)
+- Multi-backend support (Unity Gaming Services, PlayFab, Custom)
+
+**✅ Mission Systems**
+- Daily missions (3 missions, 24-hour rotation)
+- Weekly missions (3 missions, 7-day rotation)
+- Challenge mode with special modifiers
+- Boss rush mode
+- Tab-based mission UI
+
+**✅ Social Features**
+- Friend management (send/accept requests, remove friends)
+- Friend leaderboards (view friends-only scores)
+- Player search functionality
+- Score and achievement sharing
+- Max 100 friends, 50 pending requests
+
+**✅ Monetization Systems**
+- In-App Purchases (13 products: gems, credits, skins, subscriptions)
+- Ad monetization (interstitial, rewarded, banner)
+- Power-Ups system (5 types with IAP/Ad integration)
+- Shop UI with multiple tabs
+
 ---
 
 ## 🏗️ System Architecture
@@ -890,6 +916,14 @@ Copyright © 2026 Your Studio. All rights reserved.
 - [x] Notch and safe area handler ✅
 - [x] Touch gesture recognition and haptic feedback ✅
 - [x] Platform-specific ad placements (iOS Game IDs) ✅
+
+### Version 1.8 ✅ COMPLETE
+- [x] Weekly Missions system (7-day rotating challenges) ✅
+- [x] Tabbed mission UI (Daily/Weekly) ✅
+- [x] Social Features system (friend management) ✅
+- [x] Friend leaderboards (view friends-only scores) ✅
+- [x] Score and achievement sharing ✅
+- [x] Player search functionality ✅
 
 ### Version 2.0
 - [x] iOS support ✅
