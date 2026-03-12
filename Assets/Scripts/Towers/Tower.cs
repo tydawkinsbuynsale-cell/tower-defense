@@ -116,6 +116,9 @@ namespace RobotTD.Towers
 
             foreach (var enemy in enemiesInRange)
             {
+                // Skip cloaked enemies we can't detect
+                if (!IsValidTarget(enemy)) continue;
+
                 if (enemy.PathProgress > maxProgress)
                 {
                     maxProgress = enemy.PathProgress;
@@ -132,6 +135,9 @@ namespace RobotTD.Towers
 
             foreach (var enemy in enemiesInRange)
             {
+                // Skip cloaked enemies we can't detect
+                if (!IsValidTarget(enemy)) continue;
+
                 if (enemy.PathProgress < minProgress)
                 {
                     minProgress = enemy.PathProgress;
@@ -148,6 +154,9 @@ namespace RobotTD.Towers
 
             foreach (var enemy in enemiesInRange)
             {
+                // Skip cloaked enemies we can't detect
+                if (!IsValidTarget(enemy)) continue;
+
                 if (enemy.CurrentHealth > maxHealth)
                 {
                     maxHealth = enemy.CurrentHealth;
@@ -164,6 +173,9 @@ namespace RobotTD.Towers
 
             foreach (var enemy in enemiesInRange)
             {
+                // Skip cloaked enemies we can't detect
+                if (!IsValidTarget(enemy)) continue;
+
                 if (enemy.CurrentHealth < minHealth)
                 {
                     minHealth = enemy.CurrentHealth;
@@ -180,6 +192,9 @@ namespace RobotTD.Towers
 
             foreach (var enemy in enemiesInRange)
             {
+                // Skip cloaked enemies we can't detect
+                if (!IsValidTarget(enemy)) continue;
+
                 float dist = Vector3.Distance(transform.position, enemy.transform.position);
                 if (dist < minDist)
                 {
@@ -197,7 +212,22 @@ namespace RobotTD.Towers
 
         protected bool IsValidTarget(Enemies.Enemy enemy)
         {
-            return enemy != null && !enemy.IsDead && IsInRange(enemy);
+            if (enemy == null || enemy.IsDead || !IsInRange(enemy))
+                return false;
+
+            // Check if enemy is a cloaker and if we can detect it
+            return Enemies.CloakerEnemy.CanTarget(enemy, transform.position, GetDetectionRange());
+        }
+
+        /// <summary>
+        /// Get detection range for cloaked enemies.
+        /// Override in specific tower types for enhanced detection.
+        /// </summary>
+        protected virtual float GetDetectionRange()
+        {
+            // Base detection range is global default
+            // Special towers (like sensor towers) can override this
+            return Enemies.CloakerEnemy.DetectionRange;
         }
 
         #endregion

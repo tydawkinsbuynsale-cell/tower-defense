@@ -666,4 +666,277 @@ namespace RobotTD.Enemies
             Gizmos.DrawWireSphere(transform.position, shieldRadius);
         }
     }
+
+    /// <summary>
+    /// Cloaker Bot - Stealth unit that can turn invisible.
+    /// Becomes visible when taking damage, re-cloaks after time.
+    /// Can only be targeted when visible or by towers within detection range.
+    /// </summary>
+    public class CloakerEnemy : Enemy
+    {
+        [Header("Cloaker Specific")]
+        [SerializeField] private float cloakTransitionDuration = 0.5f; // Time to cloak/uncloak
+        [SerializeField] private float uncloakDuration = 2f; // Stay visible for 2s after damage
+        [SerializeField] private float recloakCooldown = 3f; // Time before can cloak again
+        [SerializeField] private float cloakedAlpha = 0.15f; // How transparent when cloaked
+        [SerializeField] private ParticleSystem cloakEffect;
+        [SerializeField] private ParticleSystem uncloakEffect;
+        [SerializeField] private AudioClip cloakSound;
+        [SerializeField] private AudioClip uncloakSound;
+
+        // Cloaking state
+        private bool isCloaked;
+        private bool isTransitioning;
+        private float transitionProgress;
+        private float uncloakTimer;
+        private float recloakTimer;
+        private Color[] originalColors;
+        private bool initialized;
+
+        // Detection range - towers within this range can always target cloaked enemies
+        public static float DetectionRange = 4f;
+
+        public bool IsCloaked => isCloaked && !isTransitioning;
+
+        public override void Initialize(Transform[] path, float healthMultiplier = 1f, float speedMultiplier = 1f)
+        {
+            base.Initialize(path, healthMultiplier, speedMultiplier);
+
+            // Store original colors
+            if (!initialized)
+            {
+                StoreOriginalColors();
+                initialized = true;
+            }
+
+            // Start cloaked
+            isCloaked = true;
+            isTransitioning = false;
+            transitionProgress = 1f;
+            uncloakTimer = 0f;
+            recloakTimer = 0f;
+
+            ApplyCloakVisuals(cloakedAlpha);
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (IsDead) return;
+
+            // Handle cloak transition
+            if (isTransitioning)
+            {
+                UpdateCloakTransition();
+            }
+
+            // Handle uncloak timer (re-cloak after duration)
+            if (!isCloaked && uncloakTimer > 0)
+            {
+                uncloakTimer -= Time.deltaTime;
+                if (uncloakTimer <= 0 && recloakTimer <= 0)
+                {
+                    StartCloak();
+                }
+            }
+
+            // Handle recloak cooldown
+            if (recloakTimer > 0)
+            {
+                recloakTimer -= Time.deltaTime;
+            }
+        }
+
+        public override void TakeDamage(float damage, DamageType damageType = DamageType.Physical)
+        {
+            // Uncloak when taking damage
+            if (isCloaked || isTransitioning)
+            {
+                StartUncloak();
+            }
+
+            // Reset uncloak timer
+            uncloakTimer = uncloakDuration;
+            recloakTimer = recloakCooldown;
+
+            base.TakeDamage(damage, damageType);
+        }
+
+        private void StartCloak()
+        {
+            if (isCloaked || isTransitioning) return;
+
+            isTransitioning = true;
+            transitionProgress = 0f;
+            isCloaked = false; // Will be set to true when transition completes
+
+            // Play cloak effect
+            if (cloakEffect != null)
+            {
+                cloakEffect.Play();
+            }
+
+            // Play cloak sound
+            if (cloakSound != null)
+            {
+                AudioSource.PlayClipAtPoint(cloakSound, transform.position, 0.5f);
+            }
+        }
+
+        private void StartUncloak()
+        {
+            if (!isCloaked && !isTransitioning) return;
+
+            isTransitioning = true;
+            transitionProgress = 0f;
+            isCloaked = true; // Will be set to false when transition completes
+
+            // Play uncloak effect
+            if (uncloakEffect != null)
+            {
+                uncloakEffect.Play();
+            }
+
+            // Play uncloak sound
+            if (uncloakSound != null)
+            {
+                AudioSource.PlayClipAtPoint(uncloakSound, transform.position, 0.5f);
+            }
+        }
+
+        private void UpdateCloakTransition()
+        {
+            transitionProgress += Time.deltaTime / cloakTransitionDuration;
+
+            if (transitionProgress >= 1f)
+            {
+                // Transition complete
+                transitionProgress = 1f;
+                isTransitioning = false;
+                isCloaked = !isCloaked; // Toggle state
+            }
+
+            // Update visual transparency
+            float targetAlpha = isCloaked ? cloakedAlpha : 1f;
+            float currentAlpha = isCloaked 
+                ? Mathf.Lerp(1f, targetAlpha, transitionProgress)
+                : Mathf.Lerp(targetAlpha, 1f, transitionProgress);
+
+            ApplyCloakVisuals(currentAlpha);
+        }
+
+        private void StoreOriginalColors()
+        {
+            if (bodyRenderers == null || bodyRenderers.Length == 0) return;
+
+            originalColors = new Color[bodyRenderers.Length];
+            for (int i = 0; i < bodyRenderers.Length; i++)
+            {
+                if (bodyRenderers[i] != null && bodyRenderers[i].material != null)
+                {
+                    originalColors[i] = bodyRenderers[i].material.color;
+                }
+            }
+        }
+
+        private void ApplyCloakVisuals(float alpha)
+        {
+            if (bodyRenderers == null || originalColors == null) return;
+
+            for (int i = 0; i < bodyRenderers.Length && i < originalColors.Length; i++)
+            {
+                if (bodyRenderers[i] != null && bodyRenderers[i].material != null)
+                {
+                    Color color = originalColors[i];
+                    color.a = alpha;
+                    bodyRenderers[i].material.color = color;
+
+                    // Enable transparent rendering mode
+                    if (alpha < 1f)
+                    {
+                        SetMaterialTransparent(bodyRenderers[i].material);
+                    }
+                    else
+                    {
+                        SetMaterialOpaque(bodyRenderers[i].material);
+                    }
+                }
+            }
+
+            // Hide/show health bar based on cloak state
+            if (healthBar != null)
+            {
+                healthBar.gameObject.SetActive(alpha >= 0.5f);
+            }
+        }
+
+        private void SetMaterialTransparent(Material mat)
+        {
+            // Set rendering mode to Transparent
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.DisableKeyword("_ALPHATEST_ON");
+            mat.EnableKeyword("_ALPHABLEND_ON");
+            mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            mat.renderQueue = 3000;
+        }
+
+        private void SetMaterialOpaque(Material mat)
+        {
+            // Set rendering mode to Opaque
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+            mat.SetInt("_ZWrite", 1);
+            mat.DisableKeyword("_ALPHATEST_ON");
+            mat.DisableKeyword("_ALPHABLEND_ON");
+            mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            mat.renderQueue = -1;
+        }
+
+        /// <summary>
+        /// Check if tower can detect this cloaked enemy
+        /// </summary>
+        public bool CanBeDetectedBy(Vector3 towerPosition, float detectionRadius)
+        {
+            // If not cloaked, always detectable
+            if (!IsCloaked) return true;
+
+            // Check if tower is within detection range
+            float distance = Vector3.Distance(transform.position, towerPosition);
+            return distance <= detectionRadius;
+        }
+
+        /// <summary>
+        /// Static helper for towers to check if they can target a cloaker
+        /// </summary>
+        public static bool CanTarget(Enemy enemy, Vector3 towerPosition, float towerDetectionRange = -1f)
+        {
+            CloakerEnemy cloaker = enemy as CloakerEnemy;
+            if (cloaker == null) return true; // Not a cloaker, always targetable
+
+            // Use tower's detection range, or default detection range
+            float detection = towerDetectionRange > 0 ? towerDetectionRange : DetectionRange;
+            return cloaker.CanBeDetectedBy(towerPosition, detection);
+        }
+
+        protected override void Die()
+        {
+            // Force uncloak on death for visual clarity
+            if (isCloaked)
+            {
+                ApplyCloakVisuals(1f);
+            }
+
+            base.Die();
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            // Draw detection range
+            Gizmos.color = isCloaked ? new Color(0.5f, 0f, 1f, 0.3f) : Color.green;
+            Gizmos.DrawWireSphere(transform.position, DetectionRange);
+        }
+    }
 }
