@@ -87,12 +87,26 @@ namespace RobotTD.Map
 
         private void Start()
         {
+            // Try to load map from MapSelector first (when launched from main menu)
+            var mapSelector = Core.MapSelector.Instance;
+            if (mapSelector != null)
+            {
+                MapData selectedMap = mapSelector.GetSelectedMap();
+                if (selectedMap != null)
+                {
+                    LoadMap(selectedMap);
+                    return;
+                }
+            }
+
+            // Fallback to inspector-assigned MapData
             if (currentMapData != null)
             {
                 LoadMap(currentMapData);
             }
             else
             {
+                // Last resort: use default map setup
                 SetupDefaultMap();
             }
         }

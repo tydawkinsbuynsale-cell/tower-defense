@@ -13,6 +13,7 @@ namespace RobotTD.Core
         public static WaveManager Instance { get; private set; }
 
         [Header("Wave Settings")]
+        [SerializeField] private WaveSetData waveSetData; // NEW: Load waves from ScriptableObject
         [SerializeField] private float timeBetweenWaves = 5f;
         [SerializeField] private float timeBetweenSpawns = 1f;
         [SerializeField] private bool autoStartWaves = false;
@@ -79,12 +80,65 @@ namespace RobotTD.Core
         private void Start()
         {
             LoadEnemyPrefabs();
+            TryLoadWaveSetFromMap();
+        }
+
+        /// <summary>
+        /// Try to load WaveSetData from the currently selected map
+        /// </summary>
+        private void TryLoadWaveSetFromMap()
+        {
+            // If WaveSetData not manually assigned, try to load from current map
+            if (waveSetData == null)
+            {
+                var mapSelector = MapSelector.Instance;
+                if (mapSelector != null)
+                {
+                    var mapData = mapSelector.GetSelectedMap();
+                    if (mapData != null)
+                    {
+                        // Try to find corresponding WaveSet
+                        string waveSetName = $"WaveSet_{mapData.name.Replace("Map", "").Replace("_", "")}";
+                        waveSetData = Resources.Load<WaveSetData>($"Data/Waves/{waveSetName}");
+                        
+                        if (waveSetData == null)
+                        {
+                            // Try alternative naming
+                            waveSetData = Resources.Load<WaveSetData>($"Waves/{waveSetName}");
+                        }
+
+                        if (waveSetData != null)
+                        {
+                            Debug.Log($"[WaveManager] Loaded WaveSet: {waveSetData.setName}");
+                            totalWaves = waveSetData.waves.Count;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"[WaveManager] WaveSet not found for map {mapData.name}, using procedural generation");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                totalWaves = waveSetData.waves.Count;
+                Debug.Log($"[WaveManager] Using assigned WaveSet: {waveSetData.setName}");
+            }
         }
 
         private void LoadEnemyPrefabs()
         {
             enemyPrefabs = new Dictionary<EnemyType, GameObject>();
-            
+            NEW: If we have WaveSetData, use it
+            if (waveSetData != null && wave >= 1 && wave <= waveSetData.waves.Count)
+            {
+                WaveData waveData = waveSetData.waves[wave - 1]; // waves are 1-indexed
+                GenerateFromWaveData(waveData);
+                return;
+            }
+
+            // FALLBACK: Procedural generation for backwards compatibility
+            // 
             // Load from Resources/Prefabs/Enemies/
             foreach (EnemyType type in System.Enum.GetValues(typeof(EnemyType)))
             {
@@ -184,7 +238,80 @@ namespace RobotTD.Core
                 for (int i = 0; i < bosses; i++) enemies.Add(EnemyType.Boss);
             }
 
-            // Boss wave every 5 waves
+            // Boss wave every 5 waves (if not already added)
+            if (wave % 5 == 0 && !enemies.Contains(EnemyType.Boss))
+            {
+                enemies.Add(EnemyType.Boss);
+            }
+
+            // Shuffle and add to spawn queue
+            ShuffleList(enemies);
+            foreach (var enemy in enemies)
+                spawnQueue.Enqueue(enemy);
+
+            EnemiesToSpawn = spawnQueue.Count;
+            EnemiesRemaining = EnemiesToSpawn;
+            OnEnemyCountChanged?.Invoke(EnemiesRemaining);
+        }
+
+        /// <summary>
+        /// Generate wave composition from WaveData ScriptableObject
+        /// </summary>
+        private void GenerateFromWaveData(WaveData waveData)
+        {
+            spawnQueue.Clear();
+            List<EnemyType> enemies = new List<EnemyType>();
+
+            // Process each enemy spawn entry
+            foreach (var enemySpawn in waveData.enemies)
+            {
+                // Parse enemy type from prefab ID
+                EnemyType enemyType = ParseEnemyType(enemySpawn.enemyPrefabId);
+
+                // Add enemies based on count
+                for (int i = 0; i < enemySpawn.count; i++)
+                {
+                    enemies.Add(enemyType);
+                }
+            }
+
+            // Apply spawn pattern (shuffle for random, etc.)
+            ShuffleList(enemies);
+
+            foreach (var enemy in enemies)
+                spawnQueue.Enqueue(enemy);
+
+            // Override spawn timing from wave data
+            if (waveData.timeBetweenSpawns > 0)
+                timeBetweenSpawns = waveData.timeBetweenSpawns;
+
+            EnemiesToSpawn = spawnQueue.Count;
+            EnemiesRemaining = EnemiesToSpawn;
+            OnEnemyCountChanged?.Invoke(EnemiesRemaining);
+
+            Debug.Log($"[WaveManager] Wave {waveData.waveNumber}: {waveData.waveName} - {enemies.Count} enemies");
+        }
+
+        /// <summary>
+        /// Parse enemy type from string ID
+        /// </summary>
+        private EnemyType ParseEnemyType(string enemyId)
+        {
+            // Map string IDs to enum
+            if (enemyId.Contains("Scout")) return EnemyType.Scout;
+            if (enemyId.Contains("Soldier")) return EnemyType.Soldier;
+            if (enemyId.Contains("Tank")) return EnemyType.Tank;
+            if (enemyId.Contains("Elite")) return EnemyType.Elite;
+            if (enemyId.Contains("Boss") || enemyId.Contains("Titan") || 
+                enemyId.Contains("Shield") || enemyId.Contains("Swarm"))
+                return EnemyType.Boss;
+
+            // Default to Scout for unknown types
+            Debug.LogWarning($"[WaveManager] Unknown enemy type: {enemyId}, defaulting to Scout");
+            return EnemyType.Scout;
+        }
+
+        private void ShuffleList<T>(List<T> list)
             if (wave % 5 == 0 && wave > 0)
             {
                 enemies.Add(EnemyType.Boss);
