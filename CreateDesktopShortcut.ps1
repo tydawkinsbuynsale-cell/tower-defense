@@ -1,48 +1,79 @@
-# Robot Tower Defense - Desktop Shortcut Creator
-# This script creates a desktop shortcut to launch the game
+<#
+.SYNOPSIS
+    Creates a desktop shortcut for Robot Tower Defense
+.DESCRIPTION
+    Creates shortcuts on the desktop that launch the game and diagnostics automatically
+#>
 
-$projectPath = "C:\Users\tydaw\OneDrive\Documents\RobotTowerDefense"
-$shortcutPath = [Environment]::GetFolderPath("Desktop") + "\Robot Tower Defense.lnk"
-$iconPath = "$projectPath\Assets\Icon\GameIcon.png"
+$ShortcutPath = [System.IO.Path]::Combine([Environment]::GetFolderPath("Desktop"), "Robot Tower Defense.lnk")
+$TargetPath = Join-Path $PSScriptRoot "Launch Game.bat"
+$IconPath = Join-Path $PSScriptRoot "Assets\Icon\GameIcon.png"
 
-# Check if Unity Editor executable exists (common paths)
-$unityPaths = @(
-    "C:\Program Files\Unity\Hub\Editor\2022.3.*\Editor\Unity.exe",
-    "C:\Program Files\Unity\Editor\Unity.exe",
-    "${env:ProgramFiles}\Unity\Hub\Editor\*\Editor\Unity.exe"
-)
-
-$unityExe = $null
-foreach ($path in $unityPaths) {
-    $found = Get-Item $path -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($found) {
-        $unityExe = $found.FullName
-        break
-    }
+# Check if icon exists, if not use default
+if (-not (Test-Path $IconPath)) {
+    Write-Host "Game icon not found, using default launcher icon" -ForegroundColor Yellow
+    $IconPath = $TargetPath
 }
 
-if (-not $unityExe) {
-    Write-Host "Unity Editor not found in standard locations." -ForegroundColor Yellow
-    Write-Host "Please enter the path to Unity.exe:" -ForegroundColor Cyan
-    $unityExe = Read-Host
-}
-
-# Create the shortcut
-$WshShell = New-Object -ComObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut($shortcutPath)
-$Shortcut.TargetPath = $unityExe
-$Shortcut.Arguments = "-projectPath `"$projectPath`""
-$Shortcut.WorkingDirectory = $projectPath
-$Shortcut.Description = "Launch Robot Tower Defense in Unity Editor"
-
-# Try to set icon (Windows shortcuts with .lnk can't use .png directly, but Unity.exe icon will be used)
-# For a proper icon, we'd need to convert to .ico format
-$Shortcut.IconLocation = $unityExe + ",0"
-
-$Shortcut.Save()
-
-Write-Host "Desktop shortcut created: $shortcutPath" -ForegroundColor Green
-Write-Host "Target: $unityExe" -ForegroundColor Green
-Write-Host "Project: $projectPath" -ForegroundColor Green
+Write-Host "Creating desktop shortcuts..." -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Double-click Robot Tower Defense on your desktop to launch!" -ForegroundColor Cyan
+
+try {
+    $WshShell = New-Object -ComObject WScript.Shell
+    
+    # Main game launcher shortcut
+    $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
+    $Shortcut.TargetPath = $TargetPath
+    $Shortcut.WorkingDirectory = $PSScriptRoot
+    $Shortcut.Description = "Launch Robot Tower Defense - Auto Setup & Play"
+    
+    # Set icon if PNG exists (convert to ICO if needed)
+    if ((Test-Path $IconPath) -and $IconPath -like "*.png") {
+        # For now, use the .bat icon - you can convert PNG to ICO separately
+        $Shortcut.IconLocation = $TargetPath + ",0"
+    } else {
+        $Shortcut.IconLocation = $IconPath + ",0"
+    }
+    
+    $Shortcut.Save()
+    
+    Write-Host "✓ Main launcher shortcut created!" -ForegroundColor Green
+    Write-Host "  Location: $ShortcutPath" -ForegroundColor White
+    Write-Host ""
+    
+    # Diagnostics shortcut
+    $DiagShortcutPath = [System.IO.Path]::Combine([Environment]::GetFolderPath("Desktop"), "Robot TD - Diagnostics.lnk")
+    $DiagTargetPath = Join-Path $PSScriptRoot "Quick-Diagnose.bat"
+    
+    if (Test-Path $DiagTargetPath) {
+        $DiagShortcut = $WshShell.CreateShortcut($DiagShortcutPath)
+        $DiagShortcut.TargetPath = $DiagTargetPath
+        $DiagShortcut.WorkingDirectory = $PSScriptRoot
+        $DiagShortcut.Description = "Run diagnostics and view logs for Robot Tower Defense"
+        $DiagShortcut.IconLocation = $DiagTargetPath + ",0"
+        $DiagShortcut.Save()
+        
+        Write-Host "✓ Diagnostics shortcut created!" -ForegroundColor Green
+        Write-Host "  Location: $DiagShortcutPath" -ForegroundColor White
+        Write-Host "  Use this to check logs and troubleshoot issues." -ForegroundColor Gray
+        Write-Host ""
+    }
+    
+    Write-Host "════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "  Setup Complete!" -ForegroundColor Green
+    Write-Host "════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "You can now launch the game from your desktop!" -ForegroundColor White
+    Write-Host ""
+    Write-Host "Desktop icons created:" -ForegroundColor Gray
+    Write-Host "  • Robot Tower Defense (launches game)" -ForegroundColor White
+    Write-Host "  • Robot TD - Diagnostics (troubleshooting)" -ForegroundColor White
+    
+}
+catch {
+    Write-Host "✗ Failed to create shortcut: $_" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host ""
+Read-Host "Press Enter to exit"

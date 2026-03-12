@@ -11,10 +11,11 @@
 
 param(
     [switch]$SkipUnityInstall,
-    [switch]$Verbose
+    [switch]$Verbose,
+    [switch]$ShowLog
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"  # Changed to Continue to log errors instead of stopping
 $ProgressPreference = "SilentlyContinue"
 
 # Configuration
@@ -27,6 +28,8 @@ $PROJECT_ROOT = $PSScriptRoot
 $UNITY_HUB_PATH = "C:\Program Files\Unity Hub\Unity Hub.exe"
 $UNITY_INSTALL_BASE = "C:\Program Files\Unity\Hub\Editor"
 $TEMP_DIR = "$env:TEMP\RobotTDSetup"
+$LOG_FILE = Join-Path $PROJECT_ROOT "Setup-Log.txt"
+$ERROR_LOG = Join-Path $PROJECT_ROOT "Setup-Errors.txt"
 
 # Colors for output
 $COLOR_INFO = "Cyan"
@@ -34,66 +37,141 @@ $COLOR_SUCCESS = "Green"
 $COLOR_WARNING = "Yellow"
 $COLOR_ERROR = "Red"
 
+# Initialize logging
+function Initialize-Logging {
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $separator = "="*80
+    $logHeader = @"
+$separator
+ROBOT TOWER DEFENSE - Setup Log
+Started: $timestamp
+$separator
+
+"@
+    Set-Content -Path $LOG_FILE -Value $logHeader -Encoding UTF8
+    
+    Write-Log "Setup started from: $PROJECT_ROOT"
+    Write-Log "PowerShell Version: $($PSVersionTable.PSVersion)"
+    Write-Log "OS: $([System.Environment]::OSVersion.VersionString)"
+    Write-Log "User: $env:USERNAME"
+    Write-Log ""
+}
+
+function Write-Log {
+    param(
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    $logMessage = "[$timestamp] [$Level] $Message"
+    Add-Content -Path $LOG_FILE -Value $logMessage -Encoding UTF8
+    
+    if ($Verbose) {
+        Write-Host $logMessage -ForegroundColor Gray
+    }
+}
+
+function Write-ErrorLog {
+    param(
+        [string]$Message,
+        [string]$Exception = ""
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $errorMessage = @"
+[$timestamp] ERROR
+Message: $Message
+$(if ($Exception) { "Exception: $Exception`n" })
+---
+"@
+    Add-Content -Path $ERROR_LOG -Value $errorMessage -Encoding UTF8
+    Write-Log $Message "ERROR"
+}
+
 function Write-Step {
     param([string]$Message)
     Write-Host "`n===================================" -ForegroundColor $COLOR_INFO
     Write-Host " $Message" -ForegroundColor $COLOR_INFO
     Write-Host "===================================`n" -ForegroundColor $COLOR_INFO
+    Write-Log "STEP: $Message" "STEP"
 }
 
 function Write-Success {
     param([string]$Message)
     Write-Host "✓ $Message" -ForegroundColor $COLOR_SUCCESS
+    Write-Log $Message "SUCCESS"
 }
 
 function Write-Info {
     param([string]$Message)
     Write-Host "→ $Message" -ForegroundColor $COLOR_INFO
+    Write-Log $Message "INFO"
 }
 
 function Write-Warn {
     param([string]$Message)
     Write-Host "⚠ $Message" -ForegroundColor $COLOR_WARNING
+    Write-Log $Message "WARNING"
 }
 
 function Write-Err {
     param([string]$Message)
     Write-Host "✗ $Message" -ForegroundColor $COLOR_ERROR
+    Write-ErrorLog $Message
 }
 
 function Test-AdminPrivileges {
     $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
-function Install-UnityHub {
-    Write-Step "Installing Unity Hub"
+}Write-Log "Checking Unity Hub at: $UNITY_HUB_PATH"
     
     if (Test-Path $UNITY_HUB_PATH) {
         Write-Success "Unity Hub already installed at: $UNITY_HUB_PATH"
         return $true
     }
 
-    Write-Info "Downloading Unity Hub..."
-    New-Item -ItemType Directory -Force -Path $TEMP_DIR | Out-Null
-    $installerPath = "$TEMP_DIR\UnityHubSetup.exe"
+    Write-Info "Unity Hub not found. Starting download..."
+    Write-Log "Creating temp directory: $TEMP_DIR"
     
     try {
+        New-Item -ItemType Directory -Force -Path $TEMP_DIR | Out-Null
+        $installerPath = "$TEMP_DIR\UnityHubSetup.exe"
+        Write-Log "Installer path: $installerPath"
+        
+        Write-Info "Downloading Unity Hub from: $UNITY_HUB_URL"
+        Write-Log "Starting download..."
+        
         Invoke-WebRequest -Uri $UNITY_HUB_URL -OutFile $installerPath -UseBasicParsing
-        Write-Success "Unity Hub downloaded"
+        
+        if (Test-Path $installerPath) {
+            $fileSize = (Get-Item $installerPath).Length / 1MB
+            Write-Success "Unity Hub downloaded ($([math]::Round($fileSize, 2)) MB)"
+            Write-Log "Download complete. File size: $fileSize MB"
+        } else {
+            throw "Downloaded file not found at $installerPath"
+        }
         
         Write-Info "Installing Unity Hub (this may take a few minutes)..."
         Write-Warn "A UAC prompt may appear - please click 'Yes' to continue"
+        Write-Log "Launching installer with /S flag"
         
         $process = Start-Process -FilePath $installerPath -ArgumentList "/S" -Wait -PassThru
+        Write-Log "Installer exit code: $($process.ExitCode)"
         
         if ($process.ExitCode -eq 0 -and (Test-Path $UNITY_HUB_PATH)) {
             Write-Success "Unity Hub installed successfully"
+            Write-Log "Unity Hub verified at: $UNITY_HUB_PATH"
             return $true
         } else {
-            Write-Err "Unity Hub installation failed"
+            Write-Err "Unity Hub installation failed with exit code: $($process.ExitCode)"
+            Write-ErrorLog "Unity Hub installation failed" "Exit code: $($process.ExitCode)"
             return $false
+        }
+    }
+    catch {
+        Write-Err "Failed to download/install Unity Hub: $_"
+        Write-ErrorLog "Unity Hub installation exception" $_.Exception.Message
+        Write-Log "Stack trace: $($_.ScriptStackTrace)
         }
     }
     catch {
@@ -284,38 +362,39 @@ This project contains:
 - Prefabs: Reusable game objects
 - Materials: Visual shaders
 - Audio: Music and sound effects
-
-To get started:
-1. Open the MainMenu scene in Assets/Scenes/
-2. Press Play in the Unity Editor
-3. Follow the in-game tutorial
-
-For more information, see README.md in the project root.
-"@
-        Set-Content -Path $assetsReadmePath -Value $readmeContent -Encoding UTF8
-        Write-Info "Created: Assets/README.txt"
-    }
-
-    Write-Success "Unity project structure initialized"
-    return $true
-}
-
-function Open-UnityProject {
-    Write-Step "Launching Unity Editor"
-    
-    $unityExePath = Join-Path $UNITY_INSTALL_BASE "$UNITY_VERSION\Editor\Unity.exe"
+Write-Log "Looking for Unity at: $unityExePath"
     
     if (-not (Test-Path $unityExePath)) {
         Write-Err "Unity executable not found at: $unityExePath"
-        return $false
+        Write-Log "Searching for any Unity 2022.3.x installation..."
+        
+        # Try to find any 2022.3.x version
+        $installedVersions = Get-InstalledUnityVersions
+        $compatible = $installedVersions | Where-Object { $_ -like "2022.3.*" } | Select-Object -First 1
+        
+        if ($compatible) {
+            $global:UNITY_VERSION = $compatible
+            $unityExePath = Join-Path $UNITY_INSTALL_BASE "$UNITY_VERSION\Editor\Unity.exe"
+            Write-Info "Found compatible version: $UNITY_VERSION"
+            Write-Log "Using Unity version: $UNITY_VERSION"
+        } else {
+            Write-ErrorLog "No Unity 2022.3.x installation found"
+            return $false
+        }
     }
 
     Write-Info "Opening project in Unity $UNITY_VERSION..."
     Write-Info "This may take a few minutes on first launch..."
+    Write-Log "Launching Unity with project path: $PROJECT_ROOT"
     
     try {
-        Start-Process -FilePath $unityExePath -ArgumentList "-projectPath `"$PROJECT_ROOT`"" -WindowStyle Normal
+        $arguments = "-projectPath `"$PROJECT_ROOT`""
+        Write-Log "Unity arguments: $arguments"
+        
+        Start-Process -FilePath $unityExePath -ArgumentList $arguments -WindowStyle Normal
         Write-Success "Unity Editor launched!"
+        Write-Log "Unity process started successfully"
+        
         Write-Info @"
 
 Next steps:
@@ -324,34 +403,115 @@ Next steps:
 3. Press the Play button (▶) at the top
 4. Enjoy the game!
 
-"@
-        return $true
+Log file saved to: $LOG_FILE
+
+"@Show-LogSummary {
+    Write-Host "`n" -NoNewline
+    Write-Host "═══════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "  SETUP COMPLETE" -ForegroundColor Green
+    Write-Host "═══════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Log files saved:" -ForegroundColor White
+    Write-Host "  Setup Log:  " -NoNewline -ForegroundColor Gray
+    Write-Host "$LOG_FILE" -ForegroundColor Yellow
+    
+    if (Test-Path $ERROR_LOG) {
+        Write-Host "  Error Log:  " -NoNewline -ForegroundColor Gray
+        Write-Host "$ERROR_LOG" -ForegroundColor Red
     }
-    catch {
-        Write-Err "Failed to launch Unity: $_"
-        return $false
-    }
-}
-
-function Show-Banner {
-    Clear-Host
-    Write-Host @"
-
-╔══════════════════════════════════════════════════════╗
-║                                                      ║
-║          ROBOT TOWER DEFENSE                         ║
-║          Automatic Setup & Launcher                  ║
-║                                                      ║
-╚══════════════════════════════════════════════════════╝
-
-"@ -ForegroundColor $COLOR_INFO
+    
+    Write-Host ""
+    Write-Host "To view logs:" -ForegroundColor White
+    Write-Host "  .\View-Log.ps1" -ForegroundColor Cyan
+    Write-Host ""
 }
 
 function Main {
+    # Initialize logging first
+    Initialize-Logging
+    
     Show-Banner
     
     Write-Info "Project: $PROJECT_ROOT"
     Write-Info "Required Unity Version: 2022.3 LTS"
+    Write-Info "Log file: $LOG_FILE"
+    Write-Info ""
+
+    Write-Log "=== DIAGNOSTICS ==="
+    Write-Log "Unity Hub Path: $UNITY_HUB_PATH"
+    Write-Log "Unity Hub Exists: $(Test-Path $UNITY_HUB_PATH)"
+    Write-Log "Unity Install Base: $UNITY_INSTALL_BASE"
+    Write-Log "Unity Install Base Exists: $(Test-Path $UNITY_INSTALL_BASE)"
+    Write-Log "Project Root: $PROJECT_ROOT"
+    Write-Log "Admin Privileges: $(Test-AdminPrivileges)"
+    Write-Log ""
+
+    # Check admin privileges
+    if (-not (Test-AdminPrivileges)) {
+        Write-Warn "This script may require administrator privileges for installation."
+        Write-Info "If prompted by UAC, please click 'Yes' to continue."
+        Write-Log "Running without admin privileges"
+        Write-Info ""
+    }
+
+    try {
+        # Step 1: Install Unity Hub
+        if (-not (Install-UnityHub)) {
+            Write-Err "Setup failed: Could not install Unity Hub"
+            Write-Log "FAILED: Unity Hub installation"
+            Show-LogSummary
+            Read-Host "Press Enter to exit"
+            exit 1
+        }
+
+        # Step 2: Install Unity Editor
+        if (-not $SkipUnityInstall) {
+            if (-not (Install-UnityEditor)) {
+                Write-Err "Setup failed: Could not install Unity Editor"
+                Write-Log "FAILED: Unity Editor installation"
+                Show-LogSummary
+                Read-Host "Press Enter to exit"
+                exit 1
+            }
+        } else {
+            Write-Log "Skipping Unity installation (SkipUnityInstall flag set)"
+        }
+
+        # Step 3: Initialize project structure
+        if (-not (Initialize-UnityProject)) {
+            Write-Err "Setup failed: Could not initialize project"
+            Write-Log "FAILED: Project initialization"
+            Show-LogSummary
+            Read-Host "Press Enter to exit"
+            exit 1
+        }
+
+        # Step 4: Launch Unity
+        if (-not (Open-UnityProject)) {
+            Write-Err "Setup failed: Could not launch Unity"
+            Write-Log "FAILED: Unity launch"
+            Show-LogSummary
+            Read-Host "Press Enter to exit"
+            exit 1
+        }
+
+        Write-Host "`n"
+        Write-Success "Setup complete! Unity is now starting..."
+        Write-Log "=== SETUP COMPLETED SUCCESSFULLY ==="
+        Write-Info "You can run this script again anytime with: .\Setup-Game.ps1"
+        
+        Show-LogSummary
+        
+        Start-Sleep -Seconds 3
+        
+    } catch {
+        Write-Err "Unexpected error during setup: $_"
+        Write-ErrorLog "Unexpected exception in Main" $_.Exception.Message
+        Write-Log "Stack trace: $($_.ScriptStackTrace)"
+        Show-LogSummary
+        Read-Host "Press Enter to exit"
+        exit 1
+    }nity Version: 2022.3 LTS"
     Write-Info ""
 
     # Check admin privileges

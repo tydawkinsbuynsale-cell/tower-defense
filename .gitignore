@@ -82,3 +82,8 @@ $RECYCLE.BIN/
 
 # Node
 node_modules/
+
+# Setup and Debug Logs
+Setup-Log.txt
+Setup-Errors.txt
+RobotTD-Logs-*.txt
