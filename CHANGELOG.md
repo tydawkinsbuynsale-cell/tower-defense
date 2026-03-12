@@ -141,11 +141,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Testing procedures
   - Best practices and balance guidelines
 
+**Daily Missions System** 📅
+- **MissionData**: ScriptableObject-based mission configuration
+  - 20+ mission types (Combat, Tower, Economy, Wave, Map, Special)
+  - 3 difficulty tiers (Easy, Medium, Hard) with scaled rewards
+  - Weighted rotation system for mission selection
+  - Level gating for progressive unlocks
+  - Target values and optional parameters for flexibility
+- **MissionManager**: Core mission lifecycle management
+  - Automatic daily rotation (24-hour cycle)
+  - Progress tracking across all mission types
+  - Reward system (credits + tech points)
+  - Persistent storage with PlayerPrefs
+  - Auto-subscription to game events for tracking
+  - Mission completion detection and rewards
+  - Analytics integration
+- **Mission UI Components**:
+  - **DailyMissionsUI**: Main panel with rotation timer
+    - 3 mission cards with staggered animations
+    - Countdown timer to next rotation
+    - Completion summary (X/3 completed)
+    - Refresh button for testing
+  - **MissionCardUI**: Individual mission display
+    - Progress bar with real-time updates
+    - Difficulty stars and color coding
+    - Reward display (credits + tech points)
+    - Claim button with animations
+    - Completion badge
+- **Auto Progress Tracking**:
+  - Combat missions: Enemy kills, boss kills, damage dealt
+  - Tower missions: Placement, upgrades, specific tower types
+  - Economy missions: Credits earned/spent, ending balance
+  - Wave missions: Completion, flawless waves, survival
+  - Map missions: Victory, flawless victory, specific maps
+- **Game Integration**:
+  - GameManager: Economy tracking (AddCredits, SpendCredits, victory rewards)
+  - TowerPlacementManager: Tower placement and type tracking
+  - Tower: Upgrade tracking, max level detection
+  - WaveManager: Wave completion, enemy kill tracking
+  - AnalyticsEvents: 6 new mission event types
+- **Complete Documentation**: [DAILY_MISSIONS_GUIDE.md](DAILY_MISSIONS_GUIDE.md)
+  - Quick start (5 minutes)
+  - 20+ mission type descriptions
+  - Mission creation guide with examples
+  - Difficulty and reward balancing guidelines
+  - UI setup instructions
+  - Integration examples
+  - Testing procedures
+  - Troubleshooting guide
+
 ### Planned Features
 - Cloud save support with conflict resolution
 - Additional tower types (Artillery Bot)
 - Additional enemy types (Cloaker)
-- Daily missions system
+- Weekly missions (extended version of daily missions)
 - Social features (friend leaderboards, sharing)
 
 ---
