@@ -597,11 +597,97 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - RewardType: Enum with 7 reward types
     - CrossPlatformFriendsList: Friends container
     - LinkedPlatformsData: Serialization helper for linked platforms
-- **Advanced AI Systems**:
-  - Dynamic difficulty adjustment based on player skill
-  - Adaptive enemy strategies (learns from player behavior)
-  - Smart enemy routing (avoids heavily defended paths)
-  - Machine learning-powered challenge generation
+- **Advanced AI Systems** ✅:
+  - **AdvancedAIManager Component**:
+    - Singleton design pattern with DontDestroyOnLoad persistence
+    - Separate namespace RobotTD.AI for artificial intelligence systems
+    - Dynamic difficulty adjustment based on real-time player performance
+    - Adaptive enemy strategies that learn from player behavior
+    - Smart enemy routing system to avoid heavily defended paths
+    - ML-powered challenge generation (simplified heuristic system)
+    - Periodic analysis coroutine (5-second intervals, configurable)
+    - Verbose logging for AI decision tracking
+  - **Dynamic Difficulty Adjustment**:
+    - AnalyzePerformance(GamePerformanceData) calculates performance score
+    - CalculatePerformanceScore() evaluates accuracy, efficiency, survivability, economy
+    - Weighted scoring: accuracy (30%), efficiency (25%), survivability (30%), economy (15%)
+    - Performance sample tracking (last 10 games, configurable)
+    - GetDifficultyMultiplier() returns current difficulty (0.5x - 2.0x range)
+    - AdjustDifficulty() increases if performance > 0.7, decreases if < 0.4
+    - Smooth adjustment with configurable speed (default 0.1)
+    - Difficulty saved to performance profile for persistence
+  - **Player Performance Profile**:
+    - PlayerPerformanceProfile: Complete player statistics
+    - Tracks: averageAccuracy, averageEfficiency, averageWinRate
+    - totalGamesPlayed counter for statistical relevance
+    - averageGameDuration for time-based analysis
+    - preferredTowerTypes lists most-used towers
+    - weakTowerTypes identifies underutilized strategies
+    - Running average calculation for accurate long-term tracking
+    - LoadPerformanceProfile() and SavePerformanceProfile() for persistence
+    - CalculateInitialDifficulty() sets starting difficulty from history
+  - **Adaptive Enemy Strategies**:
+    - UpdateAdaptiveStrategy(activeTowerTypes) analyzes tower composition
+    - SelectCounterStrategy() chooses best counter to player's towers
+    - 4 pre-configured strategies: Aggressive Rush, Defensive Swarm, Heavy Tank, Balanced Assault
+    - AdaptiveStrategyData: health, speed, damage, spawn rate multipliers
+    - Strategy selection based on tower composition:
+      - AOE ratio > 60% → Tank strategy (few strong enemies)
+      - Single-target > 8 → Swarm strategy (many weak enemies)
+      - Total towers > 15 → Aggressive Rush (fast enemies)
+      - Default → Balanced Assault (standard composition)
+    - GetCurrentStrategy() returns active strategy
+    - ApplyStrategyModifiers(Enemy) applies multipliers to enemy stats
+    - AnalyzeTowerComposition() tracks tower type usage
+    - TowerPlacementPattern tracking for learning player preferences
+  - **Smart Enemy Routing**:
+    - AnalyzePathDanger(paths, towers) evaluates path threat levels
+    - CalculatePathDanger() samples waypoints and counts tower coverage
+    - Path danger scoring on 0-1 scale (normalized by tower count)
+    - SelectOptimalPath() chooses path with lowest danger
+    - ShouldUseAlternatePath() checks if current path exceeds danger threshold
+    - GetPathDanger(pathId) returns danger level for specific path
+    - pathDangerThreshold configuration (default 0.7)
+    - Routing update frequency (every 3 waves, configurable)
+    - OnPathDangerUpdated event for UI feedback
+  - **Periodic Analysis System**:
+    - PeriodicAnalysisCoroutine() runs at configured intervals
+    - PerformPeriodicAnalysis() updates AI decisions
+    - wavesSinceLastAnalysis counter for routing updates
+    - OnAIAnalysisCompleted event for system notifications
+    - analysisInterval configuration (default 5 seconds)
+  - **Local Storage**:
+    - PlayerPerformanceProfile saved to PlayerPrefs (JSON serialization)
+    - Load on initialization, save after each game
+    - PlayerPrefs key: "PlayerPerformanceProfile"
+    - Profile includes all performance metrics
+  - **Events System**:
+    - OnDifficultyAdjusted(float) - Difficulty changed with new multiplier
+    - OnStrategyChanged(AdaptiveStrategyData) - Strategy updated
+    - OnPathDangerUpdated(string, float) - Path danger calculated
+    - OnAIAnalysisCompleted - Periodic analysis finished
+  - **Analytics Integration** (3 new events):
+    - advanced_ai_initialized: System startup with configuration
+    - difficulty_adjusted: Difficulty change with old/new multipliers and performance score
+    - ai_strategy_changed: Strategy change with ID and name
+  - **Configuration Options**:
+    - Enable/disable advanced AI toggle
+    - Enable/disable dynamic difficulty toggle
+    - Enable/disable adaptive strategies toggle
+    - Enable/disable smart routing toggle
+    - Analysis interval setting (seconds)
+    - Difficulty adjustment speed (default 0.1)
+    - Min/max difficulty multipliers (0.5x - 2.0x)
+    - Performance sample size (default 10 games)
+    - Path danger threshold (default 0.7)
+    - Routing update frequency (default 3 waves)
+    - Verbose logging for debugging
+  - **Data Structures**:
+    - PlayerPerformanceProfile: Complete player statistics
+    - GamePerformanceData: Single game performance metrics
+    - AdaptiveStrategyData: Strategy configuration with multipliers
+    - TowerPlacementPattern: Tower usage tracking
+
 - **Accessibility Features**:
   - Colorblind modes (Deuteranopia, Protanopia, Tritanopia)
   - Screen reader support (menu navigation, stats)

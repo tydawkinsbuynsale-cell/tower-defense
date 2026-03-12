@@ -164,6 +164,11 @@ namespace RobotTD.Analytics
         public const string MAP_LIBRARY_OPENED = "map_library_opened";
         public const string MAP_BACKUP_CREATED = "map_backup_created";
         public const string MAP_BACKUP_RESTORED = "map_backup_restored";
+        
+        // ── Advanced AI Events ────────────────────────────────────────────────
+        public const string ADVANCED_AI_INITIALIZED = "advanced_ai_initialized";
+        public const string DIFFICULTY_ADJUSTED = "difficulty_adjusted";
+        public const string AI_STRATEGY_CHANGED = "ai_strategy_changed";
     }
 
     /// <summary>
