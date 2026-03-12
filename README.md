@@ -136,7 +136,8 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Session data tracking
 - Local storage system:
   - Save/Load up to 100 custom maps
-  - JSON file format with thumbnails
+  - JSON file format with automatic thumbnail generation
+  - Thumbnails: 256x256 PNG top-down captures
   - Automatic backup system (5 backups per map)
   - Export/Import maps for sharing
   - Map library browser with search/filter
@@ -148,7 +149,7 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Rating and like system
   - Search and filter functionality
 - Keyboard shortcuts: Ctrl+Z/Y (undo/redo), Ctrl+S (save)
-- Analytics integration: 28 events (20 editor + 8 wave configuration)
+- Analytics integration: 29 events (20 editor + 8 wave configuration + 1 thumbnail generation)
 
 **✅ Monetization Systems**
 - In-App Purchases (13 products: gems, credits, skins, subscriptions)
