@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Custom wave configuration ✅
   - Test play system ✅
   - Map storage and library ✅
-- Steam platform release with achievements
+- Steam platform release with achievements ✅
 
 ---
 
@@ -465,6 +465,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - map_rated: Rating submissions
     - map_liked: Like interactions
     - community_map_played: Play count tracking
+- **Steam Platform Integration** ✅:
+  - **SteamIntegrationManager Component**:
+    - Singleton design pattern with DontDestroyOnLoad persistence
+    - Steamworks.NET SDK integration (conditional compilation with STEAM_ENABLED)
+    - Editor simulation mode for testing without Steam SDK
+    - Auto-sync for achievements and stats (configurable intervals)
+    - 30-second stats update interval (configurable)
+    - Comprehensive error handling and logging
+  - **Achievement Synchronization**:
+    - Automatic sync with AchievementManager on unlock events
+    - UnlockSteamAchievement() for manual achievement unlocking
+    - SyncAchievementsToSteam() for first-time sync or post-reinstall
+    - IsSteamAchievementUnlocked() for checking unlock status
+    - ClearSteamAchievement() for testing (Editor only)
+    - Achievement name conversion: AchievementId → "ACH_{ENUM_NAME_UPPERCASE}"
+    - Event subscription to AchievementManager.OnAchievementUnlocked
+    - Duplicate prevention with syncedAchievements HashSet
+  - **Stats Tracking System**:
+    - SetStat(string, int) for integer stat values
+    - GetStat(string) for retrieving stat values
+    - IncrementStat(string, int) for incrementing stats
+    - SyncStatsToSteam() with automatic interval-based sync
+    - Local caching with Dictionary<string, int>
+    - OnStatUpdated event for UI updates
+  - **Leaderboard Integration**:
+    - UploadLeaderboardScore(string, int) for generic uploads
+    - UploadHighScore(int) shortcut for main leaderboard
+    - UploadHighestWave(int) for wave progression
+    - UploadTotalKills(int) for kill count tracking
+    - Configurable leaderboard names (HighScores, HighestWave, MostKills)
+    - OnLeaderboardScoreUploaded event with rank information
+    - Placeholder structure ready for Steamworks callback implementation
+  - **Initialization System**:
+    - SteamAPI.RestartAppIfNecessary() check with App ID
+    - SteamAPI.Init() with error handling
+    - Steam user ID and username retrieval
+    - OnSteamInitialized event for dependent systems
+    - Graceful degradation for non-Steam builds
+  - **Runtime Management**:
+    - SteamAPI.RunCallbacks() in Update loop (required for Steamworks.NET)
+    - Automatic stats sync before application quit
+    - SteamAPI.Shutdown() on application exit
+    - Exception handling for all Steam API calls
+  - **Simulation Mode** (Editor Testing):
+    - Full feature testing without Steamworks.NET SDK
+    - Conditional compilation with #if STEAM_ENABLED
+    - Simulated Steam user ID and username
+    - Local achievement and stat tracking
+    - Event firing for UI testing
+    - Network delay simulation for async operations
+  - **Production Configuration**:
+    - Scripting Define Symbol: STEAM_ENABLED
+    - steam_appid.txt configuration requirement
+    - Steamworks.NET SDK installation from Unity Asset Store or GitHub
+    - Steam Partner dashboard achievement ID mapping
+    - App ID configuration (replace placeholder 480)
+  - **Public API**:
+    - GetSteamUserId() - Steam user identifier
+    - GetSteamUsername() - Steam persona name
+    - IsSteamRunning() - Check Steam API status
+    - IsInitialized() - Check manager readiness
+  - **Events System**:
+    - OnSteamInitialized(bool) - Initialization result
+    - OnAchievementUnlocked(AchievementId) - Achievement sync confirmation
+    - OnStatUpdated(string, int) - Stat change notification
+    - OnLeaderboardScoreUploaded(string, bool, int, int) - Upload result with rank
+    - OnSteamError(string) - Error notifications
+  - **Analytics Events** (3 new):
+    - steam_initialized: SDK startup with user info
+    - steam_achievement_unlocked: Achievement sync tracking
+    - steam_leaderboard_upload: Score upload tracking
+  - **Setup Documentation**:
+    - Comprehensive XML documentation in source code
+    - Step-by-step setup instructions in class header
+    - Achievement naming convention documentation
+    - Public API summary with usage examples
 - **Analytics Integration** (20 new events):
   - `map_editor_opened`: Track editor sessions
   - `map_editor_new_map`: New map creation
