@@ -930,12 +930,126 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - DashboardExportData: Complete data export
     - TimeFilter: Enum for time-based filtering
     - SessionHistoryData, TowerStatsCollection, MapStatsCollection, MilestonesCollection: Serialization helpers
-- **Clan/Guild System**:
-  - Create or join clans (max 50 members)
-  - Clan chat and message boards
-  - Clan wars (team vs team competitions)
-  - Shared clan progression and rewards
-  - Clan leaderboards and achievements
+- **Clan/Guild System** ✅:
+  - **ClanManager Component**:
+    - Singleton design pattern with DontDestroyOnLoad persistence
+    - Separate namespace RobotTD.Social for clan/guild functionality
+    - Complete clan management system for team collaboration
+    - Clan creation, member management, chat, wars, and progression
+    - Max 50 members per clan (configurable)
+    - Clan creation cost: 1000 credits (configurable)
+    - Verbose logging for clan activities
+  - **Clan Creation & Management**:
+    - CreateClan(name, tag, description) creates new clan with player as leader
+    - JoinClan(clanId) joins existing clan as member
+    - LeaveClan() leaves current clan (promotes new leader if needed)
+    - KickMember(memberId) removes member (officers/leader only)
+    - PromoteMember(memberId) promotes member to officer (leader only)
+    - DemoteMember(memberId) demotes officer to member (leader only)
+    - Clan name validation (3-20 characters)
+    - Automatic leader succession when leader leaves
+    - Member capacity checking (max 50 members)
+  - **Clan Data Structure**:
+    - ClanData: Complete clan information
+      - clanId, clanName, clanTag, description
+      - leaderId, creationDate, memberCount
+      - totalTrophies, clanLevel
+      - List<ClanMember> members
+    - ClanMember: Member information
+      - playerId, playerName, joinDate
+      - role (None, Member, Officer, Leader)
+      - contributionPoints, lastActive
+    - GetCurrentClan() returns clan data
+    - GetPlayerRole() returns player's role
+    - IsInClan() checks membership status
+  - **Clan Chat System**:
+    - SendChatMessage(message) sends message to clan
+    - GetChatHistory(count) retrieves recent messages
+    - Chat history limited to 100 messages (configurable)
+    - Message length limit: 200 characters (configurable)
+    - ClanMessage: Chat message data
+      - messageId, senderId, senderName
+      - message, timestamp, messageType (Chat, System, Announcement)
+    - OnChatMessageReceived event for real-time updates
+    - Persistent chat history storage
+  - **Clan Wars System**:
+    - StartClanWar(opponentClanId) initiates clan vs clan competition
+    - RecordClanWarBattle(isVictory, score) logs battle results
+    - EndClanWar() concludes war and determines winner
+    - GetActiveClanWar() returns current war status
+    - ClanWar data: warId, clanId, opponentClanId, startDate, endDate
+    - isActive flag, clanScore, opponentScore, participants list
+    - War duration: 7 days (configurable)
+    - Min members for war: 5 (configurable)
+    - OnClanWarStarted and OnClanWarEnded events
+    - Permission checks (officers/leader can start wars)
+  - **Clan Progression System**:
+    - ContributeToClan(amount, type) adds to clan progress
+    - Contribution types: Credits, Trophies, Experience
+    - ClanProgression tracking:
+      - clanId, clanLevel, clanExperience
+      - totalContributions, unlockedPerks list
+    - Level up system: 1000 XP per level
+    - Automatic perk unlocking on level up
+    - GetClanProgression() returns progression data
+    - Member contribution points tracking
+    - Shared clan rewards based on contributions
+  - **Clan Browsing & Leaderboards**:
+    - GetAvailableClans() returns joinable clans
+    - GetClanLeaderboard(count) returns top clans by trophies
+    - Clan discovery system for finding clans
+    - Trophy-based clan ranking
+    - Member count and level display
+  - **Local Storage**:
+    - CurrentClan saved to PlayerPrefs (JSON serialization)
+    - AvailableClans with ClanListData wrapper
+    - ClanChatHistory with ClanChatData wrapper
+    - ActiveClanWar saved individually
+    - ClanProgression saved individually
+    - Load on initialization, save after changes
+    - PlayerPrefs keys: "CurrentClan", "AvailableClans", "ClanChatHistory", "ActiveClanWar", "ClanProgression"
+    - Automatic cleanup when leaving clan
+  - **Events System**:
+    - OnClanCreated(ClanData) - New clan founded
+    - OnClanJoined(ClanData) - Joined clan
+    - OnClanLeft - Left clan
+    - OnMemberJoined(ClanMember) - Member joined
+    - OnMemberLeft(string) - Member left/kicked
+    - OnChatMessageReceived(ClanMessage) - New chat message
+    - OnClanWarStarted(ClanWar) - War initiated
+    - OnClanWarEnded(ClanWar) - War concluded
+    - OnClanAchievementUnlocked(ClanAchievement) - Achievement earned
+  - **Analytics Integration** (8 new events):
+    - clan_system_initialized: System startup with clan status
+    - clan_created: Clan founded with name and tag
+    - clan_joined: Joined clan with ID, name, member count
+    - clan_left: Left clan with leader status and clan name
+    - clan_member_kicked: Member removed with member ID
+    - clan_war_started: War initiated with opponent ID
+    - clan_war_ended: War concluded with victory status and scores
+    - clan_contribution: Contribution made with amount, type, and clan level
+  - **Configuration Options**:
+    - Enable/disable clan system toggle
+    - Max clan members (default 50)
+    - Clan name length (min 3, max 20)
+    - Clan creation cost (default 1000 credits)
+    - Enable/disable clan wars toggle
+    - Clan war duration (default 7 days)
+    - Min clan war members (default 5)
+    - Max chat history (default 100)
+    - Max message length (default 200)
+    - Verbose logging for debugging
+  - **Data Structures**:
+    - ClanData: Complete clan information
+    - ClanMember: Member data with role
+    - ClanRole: Enum (None, Member, Officer, Leader)
+    - ClanMessage: Chat message data
+    - ClanMessageType: Enum (Chat, System, Announcement)
+    - ClanWar: War data with scores
+    - ClanProgression: Level and experience tracking
+    - ContributionType: Enum (Credits, Trophies, Experience)
+    - ClanAchievement: Clan achievement data
+    - ClanListData, ClanChatData: Serialization helpers
 - **Live Operations Tools**:
   - Remote configuration without updates
   - A/B testing for features and balance

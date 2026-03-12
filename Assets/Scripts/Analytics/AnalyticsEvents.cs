@@ -185,6 +185,16 @@ namespace RobotTD.Analytics
         public const string DASHBOARD_SESSION_RECORDED = "dashboard_session_recorded";
         public const string DASHBOARD_MILESTONE_ACHIEVED = "dashboard_milestone_achieved";
         public const string DASHBOARD_DATA_EXPORTED = "dashboard_data_exported";
+        
+        // ── Clan System Events ────────────────────────────────────────────────
+        public const string CLAN_SYSTEM_INITIALIZED = "clan_system_initialized";
+        public const string CLAN_CREATED = "clan_created";
+        public const string CLAN_JOINED = "clan_joined";
+        public const string CLAN_LEFT = "clan_left";
+        public const string CLAN_MEMBER_KICKED = "clan_member_kicked";
+        public const string CLAN_WAR_STARTED = "clan_war_started";
+        public const string CLAN_WAR_ENDED = "clan_war_ended";
+        public const string CLAN_CONTRIBUTION = "clan_contribution";
     }
 
     /// <summary>
