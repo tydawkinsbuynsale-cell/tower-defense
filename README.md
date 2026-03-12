@@ -120,7 +120,20 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Starting credits/lives customization
   - Difficulty rating (1-5)
   - Estimated play time
-- Custom wave configuration (planned)
+- Custom wave configuration:
+  - Wave-by-wave enemy composition editor
+  - 12 enemy types: Scout, Soldier, Tank, Elite, Flying, Healer, Splitter, Teleporter, HeavyAssault, SwarmMother, ShieldCommander, Cloaker
+  - Enemy group configuration (count, spawn interval, spawn point)
+  - Boss wave setup with 3 boss types
+  - Credits reward per wave
+  - Quick generation tool (5-30 waves, 5 difficulty presets)
+  - Automatic wave scaling and progression
+  - Comprehensive validation system
+- Test Play system:
+  - In-editor map testing
+  - Custom wave playback
+  - Return to editor from game
+  - Session data tracking
 - Local storage system:
   - Save/Load up to 100 custom maps
   - JSON file format with thumbnails
@@ -135,7 +148,7 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Rating and like system
   - Search and filter functionality
 - Keyboard shortcuts: Ctrl+Z/Y (undo/redo), Ctrl+S (save)
-- Analytics integration: 20 custom map editor events
+- Analytics integration: 28 events (20 editor + 8 wave configuration)
 
 **✅ Monetization Systems**
 - In-App Purchases (13 products: gems, credits, skins, subscriptions)
