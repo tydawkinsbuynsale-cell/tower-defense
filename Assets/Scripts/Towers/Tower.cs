@@ -273,6 +273,18 @@ namespace RobotTD.Towers
                 // Notify achievement manager
                 Progression.AchievementManager.Instance?.OnTowerUpgraded(currentLevel);
                 
+                // Track mission progress
+                if (Core.MissionManager.Instance != null)
+                {
+                    Core.MissionManager.Instance.UpdateMissionProgress(Core.MissionType.UpgradeTowers, 1);
+                    
+                    // Check if fully upgraded
+                    if (currentLevel == towerData.maxLevel)
+                    {
+                        Core.MissionManager.Instance.UpdateMissionProgress(Core.MissionType.MaxUpgradeTower, 1);
+                    }
+                }
+                
                 // Update range indicator
                 SetupRangeIndicator();
             }

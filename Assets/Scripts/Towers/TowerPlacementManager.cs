@@ -290,6 +290,13 @@ namespace RobotTD.Towers
 
                     // Notify achievement manager
                     Progression.AchievementManager.Instance?.OnTowerPlaced(selectedTowerData.towerType);
+                    
+                    // Track mission progress
+                    if (MissionManager.Instance != null)
+                    {
+                        MissionManager.Instance.UpdateMissionProgress(MissionType.PlaceTowers, 1);
+                        MissionManager.Instance.UpdateMissionProgress(MissionType.UseTowerType, 1, selectedTowerData.towerType.ToString());
+                    }
                 }
 
                 // Play placement sound

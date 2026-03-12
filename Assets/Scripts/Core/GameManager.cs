@@ -174,6 +174,12 @@ namespace RobotTD.Core
 
             // Track in save data
             SaveManager.Instance?.AddCreditsEarned(amount);
+            
+            // Track mission progress (earn credits)
+            if (MissionManager.Instance != null && CurrentState == GameState.Playing)
+            {
+                MissionManager.Instance.UpdateMissionProgress(MissionType.EarnCredits, amount);
+            }
         }
 
         /// <summary>
@@ -193,6 +199,13 @@ namespace RobotTD.Core
             {
                 Credits -= amount;
                 OnCreditsChanged?.Invoke(Credits);
+                
+                // Track mission progress (spend credits)
+                if (MissionManager.Instance != null && CurrentState == GameState.Playing)
+                {
+                    MissionManager.Instance.UpdateMissionProgress(MissionType.SpendCredits, amount);
+                }
+                
                 return true;
             }
             return false;
@@ -332,6 +345,12 @@ namespace RobotTD.Core
             SetGameState(GameState.Victory);
             RobotTD.Core.GameManager.OnVictory?.Invoke();
             OnVictory?.Invoke();
+            
+            // Track mission progress for credits remaining
+            if (MissionManager.Instance != null)
+            {
+                MissionManager.Instance.UpdateMissionProgress(MissionType.EndWithCredits, Credits);
+            }
             
             // Post endless score if active
             EndlessMode.Instance?.PostEndlessScore();

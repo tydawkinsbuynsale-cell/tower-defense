@@ -100,6 +100,14 @@ namespace RobotTD.Analytics
         public const string CHALLENGE_FAILED = "challenge_failed";
         public const string DAILY_CHALLENGE_COMPLETE = "daily_challenge_complete";
         public const string WEEKLY_CHALLENGE_COMPLETE = "weekly_challenge_complete";
+        
+        // ── Daily Mission Events ──────────────────────────────────────────────
+        public const string MISSIONS_ROTATED = "missions_rotated";
+        public const string MISSION_STARTED = "mission_started";
+        public const string MISSION_PROGRESS = "mission_progress";
+        public const string MISSION_COMPLETED = "mission_completed";
+        public const string MISSION_REWARD_CLAIMED = "mission_reward_claimed";
+        public const string ALL_MISSIONS_COMPLETE = "all_missions_complete";
     }
 
     /// <summary>
@@ -153,6 +161,14 @@ namespace RobotTD.Analytics
         public const string RESULT = "result";
         public const string REASON = "reason";
         public const string DURATION = "duration";
+        
+        // Missions
+        public const string MISSION_ID = "mission_id";
+        public const string MISSION_TYPE = "mission_type";
+        public const string MISSION_DIFFICULTY = "mission_difficulty";
+        public const string MISSION_PROGRESS = "mission_progress";
+        public const string TARGET_VALUE = "target_value";
+        public const string REWARD_AMOUNT = "reward_amount";
     }
 
     /// <summary>
