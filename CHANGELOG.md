@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🎯 Coming Soon - Analytics System
+
+**Analytics & Telemetry**
+- **AnalyticsManager**: Comprehensive event tracking system
+  - Session management with unique IDs and timeout handling
+  - Automatic new user detection and first launch tracking
+  - Real-time event tracking with custom parameters
+  - Performance metrics sampling (FPS, memory, frame time)
+  - Error and crash logging with stack traces
+  - Backend integration ready (Unity Analytics, Firebase, custom server)
+- **AnalyticsEvents**: 40+ predefined event types
+  - Session events (start, end)
+  - Gameplay events (game start/end, waves, towers, enemies) 
+  - Progression events (achievements, tech tree, tutorial)
+  - Performance events (quality changes, battery save, FPS tracking)
+  - Monetization events (IAP ready for future)
+- **Analytics Integration**: Tracking throughout all systems
+  - GameManager: game start/end, victory/defeat
+  - WaveManager: wave start/complete with metrics
+  - TowerPlacementManager: tower placed with position/cost
+  - AchievementManager: achievement unlocks
+  - PerformanceManager: quality preset changes
+- **AnalyticsDashboard** (Editor Tool): **Tools → Robot TD → Analytics Dashboard**
+  - Realtime event stream viewer
+  - Event count aggregation with graphs
+  - Session info display
+  - CSV export functionality
+- **Complete Documentation**: [ANALYTICS_GUIDE.md](ANALYTICS_GUIDE.md)
+
 ### Planned Features
 - Endless mode implementation
 - Cloud save support

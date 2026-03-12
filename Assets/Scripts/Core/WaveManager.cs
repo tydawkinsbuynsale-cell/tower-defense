@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using System.Collections;
 using System.Collections.Generic;
+using RobotTD.Analytics;
 
 namespace RobotTD.Core
 {
@@ -169,6 +170,13 @@ namespace RobotTD.Core
             GenerateWaveComposition(CurrentWave);
 
             OnWaveStarted?.Invoke(CurrentWave);
+
+            // Track wave start
+            AnalyticsManager.Instance?.TrackEvent(AnalyticsEvents.WAVE_STARTED, new System.Collections.Generic.Dictionary<string, object>
+            {
+                { "wave_number", CurrentWave },
+                { "enemies_count", EnemiesToSpawn }
+            });
 
             // Start spawning
             spawnCoroutine = StartCoroutine(SpawnWaveCoroutine());
@@ -408,6 +416,14 @@ namespace RobotTD.Core
 
             // Award bonus
             GameManager.Instance?.AwardWaveBonus();
+
+            // Track wave completion
+            if (GameManager.Instance != null)
+            {
+                int livesRemaining = GameManager.Instance.Lives;
+                int creditsEarned = 100; // Wave bonus amount
+                AnalyticsManager.Instance?.TrackWaveComplete(CurrentWave, EnemiesToSpawn, livesRemaining, creditsEarned);
+            }
 
             // Trigger achievement check
             if (GameManager.Instance != null)

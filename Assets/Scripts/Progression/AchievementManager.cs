@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RobotTD.Analytics;
 
 namespace RobotTD.Progression
 {
@@ -347,6 +348,9 @@ namespace RobotTD.Progression
                 {
                     achievementPopup.ShowAchievement(def);
                 }
+
+                // Track achievement unlock
+                AnalyticsManager.Instance?.TrackAchievementUnlock(id.ToString(), def.title);
 
                 // Fire event
                 OnAchievementUnlocked?.Invoke(def);

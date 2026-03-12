@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using RobotTD.Analytics;
 
 namespace RobotTD.Core
 {
@@ -154,8 +155,9 @@ namespace RobotTD.Core
 
         // ── Quality Presets ──────────────────────────────────────────────────
 
-        public void ApplyQualityPreset(QualityPreset preset)
+        public void ApplyQualityPreset(QualityPreset preset, string reason = "manual")
         {
+            var oldPreset = currentPreset;
             currentPreset = preset;
 
             switch (preset)
@@ -181,7 +183,10 @@ namespace RobotTD.Core
                 SaveManager.Instance.Save();
             }
 
-            Debug.Log($"[PerformanceManager] Applied {preset} quality preset");
+            // Track quality change
+            AnalyticsManager.Instance?.TrackQualityChange(oldPreset.ToString(), preset.ToString(), reason);
+
+            Debug.Log($"[PerformanceManager] Applied {preset} quality preset ({reason})");
         }
 
         private void ApplyLowQualitySettings()

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections;
+using RobotTD.Analytics;
 
 namespace RobotTD.Core
 {
@@ -96,6 +97,11 @@ namespace RobotTD.Core
             Credits = startingCredits;
             Lives = startingLives + bonusLives;
             Score = 0;
+
+            // Track game start
+            string mapName = Map.MapManager.Instance != null ? Map.MapManager.Instance.CurrentMapId : "unknown";
+            bool isTutorial = TutorialManager.Instance != null && !TutorialManager.Instance.IsTutorialComplete;
+            AnalyticsManager.Instance?.TrackGameStart(mapName, 1, isTutorial);
 
             OnCreditsChanged?.Invoke(Credits);
             OnLivesChanged?.Invoke(Lives);
@@ -296,6 +302,9 @@ namespace RobotTD.Core
                 int stars = 0;
                 
                 SaveManager.Instance.RecordMapResult(mapId, Score, wave, stars, gameTime, victory: false);
+                
+                // Track game end (defeat)
+                AnalyticsManager.Instance?.TrackGameEnd("defeat", wave, Score, 0, gameTime);
             }
         }
 
@@ -322,6 +331,10 @@ namespace RobotTD.Core
                 {
                     SaveManager.Instance.UnlockMap(nextMapId);
                 }
+
+                // Track game end (victory)
+                int creditsEarned = SaveManager.Instance.Data.sessionCreditsEarned;
+                AnalyticsManager.Instance?.TrackGameEnd("victory", wave, Score, creditsEarned, gameTime);
 
                 // Trigger achievement checks
                 Progression.AchievementManager.Instance?.CheckVictory(gameTime, stars, Lives, StartingLives);
