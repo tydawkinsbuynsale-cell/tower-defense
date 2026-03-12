@@ -31,10 +31,15 @@ namespace RobotTowerDefense.Monetization
         [SerializeField] private bool testMode = true;
         [SerializeField] private bool enableAds = true;
 
-        [Header("Ad Placement IDs")]
-        [SerializeField] private string interstitialPlacementId = "Interstitial_Android";
-        [SerializeField] private string rewardedPlacementId = "Rewarded_Android";
-        [SerializeField] private string bannerPlacementId = "Banner_Android";
+        [Header("Ad Placement IDs - Android")]
+        [SerializeField] private string androidInterstitialPlacementId = "Interstitial_Android";
+        [SerializeField] private string androidRewardedPlacementId = "Rewarded_Android";
+        [SerializeField] private string androidBannerPlacementId = "Banner_Android";
+
+        [Header("Ad Placement IDs - iOS")]
+        [SerializeField] private string iosInterstitialPlacementId = "Interstitial_iOS";
+        [SerializeField] private string iosRewardedPlacementId = "Rewarded_iOS";
+        [SerializeField] private string iosBannerPlacementId = "Banner_iOS";
 
         [Header("Frequency Controls")]
         [SerializeField] private float interstitialCooldown = 180f; // 3 minutes
@@ -139,6 +144,39 @@ namespace RobotTowerDefense.Monetization
 #endif
         }
 
+        private string GetInterstitialPlacementId()
+        {
+#if UNITY_ANDROID
+            return androidInterstitialPlacementId;
+#elif UNITY_IOS
+            return iosInterstitialPlacementId;
+#else
+            return androidInterstitialPlacementId; // Default for editor
+#endif
+        }
+
+        private string GetRewardedPlacementId()
+        {
+#if UNITY_ANDROID
+            return androidRewardedPlacementId;
+#elif UNITY_IOS
+            return iosRewardedPlacementId;
+#else
+            return androidRewardedPlacementId; // Default for editor
+#endif
+        }
+
+        private string GetBannerPlacementId()
+        {
+#if UNITY_ANDROID
+            return androidBannerPlacementId;
+#elif UNITY_IOS
+            return iosBannerPlacementId;
+#else
+            return androidBannerPlacementId; // Default for editor
+#endif
+        }
+
         private void SimulateInitialization()
         {
             if (Application.isEditor && simulateAdsInEditor)
@@ -237,14 +275,14 @@ namespace RobotTowerDefense.Monetization
             }
 
             Debug.Log("[AdManager] Showing interstitial ad");
-            currentAdPlacement = interstitialPlacementId;
-            Advertisement.Show(interstitialPlacementId, this);
+            currentAdPlacement = GetInterstitialPlacementId();
+            Advertisement.Show(GetInterstitialPlacementId(), this);
             
             // Track attempt
             Analytics.AnalyticsManager.Instance?.TrackEvent("ad_shown", new Dictionary<string, object>
             {
                 { "type", "interstitial" },
-                { "placement", interstitialPlacementId }
+                { "placement", GetInterstitialPlacementId() }
             });
 #else
             SimulateInterstitialAd(onComplete);
@@ -260,7 +298,7 @@ namespace RobotTowerDefense.Monetization
 
             Debug.Log("[AdManager] Loading interstitial ad");
             isLoadingInterstitial = true;
-            Advertisement.Load(interstitialPlacementId, this);
+            Advertisement.Load(GetInterstitialPlacementId(), this);
 #endif
         }
 
@@ -317,15 +355,15 @@ namespace RobotTowerDefense.Monetization
             }
 
             Debug.Log($"[AdManager] Showing rewarded ad - Reward: {rewardType}");
-            currentAdPlacement = rewardedPlacementId;
+            currentAdPlacement = GetRewardedPlacementId();
             currentRewardCallback = onComplete;
-            Advertisement.Show(rewardedPlacementId, this);
+            Advertisement.Show(GetRewardedPlacementId(), this);
 
             // Track attempt
             Analytics.AnalyticsManager.Instance?.TrackEvent("ad_shown", new Dictionary<string, object>
             {
                 { "type", "rewarded" },
-                { "placement", rewardedPlacementId },
+                { "placement", GetRewardedPlacementId() },
                 { "reward_type", rewardType }
             });
 #else
@@ -342,7 +380,7 @@ namespace RobotTowerDefense.Monetization
 
             Debug.Log("[AdManager] Loading rewarded ad");
             isLoadingRewarded = true;
-            Advertisement.Load(rewardedPlacementId, this);
+            Advertisement.Load(GetRewardedPlacementId(), this);
 #endif
         }
 
@@ -379,12 +417,12 @@ namespace RobotTowerDefense.Monetization
 
             Debug.Log("[AdManager] Showing banner ad");
             Advertisement.Banner.SetPosition(ConvertBannerPosition(bannerPosition));
-            Advertisement.Banner.Show(bannerPlacementId);
+            Advertisement.Banner.Show(GetBannerPlacementId());
 
             Analytics.AnalyticsManager.Instance?.TrackEvent("ad_shown", new Dictionary<string, object>
             {
                 { "type", "banner" },
-                { "placement", bannerPlacementId },
+                { "placement", GetBannerPlacementId() },
                 { "position", bannerPosition.ToString() }
             });
 #else
@@ -422,12 +460,12 @@ namespace RobotTowerDefense.Monetization
         {
             Debug.Log($"[AdManager] Ad loaded: {placementId}");
 
-            if (placementId == interstitialPlacementId)
+            if (placementId == GetInterstitialPlacementId())
             {
                 interstitialLoaded = true;
                 isLoadingInterstitial = false;
             }
-            else if (placementId == rewardedPlacementId)
+            else if (placementId == GetRewardedPlacementId())
             {
                 rewardedLoaded = true;
                 isLoadingRewarded = false;
@@ -438,12 +476,12 @@ namespace RobotTowerDefense.Monetization
         {
             Debug.LogError($"[AdManager] Failed to load ad: {placementId} - {error} - {message}");
 
-            if (placementId == interstitialPlacementId)
+            if (placementId == GetInterstitialPlacementId())
             {
                 isLoadingInterstitial = false;
                 interstitialLoaded = false;
             }
-            else if (placementId == rewardedPlacementId)
+            else if (placementId == GetRewardedPlacementId())
             {
                 isLoadingRewarded = false;
                 rewardedLoaded = false;
@@ -466,11 +504,11 @@ namespace RobotTowerDefense.Monetization
         {
             yield return new WaitForSeconds(delay);
             
-            if (placementId == interstitialPlacementId)
+            if (placementId == GetInterstitialPlacementId())
             {
                 LoadInterstitialAd();
             }
-            else if (placementId == rewardedPlacementId)
+            else if (placementId == GetRewardedPlacementId())
             {
                 LoadRewardedAd();
             }
@@ -589,12 +627,12 @@ namespace RobotTowerDefense.Monetization
             currentAdPlacement = null;
 
             // Reload ad
-            if (placementId == interstitialPlacementId)
+            if (placementId == GetInterstitialPlacementId())
             {
                 interstitialLoaded = false;
                 LoadInterstitialAd();
             }
-            else if (placementId == rewardedPlacementId)
+            else if (placementId == GetRewardedPlacementId())
             {
                 rewardedLoaded = false;
                 LoadRewardedAd();

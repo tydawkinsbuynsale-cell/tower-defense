@@ -479,6 +479,107 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Version 1.7] - iOS Platform Support
+
+### Added
+
+**iOS Platform Support** 📱
+- **iOSBuildConfig**: Comprehensive iOS build configuration tool
+  - Editor window for all iOS build settings: **Tools > Robot Tower Defense > iOS Build Configuration**
+  - Five configuration tabs: Build Settings, App Icons, Splash Screen, Capabilities, Quick Actions
+  - App identity configuration: Bundle ID, version, build number
+  - Code signing setup: Automatic or manual provisioning profiles
+  - Device compatibility: Universal (iPhone + iPad), minimum iOS 13.0
+  - Orientation settings: Landscape Left/Right (portrait disabled)
+  - Optimization presets: Strip engine code, Metal API, script call optimization
+  - Icon validation: Check all required icon sizes present
+  - Privacy descriptions: Camera, microphone, location usage
+  - Quick actions: Apply recommended settings, increment build number, validate all settings
+  - Export/import build settings as JSON for CI/CD
+  - One-click Xcode project generation
+- **iOSInputHandler**: iOS-optimized touch input and gesture recognition
+  - Multi-touch gesture detection:
+    - **Tap**: Quick touch for tower placement, UI interaction
+    - **Double Tap**: Two rapid taps for quick actions
+    - **Long Press**: Hold 0.5s for context menus, tower info
+    - **Swipe**: Directional camera control (up/down/left/right)
+    - **Pinch**: Two-finger zoom for camera (future feature)
+  - Gesture configuration: Configurable thresholds for swipe distance, tap duration, double-tap interval
+  - Haptic feedback integration:
+    - Light: UI buttons, tap confirmation
+    - Medium: Tower placement, enemy death
+    - Heavy: Wave complete, game over
+    - Success/Warning/Error: Contextual feedback
+  - Platform-specific APIs:
+    - Enable multi-touch on iOS
+    - iOS device-specific settings
+    - Safe touch area validation
+  - Helper methods: Screen to world position conversion, swipe direction detection
+  - Event system: OnTap, OnDoubleTap, OnSwipe, OnLongPress, OnPinch
+  - Settings integration: Enable/disable haptics via PlayerPrefs
+  - Context menu testing: Simulate gestures in editor
+- **iOSSafeAreaHandler**: Automatic notch and safe area support
+  - Automatic UI adjustment for iPhone X and newer
+  - Respects notch, home indicator, rounded corners
+  - Per-edge configuration: Select which edges respect safe area
+  - Canvas auto-detection: Automatically applied to all canvases at runtime
+  - Real-time updates: Responds to orientation changes
+  - Debug visualization: Show safe area boundaries in editor
+  - Static utility methods:
+    - GetSafeAreaNormalized(): Get safe area as percentage
+    - GetSafeAreaInsets(): Get pixel insets from screen edges
+    - HasNotch(): Detect if device has notch
+    - GetDeviceModel(): iOS device generation info
+  - Auto-apply component: Attach to Canvas for automatic safe area setup
+  - Editor simulation: Simulate iPhone X notch for testing
+- **Platform-Specific Ad Integration**:
+  - Separate iOS and Android placement IDs in AdManager
+  - iOS Game ID configuration: Automatic platform detection
+  - iOS-optimized placement IDs:
+    - `Interstitial_iOS`
+    - `Rewarded_iOS`
+    - `Banner_iOS`
+  - Helper methods: GetInterstitialPlacementId(), GetRewardedPlacementId(), GetBannerPlacementId()
+  - Automatic platform selection at runtime
+  - Banner position defaults to top on iOS (avoids home indicator)
+- **iOS Build Workflow**:
+  - Step-by-step Xcode project generation
+  - Automatic scene inclusion from build settings
+  - Build validation: Check bundle ID, version, orientation, icons
+  - Xcode integration: Opens project automatically after build
+  - Fast iteration: Incremental builds for rapid testing
+  - Device/simulator selection in Xcode toolbar
+- **Complete Documentation**: [IOS_GUIDE.md](IOS_GUIDE.md)
+  - Prerequisites: macOS, Xcode 14+, Unity iOS module, Apple Developer account
+  - iOS build configuration walkthrough (all tabs)
+  - App icon requirements and generator tool links
+  - Splash screen setup (Launch Storyboard)
+  - Xcode project generation and signing
+  - Device and simulator testing
+  - Safe area implementation guide
+  - Touch gesture integration examples
+  - Haptic feedback best practices
+  - Unity Ads iOS setup (dashboard and placements)
+  - In-App Purchases iOS setup (App Store Connect)
+  - Game Center integration (leaderboards, achievements)
+  - TestFlight deployment (internal and external testing)
+  - App Store submission checklist
+  - Pre-submission validation
+  - Troubleshooting common build/runtime issues
+  - Performance optimization for iOS devices
+  - App Store rejection reasons and solutions
+  - CI/CD command line build scripts
+  - Useful resources and links
+
+### Changed
+- **AdManager**: Refactored to support platform-specific placement IDs
+  - Separated Android and iOS placement ID configuration
+  - Added GetInterstitialPlacementId(), GetRewardedPlacementId(), GetBannerPlacementId() helper methods
+  - Automatic platform detection via preprocessor directives
+  - All ad calls now use platform-specific placements
+
+---
+
 ## [Version 1.2] - Boss Rush & Mega Factory
 
 ### Added
