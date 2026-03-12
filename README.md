@@ -143,13 +143,17 @@ A premium mobile tower defense game featuring futuristic robotic warfare. Strate
   - Map library browser with search/filter
   - Sort by date, name, play count, rating
   - Storage usage tracking
-- Community features (planned):
-  - Map publishing to cloud
-  - Community map browser
-  - Rating and like system
-  - Search and filter functionality
+- Community features:
+  - Publish maps to cloud (max 50/user)
+  - Community browser with search/filter
+  - Rating system (1-5 stars)
+  - Like/unlike maps
+  - Play count tracking
+  - Tag-based categorization
+  - Sort by: recent, played, rated, liked, name
+  - Download and play community maps
 - Keyboard shortcuts: Ctrl+Z/Y (undo/redo), Ctrl+S (save)
-- Analytics integration: 29 events (20 editor + 8 wave configuration + 1 thumbnail generation)
+- Analytics integration: 35 events (20 editor + 8 wave config + 1 thumbnail + 6 community)
 
 **✅ Monetization Systems**
 - In-App Purchases (13 products: gems, credits, skins, subscriptions)

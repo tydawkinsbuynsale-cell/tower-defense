@@ -383,14 +383,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Proper resource cleanup (RenderTexture release, camera destruction)
     - Exception handling with detailed error logging
     - Null checks and validation throughout
-- **Community Features** (planned):
-  - Map publishing to cloud
-  - Community map browser
-  - Rating and like system
-  - Play count tracking
-  - Tag-based categorization
-  - Search and filter functionality
-  - Download and play community maps
+- **Community Features** ✅:
+  - **MapSharingManager Component**:
+    - Singleton design pattern for global access
+    - Integration with AuthenticationManager for user identification
+    - Configurable cloud backend endpoint
+    - Max 50 maps per user limit (configurable)
+    - 5-minute browser cache for performance
+    - Comprehensive error handling and user feedback
+  - **Map Publishing System**:
+    - PublishMap() uploads map data, thumbnail, and metadata
+    - Automatic difficulty calculation (1-5 based on wave count)
+    - Tag support for categorization
+    - Author attribution (user ID and name)
+    - Metadata includes: grid size, wave count, dates, stats
+    - Analytics tracking: map_published event
+  - **Map Download System**:
+    - DownloadMap() fetches maps by ID
+    - Automatic local storage after download
+    - Thumbnail download and caching
+    - Play count increment on download
+    - Analytics tracking: map_downloaded event
+  - **Community Browser**:
+    - LoadCommunityMaps() with filtering support
+    - Page-based results (20 maps per page, configurable)
+    - Cache system with 5-minute timeout
+    - RefreshCommunityBrowser() for manual refresh
+    - Search by: map name, author name, description
+    - Filter by: tags, difficulty range, minimum rating
+    - Sort by: most recent, most played, highest rated, most liked, alphabetical
+    - Analytics tracking: community_maps_loaded event
+  - **Rating System**:
+    - RateMap() for 1-5 star ratings
+    - GetUserRating() to retrieve user's rating
+    - Local storage of user ratings (PlayerPrefs)
+    - Cloud sync of rating data
+    - Average rating and rating count per map
+    - Analytics tracking: map_rated event
+  - **Like System**:
+    - ToggleLikeMap() for liking/unliking maps
+    - HasUserLiked() to check like status
+    - Local storage of user likes (PlayerPrefs)
+    - Cloud sync of like data
+    - Like count per map
+    - Analytics tracking: map_liked event
+  - **Play Count Tracking**:
+    - IncrementPlayCount() called when maps are played
+    - Server-side tracking for accurate statistics
+    - Used for "most played" sorting
+    - Analytics tracking: community_map_played event
+  - **Search & Filter System**:
+    - MapSearchFilter class with comprehensive options
+    - Text search across name, author, description
+    - Tag-based filtering with multiple tags support
+    - Difficulty range filtering (min/max)
+    - Minimum rating filter
+    - Pagination support (page index and size)
+    - 5 sort options: MostRecent, MostPlayed, HighestRated, MostLiked, Alphabetical
+  - **Data Structures**:
+    - CommunityMapMetadata: Complete map metadata class
+    - MapSearchFilter: Search and filter configuration
+    - MapSortOption: Enum for sort options
+    - UserRatingsData/UserLikesData: Serialization classes
+  - **Editor Simulation Mode**:
+    - UNITY_EDITOR conditional compilation
+    - Sample data generation for testing
+    - Network delay simulation (1s)
+    - Local storage fallback for downloads
+    - Full feature testing without backend
+  - **Production Backend Support**:
+    - Placeholder methods for REST API integration
+    - UnityWebRequest-ready architecture
+    - Multipart form data upload support
+    - GET/POST endpoint structure defined
+    - TODO markers for actual implementation
+  - **Analytics Events** (6 new):
+    - map_sharing_initialized: System startup
+    - map_published: Map upload with metadata
+    - map_downloaded: Map download tracking
+    - community_maps_loaded: Browser usage
+    - map_rated: Rating submissions
+    - map_liked: Like interactions
+    - community_map_played: Play count tracking
 - **Analytics Integration** (20 new events):
   - `map_editor_opened`: Track editor sessions
   - `map_editor_new_map`: New map creation
