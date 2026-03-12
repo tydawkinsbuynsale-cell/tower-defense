@@ -893,7 +893,7 @@ Copyright © 2026 Your Studio. All rights reserved.
 
 ### Version 2.0
 - [x] iOS support ✅
-- [ ] Multiplayer co-op
+- [x] Multiplayer co-op ✅
 - [ ] Custom map editor
 - [ ] Steam release
 
