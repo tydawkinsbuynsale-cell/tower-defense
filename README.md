@@ -851,7 +851,7 @@ Copyright © 2026 Your Studio. All rights reserved.
 - [x] Endless mode implementation ✅
 - [x] New tower: Artillery Bot (long-range siege) ✅
 - [x] New enemy: Cloaker (stealth unit with detection mechanics) ✅  
-- [ ] Cloud save support
+- [x] Cloud save support ✅
 - [ ] Leaderboards
 
 ### Version 1.2
