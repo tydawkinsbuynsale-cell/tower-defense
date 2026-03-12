@@ -302,8 +302,22 @@ namespace RobotTD.UI
 
         public void ShowNotification(string message)
         {
-            // TODO: Implement toast notification system
-            Debug.Log($"Notification: {message}");
+            ToastNotification.Instance?.ShowInfo(message);
+        }
+
+        public void ShowSuccessNotification(string message)
+        {
+            ToastNotification.Instance?.ShowSuccess(message);
+        }
+
+        public void ShowWarningNotification(string message)
+        {
+            ToastNotification.Instance?.ShowWarning(message);
+        }
+
+        public void ShowErrorNotification(string message)
+        {
+            ToastNotification.Instance?.ShowError(message);
         }
 
         #endregion
