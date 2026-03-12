@@ -71,6 +71,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Testing procedures
   - Best practices
 
+**Cloud Save System** ☁️
+- **CloudSaveManager**: Cross-device progress sync with intelligent conflict resolution
+  - Offline-first architecture (local save always works, sync when possible)
+  - Multi-backend support: Unity Cloud Save, PlayFab, Custom HTTP server
+  - Backend-agnostic design using preprocessor directives
+  - Automatic sync: On app start, app pause, periodic intervals (5 min default)
+  - Manual sync controls: Push, Pull, Full Sync
+  - Non-blocking async operations (never blocks gameplay)
+  - Singleton pattern with DontDestroyOnLoad persistence
+- **Conflict Resolution Strategies**:
+  - **Most Recent** (default): Use save with newest timestamp
+  - **Highest Progress**: Use save with most XP/progress (prevents data loss)
+  - **Merge**: Intelligently combine both saves (take best of all values)
+    - Numeric values: Take maximum (XP, kills, playtime, stats)
+    - Lists: Union (unlocked maps, achievements)
+    - Per-map scores: Take highest from either device
+    - Tech tree: Highest upgrade level from either device
+  - **Prefer Local**: Always use local save (testing/debugging)
+  - **Prefer Cloud**: Always use cloud save (restoring after device reset)
+- **Data Sync Coverage**:
+  - All PlayerSaveData fields synced: progression, stats, achievements
+  - Maps: Unlocked status, best scores, stars earned
+  - Tech tree: All upgrade levels preserved
+  - Game modes: Endless high waves/scores, Boss Rush best runs
+  - Settings: Volume, graphics quality, control preferences
+  - Daily/weekly stats: Missions, challenges, playtime
+- **Sync Management**:
+  - Auto-sync timer with configurable interval (default 5 minutes)
+  - Sync on app start/resume (pull cloud progress)
+  - Sync on app pause/quit (push local progress)
+  - HasUnsyncedChanges() check for local modifications
+  - TimeSinceLastSync() for UI status display
+  - Data hash comparison for efficient change detection
+- **Event System**:
+  - OnSyncCompleted(bool success): Fires when sync finishes
+  - OnSyncError(string error): Fires on network/auth failures
+  - OnConflictDetected(ConflictInfo): Fires when conflict found
+  - Enables UI feedback without tight coupling
+- **SaveManager Integration**:
+  - CloudSaveManager automatically notified of local saves
+  - Auto-sync timer handles periodic push to cloud
+  - No manual hookup required (passive notification)
+  - Local backup system preserved for data safety
+- **Backend Implementations** (Template/Placeholder):
+  - Unity Cloud Save: Async/await pattern with Unity Services
+  - PlayFab: Client API with UpdateUserData/GetUserData
+  - Custom HTTP: REST API with UnityWebRequest (GET/POST)
+  - All backends require authentication token
+  - Easily extensible for additional backends
+- **Development Features**:
+  - Verbose logging toggle for debugging
+  - Context menu commands for testing (Force Push/Pull)
+  - Backend dashboard verification support
+  - Data validation before deserialize
+- **Complete Documentation**: [CLOUD_SAVE_GUIDE.md](CLOUD_SAVE_GUIDE.md)
+  - Architecture overview with flow diagrams
+  - Backend setup guides (Unity/PlayFab/Custom)
+  - Conflict resolution strategy explanations with examples
+  - API reference and usage examples
+  - UI integration sample code
+  - Testing scenarios (cross-device, offline, conflicts)
+  - Best practices and troubleshooting
+
 **Challenge Mode System** 🎮
 - **ChallengeData**: ScriptableObject-based challenge configuration
   - 20+ challenge modifiers (Speed Rush, Tower Limit, Budget Crisis, Perfect Defense, etc.)

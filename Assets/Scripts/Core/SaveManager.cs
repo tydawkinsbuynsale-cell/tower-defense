@@ -170,6 +170,13 @@ namespace RobotTD.Core
                 
                 isDirty = false;
                 OnSaved?.Invoke();
+
+                // Notify cloud save system (if available)
+                if (Online.CloudSaveManager.Instance != null)
+                {
+                    // Cloud sync will happen automatically via auto-sync timer
+                    // or manually triggered by user/system events
+                }
                 
                 if (verboseLogging)
                     Debug.Log($"[SaveManager] Saved to {SavePath}");
