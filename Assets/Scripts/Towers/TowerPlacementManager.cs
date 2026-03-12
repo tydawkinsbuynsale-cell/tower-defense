@@ -261,6 +261,9 @@ namespace RobotTD.Towers
                 {
                     placedTowers.Add(tower);
                     OnTowerPlaced?.Invoke(tower);
+                    
+                    // Track tower placement in save data
+                    Core.SaveManager.Instance?.RecordTowerPlaced();
                 }
 
                 // Play placement sound
@@ -323,7 +326,7 @@ namespace RobotTD.Towers
             selectedTower.ShowRange(true);
 
             // Show tower info UI
-            TowerInfoPanel.Instance?.ShowTower(tower);
+            UI.TowerInfoUI.Instance?.Show(tower);
         }
 
         public void DeselectTower()
@@ -334,7 +337,7 @@ namespace RobotTD.Towers
                 selectedTower = null;
             }
 
-            TowerInfoPanel.Instance?.Hide();
+            UI.TowerInfoUI.Instance?.Hide();
         }
 
         #endregion
@@ -433,30 +436,5 @@ namespace RobotTD.Towers
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// Simple tower info panel reference (implement the actual UI separately)
-    /// </summary>
-    public class TowerInfoPanel : MonoBehaviour
-    {
-        public static TowerInfoPanel Instance { get; private set; }
-
-        private void Awake()
-        {
-            Instance = this;
-        }
-
-        public void ShowTower(Tower tower)
-        {
-            // Show tower stats, upgrade button, sell button
-            gameObject.SetActive(true);
-            // TODO: Update UI with tower info
-        }
-
-        public void Hide()
-        {
-            gameObject.SetActive(false);
-        }
     }
 }

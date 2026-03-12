@@ -86,8 +86,15 @@ namespace RobotTD.Core
         /// </summary>
         public void InitializeGame()
         {
+            // Apply tech tree bonuses to starting values
+            int bonusLives = 0;
+            if (Progression.TechTree.Instance != null)
+            {
+                bonusLives = Progression.TechTree.Instance.BonusStartingLives;
+            }
+
             Credits = startingCredits;
-            Lives = startingLives;
+            Lives = startingLives + bonusLives;
             Score = 0;
 
             OnCreditsChanged?.Invoke(Credits);
@@ -127,8 +134,18 @@ namespace RobotTD.Core
         /// </summary>
         public void AddCredits(int amount)
         {
+            // Apply tech tree bonus
+            if (Progression.TechTree.Instance != null)
+            {
+                float multiplier = Progression.TechTree.Instance.CreditRewardMultiplier;
+                amount = Mathf.RoundToInt(amount * multiplier);
+            }
+
             Credits += amount;
             OnCreditsChanged?.Invoke(Credits);
+
+            // Track in save data
+            SaveManager.Instance?.AddCreditsEarned(amount);
         }
 
         /// <summary>
@@ -137,6 +154,13 @@ namespace RobotTD.Core
         /// </summary>
         public bool SpendCredits(int amount)
         {
+            // Apply tech tree cost reduction
+            if (Progression.TechTree.Instance != null)
+            {
+                float multiplier = Progression.TechTree.Instance.CostMultiplier;
+                amount = Mathf.RoundToInt(amount * multiplier);
+            }
+
             if (Credits >= amount)
             {
                 Credits -= amount;
@@ -251,12 +275,17 @@ namespace RobotTD.Core
             SetGameState(GameState.GameOver);
             OnGameOver?.Invoke();
             
-            // Save high score
-            int highScore = PlayerPrefs.GetInt("HighScore", 0);
-            if (Score > highScore)
+            // Record game result in save system
+            if (SaveManager.Instance != null && Map.MapManager.Instance != null)
             {
-                PlayerPrefs.SetInt("HighScore", Score);
-                PlayerPrefs.Save();
+                string mapId = Map.MapManager.Instance.CurrentMapId;
+                int wave = WaveManager.Instance?.CurrentWave ?? 0;
+                float gameTime = Time.time - (SaveManager.Instance.Data.sessionStartTime);
+                
+                // Calculate stars (0 for defeat)
+                int stars = 0;
+                
+                SaveManager.Instance.RecordMapResult(mapId, Score, wave, stars, gameTime, victory: false);
             }
         }
 
@@ -265,13 +294,35 @@ namespace RobotTD.Core
             SetGameState(GameState.Victory);
             OnVictory?.Invoke();
             
-            // Save high score
-            int highScore = PlayerPrefs.GetInt("HighScore", 0);
-            if (Score > highScore)
+            // Record game result in save system
+            if (SaveManager.Instance != null && Map.MapManager.Instance != null)
             {
-                PlayerPrefs.SetInt("HighScore", Score);
-                PlayerPrefs.Save();
+                string mapId = Map.MapManager.Instance.CurrentMapId;
+                int wave = WaveManager.Instance?.CurrentWave ?? 0;
+                float gameTime = Time.time - (SaveManager.Instance.Data.sessionStartTime);
+                
+                // Calculate stars based on lives remaining
+                int stars = CalculateStars();
+                
+                SaveManager.Instance.RecordMapResult(mapId, Score, wave, stars, gameTime, victory: true);
+
+                // Unlock next map if available
+                string nextMapId = Map.MapManager.Instance.NextMapId;
+                if (!string.IsNullOrEmpty(nextMapId))
+                {
+                    SaveManager.Instance.UnlockMap(nextMapId);
+                }
             }
+        }
+
+        private int CalculateStars()
+        {
+            // Star rating based on lives remaining
+            float livesPercent = (float)Lives / StartingLives;
+            if (livesPercent >= 0.8f) return 3; // 80%+ lives = 3 stars
+            if (livesPercent >= 0.5f) return 2; // 50%+ lives = 2 stars
+            if (livesPercent > 0f) return 1;   // Any lives remaining = 1 star
+            return 0;
         }
 
         public void RestartGame()

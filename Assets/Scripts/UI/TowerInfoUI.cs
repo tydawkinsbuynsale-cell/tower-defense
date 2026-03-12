@@ -12,6 +12,8 @@ namespace RobotTD.UI
     /// </summary>
     public class TowerInfoUI : MonoBehaviour
     {
+        public static TowerInfoUI Instance { get; private set; }
+
         [Header("Panel")]
         [SerializeField] private GameObject panel;
         [SerializeField] private CanvasGroup canvasGroup;
@@ -45,6 +47,16 @@ namespace RobotTD.UI
 
         private Tower currentTower;
         private bool isShowing = false;
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+        }
 
         private void Start()
         {

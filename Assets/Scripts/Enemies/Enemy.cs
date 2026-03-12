@@ -225,6 +225,9 @@ namespace RobotTD.Enemies
             Core.GameManager.Instance?.AddCredits(reward);
             Core.GameManager.Instance?.AddScore(enemyData.scoreValue);
 
+            // Track kill in save data
+            Core.SaveManager.Instance?.AddKills(1);
+
             // Notify wave manager
             Core.WaveManager.Instance?.OnEnemyRemoved();
 
