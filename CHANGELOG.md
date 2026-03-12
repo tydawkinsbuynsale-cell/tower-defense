@@ -479,6 +479,125 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Version 2.0] - Multiplayer Co-op Mode
+
+### Added
+
+**Multiplayer Co-op System** 👥
+- **MultiplayerManager**: Core networking infrastructure with Unity Netcode for GameObjects
+  - Host-Client architecture: One player hosts, others connect as clients
+  - Room code system: 6-character alphanumeric codes for easy room joining
+  - Player management: 2-4 players per room, registration/unregistration
+  - Network callbacks: OnClientConnected, OnClientDisconnected, OnServerStarted
+  - Game state synchronization: SyncGameStateClientRpc() for credits, lives, wave number
+  - Tower placement replication: PlaceTowerServerRpc() with server validation
+  - Tower sync to all clients: TowerPlacedClientRpc() broadcasts placement
+  - Chat system: SendChatMessage() with BroadcastChatMessageClientRpc()
+  - Co-op balance multipliers:
+    - Enemy health: 1 + (players-1) * 1.5 (2 players = 2.5x, 3 = 4.0x, 4 = 5.5x)
+    - Enemy spawn rate: 1 + (players-1) * 1.3 (2 players = 2.3x, 3 = 3.6x, 4 = 4.9x)
+  - Shared resources: Optional shared credits and lives (configurable)
+  - Ready system: AllPlayersReady() checks before game start
+  - Kick player functionality: KickPlayer() with server authority
+  - Event system: OnPlayerJoined, OnPlayerLeft, OnMultiplayerStarted, OnMultiplayerEnded, OnRoomCreated, OnChatMessageReceived
+  - Singleton pattern with DontDestroyOnLoad
+  - Configuration: Max players (4), min players (2), sync interval (0.1s), host port (7777)
+- **LobbyManager**: Matchmaking and room discovery system
+  - Room creation: CreateRoom() with name, host, max players, public/private options
+  - Room joining: JoinRoomByCode() validates code and room capacity
+  - Quick Match: StartQuickMatch() auto-finds best room or creates new one
+  - Room discovery: RefreshRoomList() queries available public rooms
+  - Matchmaking timeout: 30 seconds default with OnQuickMatchFound fallback
+  - Room management: LeaveRoom(), GetRoomByCode(), FindBestAvailableRoom()
+  - RoomInfo data structure: roomId (GUID), roomCode, hostName, maxPlayers, currentPlayers, isPublic, mapName, difficulty
+  - Network transport configuration: UnityTransport setup with IP:port
+  - Event subscriptions: OnPlayerJoinedRoom, OnPlayerLeftRoom, OnConnectionFailedHandler
+  - Events: OnRoomCreatedSuccess, OnRoomJoinedSuccess, OnQuickMatchFound, OnRoomListUpdated
+  - Analytics tracking: Room created, joined, left, quick match started
+  - Singleton pattern with lobby state management
+- **NetworkedPlayer**: Individual player network synchronization
+  - NetworkBehaviour component for automatic state replication
+  - Network variables: Cursor position, tower placement state, selected tower type
+  - Cursor synchronization: Updated 10 times/second with position interpolation
+  - Remote player cursors: Visible cursors for all remote players with color coding
+  - Player actions: SetReady(), SendChatMessage(), tower placement, power-up activation
+  - Tower placement: TryPlaceTower() requests server validation through MultiplayerManager
+  - Power-up system: TryUsePowerUp() with server-side validation and client notification
+  - Player info: Name, color (for identification), client ID, permissions (place/upgrade/sell/power-ups)
+  - Owner authorization: Only owner can control their player
+  - Automatic registration: RegisterNetworkedPlayer() on Start, unregister on Destroy
+  - Smooth cursor interpolation: Lerp remote cursors for natural movement
+  - Event-driven updates: OnCursorPositionChanged, OnPlacingTowerChanged
+  - Helper methods: GetMouseWorldPosition(), IsLocalPlayer(), SetPlayerName(), SetPlayerColor()
+  - Context menu testing: Simulate tower placement, power-up usage
+- **MultiplayerUI**: Complete lobby interface and room management
+  - Four main panels: Lobby, Create Room, Join Room, Room (in-game)
+  - Lobby panel:
+    - Player name input with persistent save (PlayerPrefs)
+    - Create Room button → Room creation panel
+    - Join Room button → Room code input panel
+    - Quick Match button → Automatic matchmaking
+    - Room list with real-time updates: Room code, host name, player count
+    - Refresh button for manual room list update
+  - Create Room panel:
+    - Room name input (defaults to "{PlayerName}'s Room")
+    - Max players dropdown (2-4 players)
+    - Public/private toggle
+    - Confirm/cancel buttons
+  - Join Room panel:
+    - Room code input (6-character validation)
+    - Confirm/cancel buttons
+  - Room panel:
+    - Room code and name display
+    - Player list with colors and ready indicators
+    - Ready button (toggles state, changes color green/red)
+    - Leave Room button
+    - Chat system:
+      - Chat message container with scrolling
+      - Chat input field with send button
+      - Enter key submission support
+      - Color-coded messages by player
+      - 50 message history limit
+    - Status text: "Waiting for players...", "Game starting..."
+  - Event subscriptions: OnRoomCreated, OnRoomJoined, OnPlayerJoined/Left, OnMultiplayerStarted, OnChatMessage
+  - Automatic UI updates: Player list, room list, ready states
+  - Toast notifications: Room created, joined, match found
+  - Panel management: Show/hide with state tracking
+  - Context menu testing: Simulate room created, player joined, chat message
+- **Complete Documentation**: [MULTIPLAYER_GUIDE.md](MULTIPLAYER_GUIDE.md)
+  - Package installation: Unity Netcode for GameObjects, Unity Transport
+  - Unity Netcode setup: NetworkManager, UnityTransport, NetworkedPlayer prefab
+  - Architecture overview: Component diagram, class responsibilities
+  - Room system flow: Create/join/quick match diagrams
+  - Player synchronization: Network variables, RPCs, ownership
+  - Game state sync: Tower placement, power-ups, credits/lives/wave
+  - Testing guide: Local testing (same machine), network testing (different machines), testing checklist
+  - Troubleshooting: Common issues and solutions (connection, sync, chat)
+  - Best practices: Server authority, RPC throttling, ownership, scene management
+  - UI setup: Complete hierarchy and prefab requirements
+  - Integration examples: GameManager, WaveManager, Enemy
+  - Performance considerations: Network bandwidth, CPU performance, optimization tips
+  - Production deployment: Dedicated server setup, security considerations
+
+**Co-op Balance System** ⚖️
+- Dynamic enemy scaling based on player count
+- Health multiplier: Exponentially scales with more players
+- Spawn rate multiplier: More enemies for larger teams
+- Shared vs individual resources: Configurable credits/lives
+- Team coordination mechanics: Chat, ready system, synchronized game state
+- Fair difficulty: Ensures challenge scales appropriately for team size
+
+**Network Features** 🌐
+- Unity Netcode for GameObjects integration
+- Unity Transport (UTP) for low-latency networking
+- Server authority: All actions validated on host
+- Client prediction: Smooth cursor movement and UI updates
+- Delta compression: Automatic by Unity Netcode
+- Bandwidth optimization: ~0.5 KB/s for 4 players
+- DTLS encryption: Secure communication by default
+
+---
+
 ## [Version 1.7] - iOS Platform Support
 
 ### Added
