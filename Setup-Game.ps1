@@ -213,24 +213,22 @@ function Install-UnityEditor {
     }
 
     Write-Info "Unity 2022.3 LTS not found. Installation required."
-    Write-Warn @"
-
-IMPORTANT: Unity installation requires Unity Hub's GUI
-Please follow these steps:
-
-1. Unity Hub will open automatically
-2. Click 'Installs' in the left sidebar
-3. Click 'Install Editor'
-4. Select 'Unity 2022.3 LTS' (latest patch version)
-5. Click 'Next'
-6. Select these modules:
-   ☑ Android Build Support
-   ☑ iOS Build Support  
-   ☑ Windows Build Support (IL2CPP)
-7. Click 'Done' and wait for installation to complete
-
-Press any key when ready to open Unity Hub...
-"@
+    Write-Host ""
+    Write-Warn "IMPORTANT: Unity installation requires Unity Hub's GUI"
+    Write-Host "Please follow these steps:" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "1. Unity Hub will open automatically" -ForegroundColor White
+    Write-Host "2. Click 'Installs' in the left sidebar" -ForegroundColor White
+    Write-Host "3. Click 'Install Editor'" -ForegroundColor White
+    Write-Host "4. Select 'Unity 2022.3 LTS' (latest patch version)" -ForegroundColor White
+    Write-Host "5. Click 'Next'" -ForegroundColor White
+    Write-Host "6. Select these modules:" -ForegroundColor White
+    Write-Host "   - Android Build Support" -ForegroundColor Gray
+    Write-Host "   - iOS Build Support" -ForegroundColor Gray
+    Write-Host "   - Windows Build Support (IL2CPP)" -ForegroundColor Gray
+    Write-Host "7. Click 'Done' and wait for installation to complete" -ForegroundColor White
+    Write-Host ""
+    Write-Host "Press any key when ready to open Unity Hub..." -ForegroundColor Cyan
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     
     # Launch Unity Hub to Installs page
@@ -569,3 +567,4 @@ catch {
     Read-Host "`nPress Enter to exit"
     exit 1
 }
+
